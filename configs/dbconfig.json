@@ -3,7 +3,7 @@
 "development": {
     "username": "root",
     "password": "PFmzI4WKqV",
-    "database": "chatters",
+    "database": "ioctpay",
 		"host": "127.0.0.1"
 		, "port":"3306"
 		, "dialect": "mariadb","logging":false, "timezone": "Etc/GMT-9"

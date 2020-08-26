@@ -13,7 +13,7 @@ var http = require('http');
  */
 const {PORTNUM}=require('../configs/nets')
 var port = normalizePort(process.env.PORT || PORTNUM);
-app.set('port', port);
+app.set('port', port);console.log(`Listening ${PORTNUM}`)
 
 /**
  * Create HTTP server.
