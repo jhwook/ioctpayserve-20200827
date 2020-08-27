@@ -12,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(15),
       allowNull: true
     },
-    assetname: {
+    currency: {
       type: DataTypes.STRING(20),
       allowNull: true
     },
@@ -36,7 +36,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(10),
       allowNull: true
     },
-    createdat: {
+    blocknumber:{
+      type: DataTypes.INTEGER(10),
+      allowNull: true
+    }
+    ,createdat: {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: sequelize.fn('current_timestamp')

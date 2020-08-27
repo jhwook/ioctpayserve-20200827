@@ -1,0 +1,2 @@
+
+const {getTicker}=require('./coinmarket')

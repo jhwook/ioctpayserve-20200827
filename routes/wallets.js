@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
-const {respreqinvalid}=require('../utils')
+const {respreqinvalid,convethtowei}=require('../utils')
 const db=require('../models')
+const {sends}=require('../periodic/ETH/sends')
+const redis=require('redis');const clientredis=redis.createClient();const clientredisa=require('async-redis').createClient()
 /* GET users listing. */
 router.get('/marketprice',(req,res)=>{
   res.status(200).send({status:'OK',marketprice:12345});return false
@@ -17,15 +19,20 @@ router.get('/transactions',(req,res)=>{
 })
 
 router.post('/withdraw',(req,res)=>{const {amount,address,pw,username}=req.body; console.log(req.body)
-	if(amount,address,pw,username){} else {respreqinvalid(res,'필수정보를입력하세요',67648);return false}
-  res.status(200).send({status:'OK'});return false
+  if(amount,address,pw,username){} else {respreqinvalid(res,'필수정보를입력하세요',67648);return false}
+  db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(resp=>{
+    if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false}
+    sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amt2sendfloat)})
+    res.status(200).send({status:'OK'});return false
+  }).catch(err=>{respreqinvalid(res,err,54726);return false})
 }) //
 router.post('/exchange',(req,res)=>{
   res.status(200).send({status:'OK'});return false
 })
-router.get('/balance',(req,res)=>{  const {currency,username}=req.query
-	db.balance.findOne({raw:true,where:{... req.query}}).then(resp=>{
-		res.status(200).send({status:'OK',amount:resp.amount,address:resp.address});return false
+router.get('/balance',async (req,res)=>{  const {currency,username}=req.query
+	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=>{
+    const prices=await clientredisa.hget('PRICES','ALL')
+		res.status(200).send({status:'OK',amount:resp.amount,address:resp.address,prices:prices});return false
 	})
   //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
 })
