@@ -1,27 +1,23 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('balance', {
+  return sequelize.define('marketprices', {
     id: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
     },
-    username: {
+    currency: {
       type: DataTypes.STRING(15),
       allowNull: true
     },
-    currency: {
-      type: DataTypes.STRING(20),
+    price: {
+      type: DataTypes.FLOAT,
       allowNull: true
     },
-    amount: {
-      type: DataTypes.BIGINT,
-      allowNull: true
-    },
-    amountlocked: {
-      type: DataTypes.BIGINT,
+    units: {
+      type: DataTypes.STRING(15),
       allowNull: true
     },
     createdat: {
@@ -33,16 +29,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: sequelize.fn('current_timestamp')
-		},
-		address: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-		},
-		privatekey:{
-      type: DataTypes.STRING(100),
-      allowNull: true
-		}
+    }
   }, {
-    tableName: 'balance'
+    tableName: 'marketprices'
   });
 };

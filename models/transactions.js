@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('balance', {
+  return sequelize.define('transactions', {
     id: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: false,
@@ -12,16 +12,28 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(15),
       allowNull: true
     },
-    currency: {
+    assetname: {
       type: DataTypes.STRING(20),
       allowNull: true
     },
-    amount: {
+    fromamount: {
       type: DataTypes.BIGINT,
       allowNull: true
     },
-    amountlocked: {
+    toamount: {
       type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    fromaddress: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    toaddress: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    direction: {
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     createdat: {
@@ -33,16 +45,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: sequelize.fn('current_timestamp')
-		},
-		address: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-		},
-		privatekey:{
-      type: DataTypes.STRING(100),
-      allowNull: true
-		}
+    }
   }, {
-    tableName: 'balance'
+    tableName: 'transactions'
   });
 };
