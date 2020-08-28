@@ -1,7 +1,25 @@
 
 insert into exchangerates (currency0,currency1,amount0,amount1,C,S,K) values ('BTC','IOTC',1,1,40,60,10);
 insert into exchangerates (currency0,currency1,amount0,amount1,C,S,K) values ('ETH','IOTC',1,1,90,10,10);
-
+create table ethgasestimates (
+	id int unsigned not null primary key auto_increment
+,	gaspricehex varchar(20)
+,	gaspriceweistr varchar(40)
+,	gaspricefloat float
+,	gaslimithex varchar(20)
+,	gaslimitweistr float
+,	gaslimitfloat float
+,	createdat datetime default current_timestamp
+,	updatedat datetime default current_timestamp
+,	netkind varchar(15)
+,	gaspricehexinuse varchar(20)
+,	gaspriceweiinusestr varchar(40)
+,	gaslimithexinuse varchar(20)
+,	gaslimitweiinusestr varchar(40)
+, ratiopriceuseoverest float
+,	ratiolimituseoverest float
+,	currency varchar(10)
+);
 CREATE TABLE IF NOT EXISTS `ethblocks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `blocknumber` int(10) unsigned DEFAULT NULL,
