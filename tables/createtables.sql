@@ -1,4 +1,7 @@
 
+insert into exchangerates (currency0,currency1,amount0,amount1,C,S,K) values ('BTC','IOTC',1,1,40,60,10);
+insert into exchangerates (currency0,currency1,amount0,amount1,C,S,K) values ('ETH','IOTC',1,1,90,10,10);
+
 CREATE TABLE IF NOT EXISTS `ethblocks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `blocknumber` int(10) unsigned DEFAULT NULL,
@@ -39,6 +42,7 @@ create table exchangerates (
 	, amount1 int unsigned
   , createdat datetime default current_timestamp
   , updatedat datetime default current_timestamp
+  , partitionratios varchar(50)
 );
 create table transactions (
   id int unsigned primary key auto_increment
@@ -56,8 +60,8 @@ create table balance (
   id int unsigned primary key auto_increment
   , username varchar(15)
   , currency varchar(20)
-  , amount bigint unsigned
-  , amountlocked bigint unsigned
+  , amount bigint unsigned default 0
+  , amountlocked bigint unsigned default 0
   , address varchar(80)
   , privatekey varchar(100)
   , createdat datetime default current_timestamp

@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {respreqinvalid,convethtowei}=require('../utils')
+const {respreqinvalid,convethtowei, respok}=require('../utils')
 const db=require('../models')
 const {sends}=require('../periodic/ETH/sends')
 const redis=require('redis');const clientredis=redis.createClient();const clientredisa=require('async-redis').createClient()
@@ -19,14 +19,24 @@ router.get('/transactions',(req,res)=>{
 })
 
 router.post('/withdraw',(req,res)=>{const {amount,address,pw,username}=req.body; console.log(req.body)
-  if(amount,address,pw,username){} else {respreqinvalid(res,'필수정보를입력하세요',67648);return false}
+  if(amount && address && pw && username){} else {respreqinvalid(res,'필수정보를입력하세요',67648);return false}
   db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(resp=>{
-    if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false}
-    sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amt2sendfloat)})
+    if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false} 
+    sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});return false
-  }).catch(err=>{respreqinvalid(res,err,54726);return false})
+  }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
 }) //
-router.post('/exchange',(req,res)=>{
+router.post('/exchange',(req,res)=>{  const {currency0,currency1, amount0,amount1,username}=req.body
+  if(currency0 && currency1 && amount0 && amount1 && username){} else {respreqinvalid(res,'ARG-MISSING',79654);return false}
+  db.exchangerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{
+    if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
+    db.balance.findOne({where:{currency:currency0}}).then(respbal=>{
+      if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
+      if(respbal['amount']-respbal['amountlocked']>=parseInt(amount0)){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
+      doexchange(username,req.body).then(resp=>{        respok(res,null,38800);return false
+      }).catch(err=>{respreqinvalid(res,err.toString(),62015);return false})      
+    })
+  })
   res.status(200).send({status:'OK'});return false
 })
 router.get('/balance',async (req,res)=>{  const {currency,username}=req.query
