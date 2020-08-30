@@ -1,4 +1,8 @@
 
+insert into balance(username,currency) values ('user01','C');
+insert into balance(username,currency) values ('user01','S');
+insert into balance(username,currency) values ('user01','K');
+
 insert into exchangerates (currency0,currency1,amount0,amount1,C,S,K) values ('BTC','IOTC',1,1,40,60,10);
 insert into exchangerates (currency0,currency1,amount0,amount1,C,S,K) values ('ETH','IOTC',1,1,90,10,10);
 create table ethgasestimates (
@@ -37,6 +41,16 @@ create table operations (
   , createdat datetime default current_timestamp
   , updatedat datetime default current_timestamp
 );
+create table marketprices (
+	id int unsigned primary key auto_increment
+  , BTC float
+  , ETH float 
+  , XRP float
+	, units varchar(15)
+  , createdat datetime default current_timestamp
+  , updatedat datetime default current_timestamp
+);
+
 create table marketprices (
 	id int unsigned primary key auto_increment
 	, currency varchar(15)

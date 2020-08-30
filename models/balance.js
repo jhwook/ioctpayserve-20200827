@@ -20,6 +20,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BIGINT,
       allowNull: true
     },
+    amountfloat: {
+      type: DataTypes.FLOAT,
+      allowNull: true
+    },    
+    amountstr: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
     amountlocked: {
       type: DataTypes.BIGINT,
       allowNull: true
@@ -41,7 +49,15 @@ module.exports = function(sequelize, DataTypes) {
 		privatekey:{
       type: DataTypes.STRING(100),
       allowNull: true
-		}
+    }
+    , canwithdraw:{
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true
+    }
+    , denominatorexp:{
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true
+    }
   }, {
     tableName: 'balance'
   });

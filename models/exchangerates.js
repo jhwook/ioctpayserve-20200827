@@ -38,6 +38,19 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(50),
       allowNull: true
     },
+    sitename:{
+      type: DataTypes.STRING(20),
+      allowNull: true
+    }    , C:{
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true
+    }    , S:{
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true
+    }    , K:{
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true
+  } , 
   }, {
     tableName: 'exchangerates'
   });

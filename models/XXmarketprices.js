@@ -8,15 +8,11 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true,
       autoIncrement: true
     },
-    BTC: {
-      type: DataTypes.FLOAT,
+    currency: {
+      type: DataTypes.STRING(15),
       allowNull: true
     },
-    ETH: {
-      type: DataTypes.FLOAT,
-      allowNull: true
-    },
-    XRP: {
+    price: {
       type: DataTypes.FLOAT,
       allowNull: true
     },
