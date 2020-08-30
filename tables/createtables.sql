@@ -1,8 +1,27 @@
 
+insert into tokens(name,address,netkind) values ('IOTC','0xa01977400427ab074d365814d1ed1ac514d57a26','mainnet');
+insert into tokens(name,address,netkind) values ('GAIA','0xD944Dac1a03db027AcC5618095251d5E90C4A37b','mainnet');
+insert into tokens(name,address,netkind) values ('Audus00','0x5789e290020317ee07a21012db9ee1e3e43e56f1','ropsten');
+
+create table tokens (
+	id int unsigned not null primary key auto_increment
+  , name varchar(10)
+  , address varchar(80)
+  , decimals tinyint unsigned
+  , supply int unsigned
+  , netkind varchar(10)
+  , createdat datetime default current_timestamp
+  , updatedat datetime default current_timestamp
+);
+insert into operations (key_,subkey_,value_) values ('CONTRACT_ADDRESS','GAIA','0x5789e290020317ee07a21012db9ee1e3e43e56f1');
+insert into operations (key_,subkey_,value_) values ('CONTRACT_ADDRESS','MOKA','0x5789e290020317ee07a21012db9ee1e3e43e56f2');
+insert into operations (key_,subkey_,value_) values ('CONTRACT_ADDRESS','IOTC','0x5789e290020317ee07a21012db9ee1e3e43e56f3');
 
 insert into operations (key_,value_) values ('GAS_PRICE_ETH',300000000000);
 insert into operations (key_,value_) values ('GAS_LIMIT_ETH',21000);
+insert into operations (key_,value_) values ('PERIOD_POLL_MARKETPRICES',60*60*1000 );
 
+insert into balance(username,currency) values ('user01','AUDUS')
 insert into balance(username,currency) values ('user01','GAIA');
 insert into balance(username,currency) values ('user01','IOTC');
 

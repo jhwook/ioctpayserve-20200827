@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 const {KEYNAME_MARKETPRICES, POINTSKINDS,A_POINTSKINDS}=require('../configs/configs')
-const {respreqinvalid,respwithdata, convethtowei, respok, doexchange}=require('../utils')
+const {respreqinvalid,respwithdata, convethtowei, respok, doexchange,sends}=require('../utils')
 const db=require('../models')
-const {sends}=require('../periodic/ETH/sends')
+const {sendseth}=require('../periodic/ETH/sends')
 const redis=require('redis');const utils = require('../utils');
 const clientredis=redis.createClient();const clientredisa=require('async-redis').createClient()
 /* GET users listing. */
@@ -29,12 +29,13 @@ router.get('/exchangerates',(req,res)=>{const {currency0,sitename}=req.query ;co
   }).catch(err=>{    respreqinvalid(res,err.toString(),30379);return false
   })
 })
-router.post('/withdraw',(req,res)=>{const {amount,address,pw,username}=req.body; console.log(req.body)
+router.post('/withdraw',(req,res)=>{const {amount,address,pw,username,currency}=req.body; console.log(req.body)
   if(amount && address && pw && username){} else {respreqinvalid(res,'필수정보를입력하세요',67648);return false}
   db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(resp=>{
-    if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false}  //    
+    if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false}  //
 //    respok(res);return false
     sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
+//    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
 }) //

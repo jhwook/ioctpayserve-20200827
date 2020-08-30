@@ -26,8 +26,12 @@ return false
 		)
 		.catch(err=>{console.log(err) } ) // ; logger4.debug(err)
 } // END
-setTimeout(()=>{console.log('Polling price tickers');getTicker()
-	setInterval(()=>{		getTicker()
-	}, 10*60*1000 )
-},3*1000)
+let PERIOD_POLL_MARKETPRICES=60*60*1000
+db.operations.findOne({raw:true,where:{key_:'PERIOD_POLL_MARKETPRICES'}}).then(resp=>{
+	if(resp && resp['value_']){PERIOD_POLL_MARKETPRICES=parseInt(resp['value_'])
+		setTimeout(()=>{console.log('Polling price tickers');getTicker()
+			setInterval(()=>{		getTicker()			}, 60*60*1000 )
+		},2.5*1000)
+	}
+})
 module.exports={getTicker}

@@ -1,11 +1,24 @@
 
 const {web3}=require('../../configs/ETH/configweb3')
 const db=require('../../models')
-const utils=require('../../utils'); const {gettimestr,convtohex,incdecbalane}=utils
+const utils=require('../../utils'); const {gettimestr,convtohex,incdecbalane,getbalance}=utils
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'
 let GAS_LIMIT_ETH,GAS_PRICE_ETH
-const sends=jdata=>{return new Promise((resolve,reject)=>{
+const {minAbi4tx}=require('../tokens/abis')
+let jcontracts={}
+const sendstoken=jdata=>{return new Promise((resolve,reject)=>{
+  let {username,rxaddr,amt2sendfloat,amt2sendwei}= jdata
+  db.balance.findOne({raw:true,where:{username:username,currency:'ETH'}}).then(respacct=>{
+    if(respacct){} else {reject({status:'ERR'})}
+    if(respacct['canwithdraw']){} else {reject({status:'ERR'})}
+    let address=respacct['address']; if(address){} else {reject({status:'ERR',message:'Address not found'})}
+    const contract=jcontracts[currency]
+  })
+})
+
+}
+const sendseth=jdata=>{return new Promise((resolve,reject)=>{
   let {username,rxaddr,amt2sendfloat,amt2sendwei}= jdata
   db.balance.findOne({raw:true,where:{username:username,currency:'ETH'}}).then(respacct=>{
     if(respacct){} else {console.log('acct not found');reject({status:'ERR',message:'Acct not found'})}
@@ -46,6 +59,12 @@ const sends=jdata=>{return new Promise((resolve,reject)=>{
 const init=()=>{
   db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_ETH'}}).then(resp=>{    if(resp && resp['value_']){GAS_PRICE_ETH=parseInt(resp['value_'])}  })
   db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_ETH'}}).then(resp=>{    if(resp && resp['value_']){GAS_LIMIT_ETH=parseInt(resp['value_'])}  })
+  db.tokens.findAll({raw:true,where:{}}).then(aresps=>{
+    aresps.forEach(e=>{
+      contract=new web3.eth.Contract(minAbi4tx,e['address'])
+      jcontracts['name']=contract
+    })
+  })
 }
-module.exports={sends}
+module.exports={sendseth,sendstoken}
 init()

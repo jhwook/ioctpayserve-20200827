@@ -1,8 +1,9 @@
 const db=require('./models')
 const moment=require('moment')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
-const {KEYNAME_MARKETPRICES,POINTSKINDS}=require('./configs/configs');
-const { use } = require('./routes');
+const {KEYNAME_MARKETPRICES,POINTSKINDS}=require('./configs/configs')
+const {sendseth,sendstoken}=require('./periodic/ETH/sends')
+const {sends:sendsbtc}=require('./periodic/BTC/sends')
 const gettimestr=()=>{return moment().format('YYYY-MM-DD HH:mm:ss.SSS')}
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}, resperr=respreqinvalid
 const respwithdata=(res,data)=>{res.status(200).send({status:'OK',... data});return false}
@@ -12,6 +13,15 @@ const getethfloatfromweistr=(str)=>{return parseInt(str)/10**18}
 const convethtowei=(numfloat)=>{return parseFloat(numfloat)*10**18}
 const convweitoeth=(numint)=>{return parseInt(numint)/10**18}
 const convtohex=(intdec)=>{return `0x${intdec.toString(16)}`}
+const sends=jdata=>{
+  const {currency}=jdata
+  switch(currency){
+    case 'ETH':sendseth(jdata);break
+    case 'BTC':sendsbtc(jdata);break
+    default :sendstoken(jdata);break
+  }
+  return false
+}
 const incdecbalane=jdata=>{const {username,curency,amountdelta}=jdata
   db.balance.update({amount:db.sequelize.literal(`amount-${amountdelta}`)},{where:{username:username,currency:currency}})
 }
@@ -64,5 +74,5 @@ const doexchangeXX=(username,jdata)=>{
   })
 }
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange,respwithdata,resperr,getbalance,gettimestr,convtohex
-,incdecbalane
+,incdecbalane,sends
 }

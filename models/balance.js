@@ -57,8 +57,11 @@ module.exports = function(sequelize, DataTypes) {
     , denominatorexp:{
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: true
+    } , kind: {
+      type: DataTypes.STRING(15),
+      allowNull: true
     }
-  }, {
+    }, {
     tableName: 'balance'
   });
 };
