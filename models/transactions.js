@@ -50,6 +50,26 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: sequelize.fn('current_timestamp')
     }
+    , kind: {
+      type: DataTypes.STRING(20),
+      allowNull: true
+    }
+    , description: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    }
+    , hash: {
+      type: DataTypes.STRING(80),
+      allowNull: true
+    }
+    , amountbefore: {
+      type: DataTypes.FLOAT,
+      allowNull: true
+    }
+    , amountafter: {
+      type: DataTypes.FLOAT,
+      allowNull: true
+    }
   }, {
     tableName: 'transactions'
   });

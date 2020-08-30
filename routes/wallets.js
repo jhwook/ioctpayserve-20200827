@@ -4,7 +4,8 @@ const {KEYNAME_MARKETPRICES, POINTSKINDS,A_POINTSKINDS}=require('../configs/conf
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange}=require('../utils')
 const db=require('../models')
 const {sends}=require('../periodic/ETH/sends')
-const redis=require('redis');const clientredis=redis.createClient();const clientredisa=require('async-redis').createClient()
+const redis=require('redis');const utils = require('../utils');
+const clientredis=redis.createClient();const clientredisa=require('async-redis').createClient()
 /* GET users listing. */
 router.get('/marketprice',(req,res)=>{const {currency}=req.query
   db.marketprices.findAll({raw:true,attributes: [[db.sequelize.fn('max', db.sequelize.col('id')), 'maxid']]})
@@ -30,9 +31,9 @@ router.get('/exchangerates',(req,res)=>{const {currency0,sitename}=req.query ;co
 })
 router.post('/withdraw',(req,res)=>{const {amount,address,pw,username}=req.body; console.log(req.body)
   if(amount && address && pw && username){} else {respreqinvalid(res,'필수정보를입력하세요',67648);return false}
-
   db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(resp=>{
-    if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false} 
+    if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false}  //    
+//    respok(res);return false
     sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
@@ -65,10 +66,13 @@ router.post('/exchangeXX',(req,res)=>{  const {currency0, amount0}=req.body
   res.status(200).send({status:'OK'});return false
 })
 router.get('/balance',async (req,res)=>{  const {currency,username}=req.query
-	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=>{
+  if(username && currency){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
+  utils.getbalance(req.query,'float').then(async resp=>{
     const prices=await clientredisa.hget(KEYNAME_MARKETPRICES,'ALL')
-		res.status(200).send({status:'OK',... resp,prices:prices});return false
-	})
+    respok(res,null,null,{amount:resp, prices:prices})
+  })
+if(false){	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await clientredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
+	})}
   //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
 })
 router.get('/balances', (req, res, next)=> {const {username}=req.query

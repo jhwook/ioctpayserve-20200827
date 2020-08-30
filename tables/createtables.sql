@@ -1,4 +1,11 @@
 
+
+insert into operations (key_,value_) values ('GAS_PRICE_ETH',300000000000);
+insert into operations (key_,value_) values ('GAS_LIMIT_ETH',21000);
+
+insert into balance(username,currency) values ('user01','GAIA');
+insert into balance(username,currency) values ('user01','IOTC');
+
 insert into balance(username,currency) values ('user01','C');
 insert into balance(username,currency) values ('user01','S');
 insert into balance(username,currency) values ('user01','K');

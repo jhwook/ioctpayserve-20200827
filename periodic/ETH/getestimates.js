@@ -43,9 +43,8 @@ cron.schedule(`*/5 * * * *`,()=>{
 	})
 })
 module.exports={}
-/*const initgasparams=()=>{
+const initgasparams=()=>{
 	db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_ETH'}}).then(resp=>{GAS_PRICE_ETH=parseInt(resp['value_'])})
 	db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_ETH'}}).then(resp=>{GAS_LIMIT_ETH=parseInt(resp['value_'])})
 }
 initgasparams()
-*/
