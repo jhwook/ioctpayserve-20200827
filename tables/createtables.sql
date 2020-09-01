@@ -1,4 +1,8 @@
 
+insert into tokens (name,address,decimals,netkind,symbol) values ('IOTC','0xe58a38a4598e93207be87077fd6ce1ff288cd4c4',18,'ropsten','IOTC');
+insert into tokens (name,address,decimals,netkind,symbol) values ('GAIA','0xe70ed70f9ffaa651ccd80790b48092f7b5589279',18,'ropsten','GAIA');
+
+
 
 insert into balance
 insert into blockbalance(address,username,blocknumber,amount,amountcumul,direction) values ('0xf9B239D480b74EC2bD513071b9E6fCB215CBb5E9','user01',8582162,1,1,'IN');

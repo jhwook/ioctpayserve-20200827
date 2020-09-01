@@ -8,7 +8,7 @@ const netkind='ropsten'
 const web3 = new Web3(new Web3.providers.HttpProvider(infuraurl))
 const db=require('../../models')
 
-db.balance.findAll({raw:true,where:{currency:'ETH'}}).then(aresps=>{
+db.balance.findAll({raw:true,where:{currency:'ETH',netkind:netkind}}).then(aresps=>{
   aresps.forEach(e=>{    const prvk=e['privatekey']; if(prvk && prvk.length>=64){} else {return false}
     try{web3.eth.accounts.wallet.add(prvk)} catch(err){console.log(err)}
   })

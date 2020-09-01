@@ -45,6 +45,10 @@ module.exports = function(sequelize, DataTypes) {
 		MAXAMOUNT_TOWITHDRAW:{
       type: DataTypes.INTEGER(10),
       allowNull: true
+    },
+    symbol:{
+      type: DataTypes.STRING(15),
+      allowNull: true
     }
     }, {
     tableName: 'tokens'

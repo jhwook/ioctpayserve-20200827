@@ -1,5 +1,5 @@
 const db=require('./models')
-const moment=require('moment')
+const moment=require('moment');const {netkind}=require('./configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 const {KEYNAME_MARKETPRICES,POINTSKINDS}=require('./configs/configs')
 const gettimestr=()=>{return moment().format('YYYY-MM-DD HH:mm:ss.SSS')}
@@ -39,7 +39,7 @@ const doexchange=(username,jdata,respbal,resprates)=>{
       let extodata={};
       Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100)
         extodata[pointkind]=amttoinc
-        db.balance.findOne({where:{username:username,currency:pointkind }}).then(resp=>{const respdata=resp.dataValues          
+        db.balance.findOne({where:{username:username,currency:pointkind,netkind:netkind }}).then(resp=>{const respdata=resp.dataValues          
           resp.update({amount:respdata['amount']+amttoinc })
         })
       })
@@ -47,9 +47,11 @@ const doexchange=(username,jdata,respbal,resprates)=>{
         username:username
         , currency:currency0
         , fromamount:amount0wei
+        , amountfloatstr:convweitoeth(amount0wei)
         , amountbefore:null
         , amountafter:null
         , kind:'EXCHANGE'
+        , netkind:netkind
         , description:JSON.stringify(extodata)
       })
     }).catch(err=>{reject(err.toString())})
@@ -58,8 +60,8 @@ const doexchange=(username,jdata,respbal,resprates)=>{
 }
 const doexchangeXX=(username,jdata)=>{
   return new Promise((resolve,reject)=>{    const {currency0,currency1, amount0,amount1,username}=jdata
-    let _respbal0=db.balance.findOne({where:{currency:currency0,username:username}})
-    let _respbal1=db.balance.findOne({where:{currency:currency1,username:username}})
+    let _respbal0=db.balance.find_One({where:{currency:currency0,username:username}})
+    let _respbal1=db.balance.find_One({where:{currency:currency1,username:username}})
     try{Promise.all([_respbal0,_respbal1]).then(aresps=>{
       const [respbal0,respbal1]=aresps
       respbal0.update({amountlocked:db.sequelize.literal(`amountlocked + ${amount0}`)})

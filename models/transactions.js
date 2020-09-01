@@ -89,6 +89,10 @@ module.exports = function(sequelize, DataTypes) {
     amountfloatstr:{
       type: DataTypes.STRING(15),
       allowNull: true
+    },
+    txtime:{
+      type: DataTypes.STRING(20),
+      allowNull: true
     }
   }, {
     tableName: 'transactions'

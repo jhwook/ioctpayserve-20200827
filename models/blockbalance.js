@@ -84,6 +84,12 @@ module.exports = function(sequelize, DataTypes) {
       autoIncrement: false,
       comment: null,
       field: "updatedat"
+    }, currency:{
+      type: DataTypes.STRING(15),
+      allowNull: true,
+    }, currencykind:{
+      type: DataTypes.STRING(15),
+      allowNull: true,
     }
   }, {
     tableName: 'blockbalance'

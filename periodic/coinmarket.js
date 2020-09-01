@@ -1,4 +1,5 @@
 const axios=require('axios'),moment=require('moment')
+// const {netkind}=require('../configs/ETH/configweb3')
 const {KEYNAME_MARKETPRICES}=require('../configs/configs')
 const API_COINMARKET_TICKER='https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=3&convert=USD'
 const axiosConfig={  headers: {	'X-CMC_PRO_API_KEY': '1ad8870a-a601-4aec-8476-61612dd0d44c' }}

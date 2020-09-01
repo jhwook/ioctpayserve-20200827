@@ -6,6 +6,7 @@ const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth,sendstoken}=require('../periodic/ETH/sends')
 const redis=require('redis');const utils = require('../utils');
+const { netkind } = require('../configs/ETH/configweb3');
 const clientredis=redis.createClient();const clientredisa=require('async-redis').createClient()
 /* GET users listing. */
 router.get('/marketprice',(req,res)=>{const {currency}=req.query
@@ -16,7 +17,7 @@ router.get('/marketprice',(req,res)=>{const {currency}=req.query
   }).catch(err=>{respreqinvalid(res)}) //  res.status(200).send({status:'OK',marketprice:12345});return false
 })
 router.get('/transactions',(req,res)=>{const {username}=req.query;if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  db.transactions.findAll({raw:true,where:{username:username}}).then(aresps=>{
+  db.transactions.findAll({raw:true,where:{username:username,netkind:netkind}}).then(aresps=>{
     res.status(200).send({status:'OK'    , txs:aresps  }) //  res.status(200).send({status:'OK'    , txs:[      {from:'3N5jVaj3qTbiCuBF22ZNBK43ENEgw6J6P5',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'in',createdat:'2020-08-08 22:55:26'}      ]  })
   })
 })
@@ -31,7 +32,7 @@ router.post('/withdraw',async(req,res)=>{const {amount,address,pw,username,curre
   db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false}  //
 //    respok(res);return false
-    const tokendata=await db.tokens.findOne({raw:true,where:{name:currency}});
+    const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,netkind:netkind}});
     if(tokendata){} else {return false} const decimals=tokendata['decimals']
     sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount,decimals),currency:currency})
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
@@ -43,7 +44,7 @@ router.post('/exchange',(req,res)=>{let {currency0, amount0,sitename,username}=r
   amount0=parseFloat(amount0);  console.log(amount0)
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
-    db.balance.findOne({where:{currency:currency0,username:username}}).then(respbal=>{
+    db.balance.findOne({where:{currency:currency0,username:username,netkind:netkind}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       const amount0wei=convethtowei(amount0),respbaldata=respbal.dataValues
       if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
@@ -56,7 +57,7 @@ router.post('/exchangeXX',(req,res)=>{  const {currency0, amount0}=req.body
   if(currency0 && amount0 ){} else {respreqinvalid(res,'ARG-MISSING',79655);return false} // && currency1 amount1 && && usernamecurrency1,,amount1,username
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
-    db.balance.findOne({where:{currency:currency0}}).then(respbal=>{
+    db.balance.find_One({where:{currency:currency0}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       if(respbal['amount']-respbal['amountlocked']>=parseInt(amount0)){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
       doexchange(username,req.body).then(resp=>{        respok(res,null,38800);return false
@@ -76,7 +77,7 @@ if(false){	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=
   //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
 })
 router.get('/balances', (req, res, next)=> {const {username}=req.query
-  db.balance.findAll({raw:true,where:{username:username}}).then(aresps=>{let a2send=[]
+  db.balance.findAll({raw:true,where:{username:username,netkind:netkind}}).then(aresps=>{let a2send=[]
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
 		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	})

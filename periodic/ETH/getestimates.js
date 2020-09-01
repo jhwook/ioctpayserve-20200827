@@ -11,7 +11,7 @@ const moment=require('moment') // ; const bn=require('bignumber');const B_VERB=f
 const cron=require('node-cron');
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth-polls.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'
-const ethNetKind='mainnet'
+const ethNetKind='mainnet',netkind=ethNetKind
 const axios=require('axios');
 const API_EST_GAS=`${ethNetSvcAddr}`
 console.log('Polling gas prices')
@@ -30,7 +30,7 @@ cron.schedule(`*/5 * * * *`,()=>{
 			, gaslimithex:estlimit
 			, gaslimitweistr:parseInt(estlimit)
 			, gaslimitfloat:null
-			, netkind:ethNetKind
+			, netkind:netkind
 			, gaspricehexinuse: '0x'+GAS_PRICE_ETH.toString(16)
 			, gaspriceweiinusestr: GAS_PRICE_ETH
 			, gaslimithexinuse: '0x'+GAS_LIMIT_ETH.toString(16)
@@ -44,7 +44,7 @@ cron.schedule(`*/5 * * * *`,()=>{
 })
 module.exports={}
 const initgasparams=()=>{
-	db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_ETH'}}).then(resp=>{GAS_PRICE_ETH=parseInt(resp['value_'])})
-	db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_ETH'}}).then(resp=>{GAS_LIMIT_ETH=parseInt(resp['value_'])})
+	db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_ETH',subkey_:netkind}}).then(resp=>{GAS_PRICE_ETH=parseInt(resp['value_'])})
+	db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_ETH',subkey_:netkind}}).then(resp=>{GAS_LIMIT_ETH=parseInt(resp['value_'])})
 }
 initgasparams()
