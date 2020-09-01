@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('transactions', {
+  return sequelize.define('txtaskstodo', {
     id: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: false,
@@ -16,11 +16,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(20),
       allowNull: true
     },
-    fromamount: {
-      type: DataTypes.BIGINT,
-      allowNull: true
-    },
-    toamount: {
+    amount: {
       type: DataTypes.BIGINT,
       allowNull: true
     },
@@ -31,16 +27,8 @@ module.exports = function(sequelize, DataTypes) {
     toaddress: {
       type: DataTypes.STRING(100),
       allowNull: true
-    },
-    direction: {
-      type: DataTypes.STRING(10),
-      allowNull: true
-    },
-    blocknumber:{
-      type: DataTypes.INTEGER(10),
-      allowNull: true
-    }
-    ,createdat: {
+    },    
+    createdat: {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: sequelize.fn('current_timestamp')
@@ -49,48 +37,24 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: sequelize.fn('current_timestamp')
-    }
-    , kind: {
-      type: DataTypes.STRING(20),
-      allowNull: true
-    }
-    , description: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    }    ,
-    hash: {
-      type: DataTypes.STRING(80),
-      allowNull: true
-    }
-    , amountbefore: {
-      type: DataTypes.FLOAT,
-      allowNull: true
-    }
-    , amountafter: {
-      type: DataTypes.FLOAT,
-      allowNull: true
-    }    , 
+		},
     netkind: {
       type: DataTypes.STRING(20),
       allowNull: true
     },
-    fee :{
-      type: DataTypes.BIGINT,
+    failreason: {
+      type: DataTypes.STRING(150),
       allowNull: true
     },
-    gaslimit :{
-      type: DataTypes.BIGINT,
+    blocknumber:{
+      type: DataTypes.INTEGER(10),
       allowNull: true
     },
-    fee :{
-      type: DataTypes.BIGINT,
-      allowNull: true
-    },
-    amountfloatstr:{
-      type: DataTypes.STRING(15),
+    hash: {
+      type: DataTypes.STRING(80),
       allowNull: true
     }
-  }, {
-    tableName: 'transactions'
+    }, {
+    tableName: 'txtaskstodo'
   });
 };

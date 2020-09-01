@@ -61,6 +61,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(15),
       allowNull: true
     }
+    , netkind: {
+      type: DataTypes.STRING(20),
+      allowNull: true
+    }
     }, {
     tableName: 'balance'
   });

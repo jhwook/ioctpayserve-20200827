@@ -1,9 +1,10 @@
 var express = require('express');
 var router = express.Router();
 const {KEYNAME_MARKETPRICES, POINTSKINDS,A_POINTSKINDS}=require('../configs/configs')
-const {respreqinvalid,respwithdata, convethtowei, respok, doexchange,sends}=require('../utils')
+const {respreqinvalid,respwithdata, convethtowei, respok, doexchange}=require('../utils')
 const db=require('../models')
-const {sendseth}=require('../periodic/ETH/sends')
+const {sends:sendsbtc}=require('../periodic/BTC/sends')
+const {sendseth,sendstoken}=require('../periodic/ETH/sends')
 const redis=require('redis');const utils = require('../utils');
 const clientredis=redis.createClient();const clientredisa=require('async-redis').createClient()
 /* GET users listing. */
@@ -14,13 +15,9 @@ router.get('/marketprice',(req,res)=>{const {currency}=req.query
     })
   }).catch(err=>{respreqinvalid(res)}) //  res.status(200).send({status:'OK',marketprice:12345});return false
 })
-router.get('/transactions',(req,res)=>{
-  res.status(200).send({status:'OK'
-    , txs:[
-      {from:'3N5jVaj3qTbiCuBF22ZNBK43ENEgw6J6P5',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'in',createdat:'2020-08-08 22:55:26'}
-,      {from:'',to:'0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c',fromamount:'',toamount:'',fromcur:'ETH',tocur:'ETH',direction:'out',createdat:'2020-05-09 06:24:11'}
-,      {from:'',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'change',createdat:'2020-04-11 09:36:52'}
-      ]
+router.get('/transactions',(req,res)=>{const {username}=req.query;if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  db.transactions.findAll({raw:true,where:{username:username}}).then(aresps=>{
+    res.status(200).send({status:'OK'    , txs:aresps  }) //  res.status(200).send({status:'OK'    , txs:[      {from:'3N5jVaj3qTbiCuBF22ZNBK43ENEgw6J6P5',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'in',createdat:'2020-08-08 22:55:26'}      ]  })
   })
 })
 router.get('/exchangerates',(req,res)=>{const {currency0,sitename}=req.query ;console.log(req.query)
@@ -29,12 +26,14 @@ router.get('/exchangerates',(req,res)=>{const {currency0,sitename}=req.query ;co
   }).catch(err=>{    respreqinvalid(res,err.toString(),30379);return false
   })
 })
-router.post('/withdraw',(req,res)=>{const {amount,address,pw,username,currency}=req.body; console.log(req.body)
-  if(amount && address && pw && username){} else {respreqinvalid(res,'필수정보를입력하세요',67648);return false}
-  db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(resp=>{
+router.post('/withdraw',async(req,res)=>{const {amount,address,pw,username,currency}=req.body; console.log(req.body)
+  if(amount && address && pw && username && currency){} else {respreqinvalid(res,'필수정보를입력하세요',67648);return false}
+  db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false}  //
 //    respok(res);return false
-    sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
+    const tokendata=await db.tokens.findOne({raw:true,where:{name:currency}});
+    if(tokendata){} else {return false} const decimals=tokendata['decimals']
+    sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount,decimals),currency:currency})
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
@@ -85,3 +84,13 @@ router.get('/balances', (req, res, next)=> {const {username}=req.query
 });
 
 module.exports = router;
+
+const sends=jdata=>{
+  const {currency}=jdata
+  switch(currency){
+    case 'ETH':sendseth(jdata);break
+    case 'BTC':sendsbtc(jdata);break
+    default :sendstoken(jdata);break
+  }
+  return false
+}

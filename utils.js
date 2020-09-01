@@ -2,29 +2,20 @@ const db=require('./models')
 const moment=require('moment')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 const {KEYNAME_MARKETPRICES,POINTSKINDS}=require('./configs/configs')
-const {sendseth,sendstoken}=require('./periodic/ETH/sends')
-const {sends:sendsbtc}=require('./periodic/BTC/sends')
 const gettimestr=()=>{return moment().format('YYYY-MM-DD HH:mm:ss.SSS')}
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}, resperr=respreqinvalid
 const respwithdata=(res,data)=>{res.status(200).send({status:'OK',... data});return false}
 const respok=(res,msg,code,jdata)=>{res.status(200).send({status:'OK',message:msg,code:code,... jdata});return false}
 const getpricesstr=async ()=>{return await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')}
 const getethfloatfromweistr=(str)=>{return parseInt(str)/10**18}
-const convethtowei=(numfloat)=>{return parseFloat(numfloat)*10**18}
-const convweitoeth=(numint)=>{return parseInt(numint)/10**18}
+const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return parseFloat(numfloat)*10**exp}
+const convweitoeth=(numint,decimals)=>  {const exp=decimals?decimals:18; return parseInt(numint)/10**exp}
 const convtohex=(intdec)=>{return `0x${intdec.toString(16)}`}
-const sends=jdata=>{
-  const {currency}=jdata
-  switch(currency){
-    case 'ETH':sendseth(jdata);break
-    case 'BTC':sendsbtc(jdata);break
-    default :sendstoken(jdata);break
-  }
-  return false
-}
-const incdecbalane=jdata=>{const {username,curency,amountdelta}=jdata
+const isequalinlowercases=(str0,str1)=>{return str0.toLowerCase()==str1.toLowerCase()}
+const incdecbalance=(jdata,txdata)=>{const {username,currency,amountdelta}=jdata
+  if(txdata){amountdelta+=txdata['gas']*txdata['gasPrice']}
   db.balance.update({amount:db.sequelize.literal(`amount-${amountdelta}`)},{where:{username:username,currency:currency}})
-}
+} // incdecbalance({username:'',curency:'',amountdelta:''})
 const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{
   db.balance.findOne({raw:true,where:{ ... jdata }}).then(resp=>{
     if(resp){    const amtwei=resp['amount']-resp['amountlocked']      
@@ -32,6 +23,11 @@ const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{
     } else {reject('NOT-FOUND')}
   }).catch(err=>{reject(err.toString())})
 })}
+const getRandomInt=(min,max)=> {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min)) + min; //최댓값은 제외, 최솟값은 포함
+} //
 const doexchange=(username,jdata,respbal,resprates)=>{
   return new Promise ((resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata)
     const amount0wei=convethtowei(amount0)
@@ -73,6 +69,7 @@ const doexchangeXX=(username,jdata)=>{
     } catch(err){reject(err)}
   })
 }
-module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange,respwithdata,resperr,getbalance,gettimestr,convtohex
-,incdecbalane,sends
+module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
+  ,respwithdata,resperr,getbalance,gettimestr,convtohex
+  ,incdecbalance,getRandomInt,isequalinlowercases
 }

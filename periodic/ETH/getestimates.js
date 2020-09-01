@@ -2,7 +2,7 @@
 const ethNetSvcAddr="https://mainnet.infura.io/v3/cd35bc8ac4c14bc5b464e267e88ee9d0"
 const DT_STR_FORMAT_DEF='HH:mm:ss.SSS - YYYY-MM-DD' // const config01=require('../config/config01')
 // const config00=require('../config/config00.json'),{B_WRITE_TO_TX_TABLE_EARLY_OR_LATE,KEYNAME_TXHASHES2HASHES,KEYNAME_TXHASH_INTERNAL,KEYNAME_TXHASH_BATCHES,KEYNAME_TX_IN_QUEUE}=config00
-// const utils=require('../utils'),{getweistr,getadmin,getethfloatfromweibn,gettimestr,getprvk}=utils
+// const utils=require('../utils'),{getweistr,getadmin,getethfloatfromweibn,gettmestr,getprvk}=utils
 const db=require('../../models')
 let MIN_ETH_AMOUNT_TO_INVOKE_TRANSFER=null,MIN_TOKEN_AMOUNT_TO_INVOKE_TRANSFER_WEI=null
 // let GAS_PRICE_ETH=null, GAS_LIMIT_ETH=null

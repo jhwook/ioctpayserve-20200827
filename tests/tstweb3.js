@@ -1,4 +1,12 @@
 
+
+  for (let i in web3.eth.accounts.wallet.length){    const address=web3.eth.accounts.wallet[i].address;console.log(address)
+    db.balance.findOne({raw:true,where:{address:address.toLowerCase()}}).then(resp=>{      if(resp){} else {return false}
+      jaddresses[address]=resp['username']
+    })
+  }
+
+
 const Web3=require('web3')
 const infuraurlmain=		'https://mainnet.infura.io/v3/cd35bc8ac4c14bc5b464e267e88ee9d0'
 const infuraurlropsten=		'https://ropsten.infura.io/v3/cd35bc8ac4c14bc5b464e267e88ee9d0'
