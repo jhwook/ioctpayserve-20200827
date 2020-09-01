@@ -1,3 +1,3 @@
 
-const {getTicker}=require('./coinmarket')
+const {getTicker}=require('./getcoinmarket')
 const {}=require('./ETH/getestimates')

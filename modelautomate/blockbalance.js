@@ -13,42 +13,6 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    username: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "username"
-    },
-    currency: {
-      type: DataTypes.STRING(20),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "currency"
-    },
-    amount: {
-      type: DataTypes.BIGINT.UNSIGNED,
-      allowNull: true,
-      defaultValue: "0",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amount"
-    },
-    amountlocked: {
-      type: DataTypes.BIGINT.UNSIGNED,
-      allowNull: true,
-      defaultValue: "0",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amountlocked"
-    },
     address: {
       type: DataTypes.STRING(80),
       allowNull: true,
@@ -58,14 +22,50 @@ module.exports = sequelize => {
       comment: null,
       field: "address"
     },
-    privatekey: {
-      type: DataTypes.STRING(100),
+    username: {
+      type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "privatekey"
+      field: "username"
+    },
+    blocknumber: {
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "blocknumber"
+    },
+    hash: {
+      type: DataTypes.STRING(80),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "hash"
+    },
+    amount: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "amount"
+    },
+    direction: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "direction"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -85,84 +85,39 @@ module.exports = sequelize => {
       comment: null,
       field: "updatedat"
     },
-    denominatorexp: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      allowNull: true,
-      defaultValue: "0",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "denominatorexp"
-    },
-    canwithdraw: {
-      type: DataTypes.INTEGER(3).UNSIGNED,
-      allowNull: true,
-      defaultValue: "1",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "canwithdraw"
-    },
-    amountstr: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      defaultValue: "0",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amountstr"
-    },
-    sitename: {
-      type: DataTypes.STRING(20),
+    amountcumul: {
+      type: DataTypes.BIGINT.UNSIGNED,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "sitename"
+      field: "amountcumul"
     },
-    amountfloat: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
-      defaultValue: "0",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amountfloat"
-    },
-    kind: {
+    currency: {
       type: DataTypes.STRING(15),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "kind"
+      field: "currency"
     },
-    netkind: {
-      type: DataTypes.STRING(20),
+    currencykind: {
+      type: DataTypes.STRING(15),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "netkind"
-    },
-    blocknumber: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "blocknumber"
+      field: "currencykind"
     }
   };
   const options = {
-    tableName: "balance",
+    tableName: "blockbalance",
     comment: "",
     indexes: []
   };
-  const BalanceModel = sequelize.define("balance_model", attributes, options);
-  return BalanceModel;
+  const BlockbalanceModel = sequelize.define("blockbalance_model", attributes, options);
+  return BlockbalanceModel;
 };

@@ -1,18 +1,42 @@
 
+insert into operations (key_,value_) values('PERIOD_POLL_TICKER_GEX',10*60*1000);
+
+insert into exchangerates (currency0,C,S,K,sitename) values ('USDT',92,8,10,'IOTC');
+insert into exchangerates (currency0,C,S,K,sitename) values ('IOTC',100,0,10,'IOTC');
+insert into exchangerates (currency0,C,S,K,sitename) values ('GAIA',98,2,20,'IOTC');
+
+create table fixedprices (
+	id int unsigned not null primary key auto_increment
+  , name varchar(20)
+  , address varchar(80) 
+  , price float
+  , units varchar(15)
+  , netkind varchar(10)
+  , createdat datetime default current_timestamp
+  , updatedat datetime default current_timestamp
+);
 insert into tokens (name,address,decimals,netkind,symbol) values ('IOTC','0xe58a38a4598e93207be87077fd6ce1ff288cd4c4',18,'ropsten','IOTC');
 insert into tokens (name,address,decimals,netkind,symbol) values ('GAIA','0xe70ed70f9ffaa651ccd80790b48092f7b5589279',18,'ropsten','GAIA');
-
-
-
 insert into balance
 insert into blockbalance(address,username,blocknumber,amount,amountcumul,direction) values ('0xf9B239D480b74EC2bD513071b9E6fCB215CBb5E9','user01',8582162,1,1,'IN');
+
+insert into fixedprices (tokenname,price,units) values ('USDT',1000,'KRW');
+insert into fixedprices (tokenname,price,units) values ('IOTC',120,'KRW');
+insert into fixedprices (tokenname,price,units) values ('GAIA',100,'KRW');
+insert into fixedprices (tokenname,price,units) values ('MOKA',140,'KRW');
+
+insert into operations (key_,value_,subkey_) values ('GAS_PRICE_TOKEN','300000000000','mainnet');
+insert into operations (key_,value_,subkey_) values ('GAS_PRICE_ETH','300000000000','mainnet');
+
+insert into operations (key_,value_,subkey_) values ('GAS_LIMIT_ETH','30000','mainnet');
+
+insert into operations (key_,value_,subkey_) values ('GAS_LIMIT_TOKEN','30000','mainnet');
+insert into operations (key_,value_,subkey_) values ('GAS_PRICE_TOKEN','30000','mainnet');
 
 insert into operations (key_,value_) values ('GAS_PRICE_TOKEN','300000000000');
 insert into operations (key_,value_) values ('GAS_LIMIT_TOKEN','30000');
 
 insert into tokens(name,address,netkind,decimals) values ('USDT','0xdac17f958d2ee523a2206206994597c13d831ec7','mainnet',6);
-
-
 insert into tokens(name,address,netkind) values ('IOTC','0xa01977400427ab074d365814d1ed1ac514d57a26','mainnet');
 insert into tokens(name,address,netkind) values ('GAIA','0xD944Dac1a03db027AcC5618095251d5E90C4A37b','mainnet');
 insert into tokens(name,address,netkind) values ('Audus00','0x5789e290020317ee07a21012db9ee1e3e43e56f1','ropsten');

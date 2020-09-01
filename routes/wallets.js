@@ -52,7 +52,7 @@ router.post('/exchange',(req,res)=>{let {currency0, amount0,sitename,username}=r
       }).catch(err=>{respreqinvalid(res,err.toString(),62015);return false})
     })
   })
-})
+}) //
 router.post('/exchangeXX',(req,res)=>{  const {currency0, amount0}=req.body
   if(currency0 && amount0 ){} else {respreqinvalid(res,'ARG-MISSING',79655);return false} // && currency1 amount1 && && usernamecurrency1,,amount1,username
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{
@@ -66,11 +66,17 @@ router.post('/exchangeXX',(req,res)=>{  const {currency0, amount0}=req.body
   })
   res.status(200).send({status:'OK'});return false
 })
-router.get('/balance',async (req,res)=>{  const {currency,username}=req.query
+router.get('/balance',async (req,res)=>{  const {currency,username}=req.query; console.log(req.query)
   if(username && currency){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
-  utils.getbalance(req.query,'float').then(async resp=>{
-    const prices=await clientredisa.hget(KEYNAME_MARKETPRICES,'ALL')
-    respok(res,null,null,{amount:resp, prices:prices})
+  utils.getbalance(req.query,'float').then(async respbal=>{
+    let _pricesstr= clientredisa.hget(KEYNAME_MARKETPRICES,'ALL')
+    let _fixedpricesj=utils.getfixedtokenprices()
+//    db.balance.findOne({raw:true,where:{... req.query}}).then(resp=>{    })
+    Promise.all([_pricesstr,_fixedpricesj]).then(aresps=>{
+      const [pricesstr,fixedpricesj]=aresps
+      const jdata={... JSON.parse(pricesstr), ... fixedpricesj}
+      respok(res,null,null,{amountstr:respbal.toString(), prices:JSON.stringify(jdata)})
+    })
   })
 if(false){	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await clientredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
 	})}

@@ -58,6 +58,15 @@ const doexchange=(username,jdata,respbal,resprates)=>{
     resolve(jdata)
   })
 }
+const getfixedtokenprices=rettype=>{
+  return new Promise ((resolve,reject)=>{let jdata={}
+    db.fixedprices.findAll({raw:true}).then(aresps=>{
+      aresps.forEach(tknd=>{        jdata[tknd['tokenname']]=tknd['price']      })
+      if(rettype && rettype=='str'){resolve( JSON.stringify(jdata))}
+      else {resolve( jdata)}
+    }).catch(err=>{reject(err.toString())})
+  })
+}
 const doexchangeXX=(username,jdata)=>{
   return new Promise((resolve,reject)=>{    const {currency0,currency1, amount0,amount1,username}=jdata
     let _respbal0=db.balance.find_One({where:{currency:currency0,username:username}})
@@ -73,5 +82,5 @@ const doexchangeXX=(username,jdata)=>{
 }
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,gettimestr,convtohex
-  ,incdecbalance,getRandomInt,isequalinlowercases
+  ,incdecbalance,getRandomInt,isequalinlowercases,getfixedtokenprices
 }

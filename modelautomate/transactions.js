@@ -156,6 +156,51 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "netkind"
+    },
+    gasprice: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "gasprice"
+    },
+    gaslimit: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "gaslimit"
+    },
+    fee: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "fee"
+    },
+    amountfloatstr: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "amountfloatstr"
+    },
+    txtime: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "txtime"
     }
   };
   const options = {

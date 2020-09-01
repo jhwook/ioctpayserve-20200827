@@ -1,9 +1,6 @@
-const {
-  DataTypes
-} = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('fixedprices', {
 
-module.exports = sequelize => {
-  const attributes = {
     id: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: false,
@@ -13,14 +10,14 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    name: {
-      type: DataTypes.STRING(10),
+    tokenname: {
+      type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "name"
+      field: "tokenname"
     },
     address: {
       type: DataTypes.STRING(80),
@@ -31,23 +28,23 @@ module.exports = sequelize => {
       comment: null,
       field: "address"
     },
-    decimals: {
-      type: DataTypes.INTEGER(3).UNSIGNED,
+    price: {
+      type: DataTypes.FLOAT,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "decimals"
+      field: "price"
     },
-    supply: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
+    units: {
+      type: DataTypes.STRING(15),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "supply"
+      field: "units"
     },
     netkind: {
       type: DataTypes.STRING(10),
@@ -75,40 +72,8 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "updatedat"
-    },
-    MINAMOUNT_TOWITHDRAW: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "MINAMOUNT_TOWITHDRAW"
-    },
-    MAXAMOUNT_TOWITHDRAW: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "MAXAMOUNT_TOWITHDRAW"
-    },
-    symbol: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "symbol"
     }
-  };
-  const options = {
-    tableName: "tokens",
-    comment: "",
-    indexes: []
-  };
-  const TokensModel = sequelize.define("tokens_model", attributes, options);
-  return TokensModel;
+  }, {
+    tableName: 'fixedprices'
+  });
 };
