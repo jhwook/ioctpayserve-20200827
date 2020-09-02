@@ -49,6 +49,12 @@ module.exports = function(sequelize, DataTypes) {
     symbol:{
       type: DataTypes.STRING(15),
       allowNull: true
+    },    denominatorexp:{
+      type: DataTypes.INTEGER(10),
+      allowNull: true
+    }, group_:{
+      type: DataTypes.STRING(15),
+      allowNull: true
     }
     }, {
     tableName: 'tokens'

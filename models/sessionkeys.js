@@ -1,9 +1,5 @@
-const {
-  DataTypes
-} = require('sequelize');
-
-module.exports = sequelize => {
-  const attributes = {
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('sessionkeys', {
     id: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: false,
@@ -22,14 +18,32 @@ module.exports = sequelize => {
       comment: null,
       field: "username"
     },
-    withdrawpw: {
+    token: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "token"
+    },
+    loginip: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "loginip"
+    },
+    useragent: {
       type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "withdrawpw"
+      field: "useragent"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -48,31 +62,12 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "updatedat"
-    },
-    preflang: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-      defaultValue: "KOR",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "preflang"
-    },
-    pw: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "pw"
     }
-  };
-  const options = {
-    tableName: "users",
-    comment: "",
-    indexes: []
-  };
-  const UsersModel = sequelize.define("users_model", attributes, options);
-  return UsersModel;
+    , active:{
+      type: DataTypes.INTEGER(3).UNSIGNED,
+      allowNull: true,
+    }
+  }, {
+    tableName: 'sessionkeys'
+  });
 };

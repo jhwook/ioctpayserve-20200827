@@ -13,23 +13,50 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    username: {
-      type: DataTypes.STRING(20),
+    tokenname: {
+      type: DataTypes.STRING(15),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "username"
+      field: "tokenname"
     },
-    withdrawpw: {
-      type: DataTypes.STRING(20),
+    address: {
+      type: DataTypes.STRING(80),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "withdrawpw"
+      field: "address"
+    },
+    price: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "price"
+    },
+    units: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "units"
+    },
+    netkind: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "netkind"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -48,31 +75,13 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "updatedat"
-    },
-    preflang: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-      defaultValue: "KOR",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "preflang"
-    },
-    pw: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "pw"
     }
   };
   const options = {
-    tableName: "users",
+    tableName: "fixedprices",
     comment: "",
     indexes: []
   };
-  const UsersModel = sequelize.define("users_model", attributes, options);
-  return UsersModel;
+  const FixedpricesModel = sequelize.define("fixedprices_model", attributes, options);
+  return FixedpricesModel;
 };

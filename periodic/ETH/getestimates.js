@@ -17,7 +17,7 @@ const API_EST_GAS=`${ethNetSvcAddr}`
 console.log('Polling gas prices')
 const tkntxdatalong='f8a90a8504e3b29200827458948686b7d8a9c10f53819ed2a8e3aac0cedf6fa9cf80b844a9059cbb000000000000000000000000729e5ae8e1b3dcab5f0a1dc74eac22937172e5c90000000000000000000000000000000000000000000000000000000005f5e10026a0ab4018f894b59a296654947cf303bdb60a35b6b1764ab70a2feee9101871cf2ca03486b30e6276ce883cdffa00051b127a3ba83d654f19d57cc972915015045596'
 const tkntxdata='0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675'
-cron.schedule(`*/5 * * * *`,()=>{
+cron.schedule(`*/15 * * * *`,()=>{
 	let _respprice=axios.post(API_EST_GAS,{"jsonrpc":"2.0","method":"eth_gasPrice","params": [],"id":1})
 	let _respest=axios.post(API_EST_GAS,{"jsonrpc":"2.0","method":"eth_estimateGas","params": [{"from": "0xb60e8dd61c5d32be8058bb8eb970870f07233155"	,"to": "0xd46e8dd67c5d32be8058bb8eb970870f07244567","gas": "0x76c0","gasPrice": "0x9184e72a000","value": "0x9184e72a","data": tkntxdata}],"id":1})
 	Promise.all([_respprice,_respest]).then(aresps=>{ //		console.log(aresps);return false

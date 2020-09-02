@@ -20,7 +20,7 @@ const init=()=>{
   }
 }
 const pollblocks=jdata=>{  const {address,}=jdata
-  db.blockbalance.findOne({where:{address:address,direction:'IN',currency:CURRENCYLOCAL,netkind:netkind}}).then(respbb=>{let startblock=1
+  db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currency:CURRENCYLOCAL,netkind:netkind}}).then(respbb=>{let startblock=1
     if(respbb){startblock=respbb['blocknumber']+1} else {}
     console.log(startblock,ENDBLOCKDUMMY4QUERY,address)
     const query={startblock:startblock,endblock:ENDBLOCKDUMMY4QUERY,address:address

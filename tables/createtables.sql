@@ -1,6 +1,31 @@
 
-insert into operations (key_,value_) values('PERIOD_POLL_TICKER_GEX',10*60*1000);
 
+insert 126ccS2semhunmsgjAUCBnQNZpDuzr6Vt1
+insert into tokens (name,decimals,netkind,denominatorexp) values ('ETH',18,'ropsten',18);
+insert into tokens (name,decimals,netkind,denominatorexp) values ('ETH',18,'mainnet',18);
+insert into tokens (name,decimals,netkind,denominatorexp) values ('BTC',8,'testnet',8);
+insert into tokens (name,decimals,netkind,denominatorexp) values ('BTC',8,'mainnet',8);
+insert into operations (key_,value_) values('CURRENCIES','{"BTC":"COIN","ETH":"COIN","USDT":"TOKEN","IOTC":"TOEKN","MOKA":"TOKEN","GAIA":"TOKEN"}');
+create table sessionkeys (
+  id int unsigned not null primary key auto_increment
+  , username varchar(20)
+  , token varchar(30)
+  , loginip varchar(30)
+  , useragent varchar(20)
+  , createdat datetime default current_timestamp
+  , updatedat datetime default current_timestamp
+);
+insert into operations (key_,value_) values ('PERIOD_POLL_TICKER',60*20*1000);
+create table tickers (
+	id int unsigned not null primary key auto_increment
+  , name varchar(15)
+  , price float
+  , pricestr varchar(20)
+  , units varchar(10)
+  , createdat datetime default current_timestamp
+  , updatedat datetime default current_timestamp
+);
+insert into operations (key_,value_) values('PERIOD_POLL_TICKER_GEX',10*60*1000);
 insert into exchangerates (currency0,C,S,K,sitename) values ('USDT',92,8,10,'IOTC');
 insert into exchangerates (currency0,C,S,K,sitename) values ('IOTC',100,0,10,'IOTC');
 insert into exchangerates (currency0,C,S,K,sitename) values ('GAIA',98,2,20,'IOTC');

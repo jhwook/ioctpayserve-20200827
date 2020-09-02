@@ -12,6 +12,11 @@ const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return 
 const convweitoeth=(numint,decimals)=>  {const exp=decimals?decimals:18; return parseInt(numint)/10**exp}
 const convtohex=(intdec)=>{return `0x${intdec.toString(16)}`}
 const isequalinlowercases=(str0,str1)=>{return str0.toLowerCase()==str1.toLowerCase()}
+const delsession=(req)=>{const token=req.headers.token
+  db.sessionkeys.findOne({where:{token:token}}).then(resp=>{
+    if(resp){resp.update({active:0})} else {return false}
+  })
+}
 const incdecbalance=(jdata,txdata)=>{const {username,currency,amountdelta}=jdata
   if(txdata){amountdelta+=txdata['gas']*txdata['gasPrice']}
   db.balance.update({amount:db.sequelize.literal(`amount-${amountdelta}`)},{where:{username:username,currency:currency}})
@@ -28,6 +33,13 @@ const getRandomInt=(min,max)=> {
   max = Math.floor(max)
   return Math.floor(Math.random() * (max - min)) + min; //최댓값은 제외, 최솟값은 포함
 } //
+function generateRandomStr (length) {
+	var result           = '';	var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	var charactersLength = characters.length;
+	for ( var i = 0; i < length; i++ ) {		 result += characters.charAt(Math.floor(Math.random() * charactersLength))	}
+	return result;
+}
+const getip=(req)=>{	return req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.headers['x-real-ip']}
 const doexchange=(username,jdata,respbal,resprates)=>{
   return new Promise ((resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata)
     const amount0wei=convethtowei(amount0)
@@ -82,5 +94,5 @@ const doexchangeXX=(username,jdata)=>{
 }
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,gettimestr,convtohex
-  ,incdecbalance,getRandomInt,isequalinlowercases,getfixedtokenprices
+  ,incdecbalance,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession
 }

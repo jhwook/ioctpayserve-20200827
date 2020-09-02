@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
 const {KEYNAME_MARKETPRICES, POINTSKINDS,A_POINTSKINDS}=require('../configs/configs')
-const {respreqinvalid,respwithdata, convethtowei, respok, doexchange}=require('../utils')
+const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession}=require('../utils')
 const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth,sendstoken}=require('../periodic/ETH/sends')
-const redis=require('redis');const utils = require('../utils');
+const utils = require('../utils');
 const { netkind } = require('../configs/ETH/configweb3');
-const clientredis=redis.createClient();const clientredisa=require('async-redis').createClient()
+const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 /* GET users listing. */
 router.get('/marketprice',(req,res)=>{const {currency}=req.query
   db.marketprices.findAll({raw:true,attributes: [[db.sequelize.fn('max', db.sequelize.col('id')), 'maxid']]})
@@ -69,7 +69,7 @@ router.post('/exchangeXX',(req,res)=>{  const {currency0, amount0}=req.body
 router.get('/balance',async (req,res)=>{  const {currency,username}=req.query; console.log(req.query)
   if(username && currency){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
   utils.getbalance(req.query,'float').then(async respbal=>{
-    let _pricesstr= clientredisa.hget(KEYNAME_MARKETPRICES,'ALL')
+    let _pricesstr= cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')
     let _fixedpricesj=utils.getfixedtokenprices()
 //    db.balance.findOne({raw:true,where:{... req.query}}).then(resp=>{    })
     Promise.all([_pricesstr,_fixedpricesj]).then(aresps=>{
@@ -78,7 +78,7 @@ router.get('/balance',async (req,res)=>{  const {currency,username}=req.query; c
       respok(res,null,null,{amountstr:respbal.toString(), prices:JSON.stringify(jdata)})
     })
   })
-if(false){	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await clientredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
+if(false){	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
 	})}
   //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
 })
@@ -89,8 +89,15 @@ router.get('/balances', (req, res, next)=> {const {username}=req.query
 	})
 //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 });
-
-module.exports = router;
+router.get('/userpref',(req,res)=>{const {username}=req.query
+  if(username){} else {respreqinvalid(res,'ARGMISSING',50892);return false}  
+  let _user=db.users.findOne({raw:true,where:{username:username}})
+  let _forexrate=cliredisa.hget(KEYNAME_MARKETPRICES,'KRWUSD')
+  Promise.all([_user,_forexrate]).then(aresps=>{    let [user,forexrate]=aresps;    delete user['withdrawpw']
+    respok(res,null,null,{ ... user, KRWUSD:forexrate});return false
+  })
+}) //
+module.exports = router
 
 const sends=jdata=>{
   const {currency}=jdata

@@ -4,4 +4,6 @@ module.exports={
   , POINTSKINDS:{C:1,S:1,K:1}
   , A_POINTSKINDS:['C','S','K']
   , TIMESTRFORMAT:'YYYY-MM-DD HH:mm:ss'
+
 }
+a={BTC:1,ETH:1,USDT:1,IOTC:1,MOKA:1,GAIA:1}

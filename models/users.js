@@ -25,6 +25,18 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: sequelize.fn('current_timestamp')
+    },
+    preflang:{
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      defaultValue: 'KOR'
+    }    , pw:{
+      type: DataTypes.STRING(10),
+      allowNull: true,
+    }
+    , active:{
+      type: DataTypes.INTEGER(3),
+      allowNull: true,
     }
   }, {
     tableName: 'users'

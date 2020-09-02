@@ -13,23 +13,41 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    username: {
-      type: DataTypes.STRING(20),
+    name: {
+      type: DataTypes.STRING(15),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "username"
+      field: "name"
     },
-    withdrawpw: {
+    price: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "price"
+    },
+    pricestr: {
       type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "withdrawpw"
+      field: "pricestr"
+    },
+    units: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "units"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -49,30 +67,21 @@ module.exports = sequelize => {
       comment: null,
       field: "updatedat"
     },
-    preflang: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-      defaultValue: "KOR",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "preflang"
-    },
-    pw: {
+    kind: {
       type: DataTypes.STRING(10),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "pw"
+      field: "kind"
     }
   };
   const options = {
-    tableName: "users",
+    tableName: "tickers",
     comment: "",
     indexes: []
   };
-  const UsersModel = sequelize.define("users_model", attributes, options);
-  return UsersModel;
+  const TickersModel = sequelize.define("tickers_model", attributes, options);
+  return TickersModel;
 };
