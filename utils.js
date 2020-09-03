@@ -2,6 +2,7 @@ const db=require('./models')
 const moment=require('moment');const {netkind}=require('./configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 const {KEYNAME_MARKETPRICES,POINTSKINDS}=require('./configs/configs')
+const messages=require('./configs/messages')
 const gettimestr=()=>{return moment().format('YYYY-MM-DD HH:mm:ss.SSS')}
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}, resperr=respreqinvalid
 const respwithdata=(res,data)=>{res.status(200).send({status:'OK',... data});return false}
@@ -16,6 +17,12 @@ const delsession=(req)=>{const token=req.headers.token
   db.sessionkeys.findOne({where:{token:token}}).then(resp=>{
     if(resp){resp.update({active:0})} else {return false}
   })
+}
+const getuserorterminate=async (req,res)=>{  const username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73200);return false}
+}
+const getusernamefromsession=async req=>{if(req.headers.token){} else {return null}
+  const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}})
+  if(session){ return session['username']} else {return null}
 }
 const incdecbalance=(jdata,txdata)=>{const {username,currency,amountdelta}=jdata
   if(txdata){amountdelta+=txdata['gas']*txdata['gasPrice']}
@@ -94,5 +101,5 @@ const doexchangeXX=(username,jdata)=>{
 }
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,gettimestr,convtohex
-  ,incdecbalance,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession
+  ,incdecbalance,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorterminate
 }

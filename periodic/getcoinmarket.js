@@ -30,7 +30,7 @@ return false
 let PERIOD_POLL_MARKETPRICES=60*60*1000
 db.operations.findOne({raw:true,where:{key_:'PERIOD_POLL_MARKETPRICES'}}).then(resp=>{
 	if(resp && resp['value_']){PERIOD_POLL_MARKETPRICES=parseInt(resp['value_'])
-		setTimeout(()=>{console.log('Polling price tickers'); if(false){getTicker()}
+		setTimeout(()=>{console.log('Polling-CM'); if(false){getTicker()}
 			setInterval(()=>{		getTicker()			}, PERIOD_POLL_MARKETPRICES )
 		},2.5*1000)
 	}

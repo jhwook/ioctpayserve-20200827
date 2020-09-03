@@ -90,6 +90,9 @@ module.exports = function(sequelize, DataTypes) {
     }, currencykind:{
       type: DataTypes.STRING(15),
       allowNull: true,
+    }, netkind:{
+      type: DataTypes.STRING(10),
+      allowNull: true,
     }
   }, {
     tableName: 'blockbalance'

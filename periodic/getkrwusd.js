@@ -8,7 +8,7 @@ const symbol='KRWUSD'
 let PERIOD_POLL_TICKER=60*20*1000
 const getTicker=()=>{
   axios.get(API_TICKER).then(resp=>{    if(resp && resp.data){} else {return false}
-    const {USD_KRW:price}=resp.data;console.log('usdkrw',price)
+    const {USD_KRW:price}=resp.data;console.log('usdkrw',price.toFixed(1))
     cliredisa.hset(KEYNAME_MARKETPRICES,'KRWUSD',price)
     db.tickers.create ({
       name:symbol
@@ -21,7 +21,7 @@ const getTicker=()=>{
 }
 db.operations.findOne({raw:true,where:{key_:'PERIOD_POLL_TICKER'}}).then(resp=>{
 	if(resp && resp['value_']){PERIOD_POLL_TICKER=parseInt(resp['value_'])
-		setTimeout(()=>{console.log(`Polling price tickers-${symbol}`); if(true){getTicker()}
+		setTimeout(()=>{console.log(`Polling-${symbol}`); if(true){getTicker()}
 			setInterval(()=>{		getTicker()			}, PERIOD_POLL_TICKER )
 		},13.5*1000)
 	}

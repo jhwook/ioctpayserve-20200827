@@ -1,4 +1,6 @@
 
+insert into tokens(name,netkind,nettype,address) values ('USDT','ropsten','testnet','0xdac17f958d2ee523a2206206994597c13d831ec7');
+mysqldump -u root -p --databases ioctpay > ioctpaydump-20200903.sql
 
 insert 126ccS2semhunmsgjAUCBnQNZpDuzr6Vt1
 insert into tokens (name,decimals,netkind,denominatorexp) values ('ETH',18,'ropsten',18);

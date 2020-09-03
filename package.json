@@ -6,8 +6,11 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "ajax": "0.0.4",
     "async-redis": "^1.1.7",
     "axios": "^0.20.0",
+    "bitcoinjs-lib": "^5.1.10",
+    "bitcore": "^4.1.1",
     "coininfo": "^5.1.0",
     "coinkey": "^3.0.0",
     "cookie-parser": "~1.4.4",

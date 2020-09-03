@@ -93,7 +93,11 @@ module.exports = function(sequelize, DataTypes) {
     txtime:{
       type: DataTypes.STRING(20),
       allowNull: true
-    }
+    },
+    nettype:{
+      type: DataTypes.STRING(15),
+      allowNull: true
+    },
   }, {
     tableName: 'transactions'
   });

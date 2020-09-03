@@ -1,9 +1,9 @@
 
 const axios=require('axios'),moment=require('moment')
 let {web3,netkind}=require('../../configs/ETH/configweb3') // const API_TXS=netkind=='mainnet'? 'https://api.etherscan.io/api?module=account&action=txlist&sort=asc&apikey=GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'  : 'https://api-ropsten.etherscan.io/api?module=account&action=txlist&sort=asc&apikey=GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
-const API_TXS='https://api-ropsten.etherscan.io/api'
+const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/api`
 const db=require('../../models')
-const {getRandomInt,isequalinlowercases}=require('../../utils')
+const {getRandomInt,isequalinlowercases,convweitoeth}=require('../../utils')
 const {TIMESTRFORMAT}=require('../../configs/configs')
 const ENDBLOCKDUMMY4QUERY=50000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH'
@@ -29,6 +29,7 @@ const pollblocks=jdata=>{  const {address,}=jdata
       ,sort:'asc'
       , apikey:'GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
     }
+    try{console.log(API_TXS)
     axios.get(API_TXS,{params:{... query}}).then(resp=>{ // console.log(resp)
       if(resp){} else {return false}
       if(resp.data.result && resp.data.result.length<1){return false} else {}
@@ -39,12 +40,13 @@ const pollblocks=jdata=>{  const {address,}=jdata
         if (txdata.isError=='1'){continue} else {} // return false
         const curbn=parseInt(txdata.blockNumber)
         if(maxblocknumber<curbn){maxblocknumber=curbn, txdataatmax=txdata}; amountcumul+=parseInt(txdata.value )
+        const amtraw=txdata.value
         db.transactions.create({
           username:username
-          , currency:'ETH'
-          , fromamount:txdata.value
-          , toamount:txdata.value
-          , amountfloatstr:convweitoeth(txdata['value'])
+          , currency:CURRENCYLOCAL
+          , fromamount:amtraw
+          , toamount:amtraw
+          , amountfloatstr:convweitoeth(amtraw)
           , fromaddress:txdata.from
           , toaddress:address
           , direction:'IN'
@@ -66,6 +68,7 @@ console.log('txdataatmax',txdataatmax)
       else      { db.blockbalance.create({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['value'],amountcumul:amountcumul      ,address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind      })      }
       db.balance.update({amount:db.sequelize.literal(`amount+${amountcumul}`)},{where:{username:username,currency:currency,netkind:netkind}})
     })
+  } catch(err){console.log(err)}
   })
 }
 init()

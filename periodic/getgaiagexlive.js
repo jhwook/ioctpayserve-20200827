@@ -21,7 +21,7 @@ const getTicker=()=>{
 }
 db.operations.findOne({raw:true,where:{key_:'PERIOD_POLL_TICKER_GEX'}}).then(resp=>{
 	if(resp && resp['value_']){PERIOD_POLL_TICKER=parseInt(resp['value_'])
-		setTimeout(()=>{console.log(`Polling price tickers-${symbol}`); if(true){getTicker()}
+		setTimeout(()=>{console.log(`Polling GEX-${symbol}`); if(true){getTicker()}
 			setInterval(()=>{		getTicker()			}, PERIOD_POLL_TICKER )
 		},7.5*1000)
 	}

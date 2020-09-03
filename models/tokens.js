@@ -55,6 +55,9 @@ module.exports = function(sequelize, DataTypes) {
     }, group_:{
       type: DataTypes.STRING(15),
       allowNull: true
+    }, nettype:{
+      type: DataTypes.STRING(15),
+      allowNull: true
     }
     }, {
     tableName: 'tokens'

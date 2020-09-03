@@ -1,6 +1,6 @@
 const axios=require('axios'),moment=require('moment')
-let {web3,netkind}=require('../../configs/ETH/configweb3') // const API_TXS=netkind=='mainnet'? 'https://api.etherscan.io/api?module=account&action=txlist&sort=asc&apikey=GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'  : 'https://api-ropsten.etherscan.io/api?module=account&action=txlist&sort=asc&apikey=GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
-const API_TXS='https://api-ropsten.etherscan.io/api'
+let {web3,netkind}=require('../../configs/ETH/configweb3') // 
+const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/api`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases, convweitoeth}=require('../../utils')
 const { max } = require('moment')
@@ -28,6 +28,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:'TOK
     ,sort:'asc'
     , apikey:'GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
   }
+  try{  console.log(API_TXS)
   axios.get(API_TXS,{params:{...query}}).then(resp=>{
     if(resp){} else {return false}
     if(resp.data.result && resp.data.result.length<1){return false} else {}
@@ -65,13 +66,14 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:'TOK
       else      {db.blockbalance.create({blocknumber:maxblocknumber,hash:txdataatmax.hash,amount:txdataatmax['value'],address:address,currency:'TOKEN',direction:'IN',netkind:netkind})}
       db.balance.update({blocknumber:jtokenupddata[symbol], amount:db.sequelize.literal(`amount+${jtokenamountcumul[symbol]}`)},{where:{username:username,currency:symbol,netkind:netkind}})
     }
-  })
+  }) } catch(err){console.log(err)}
 })
 }
 const inittoken=()=>{
-  db.tokens.findAll({raw:true ,}).then(aresps=>{
+  db.tokens.findAll({raw:true}).then(aresps=>{
     aresps.forEach(tokendata=>{      if(tokendata['netkind']==netkind){} else {return false}
-      jaddresstokens[tokendata['address'].toLowerCase()]=tokendata;      jsymboltokens [tokendata['symbol'].toUpperCase()]=tokendata
+      if(tokendata['address']){} else {return false}
+      jaddresstokens[tokendata['address'].toLowerCase()]=tokendata;      jsymboltokens [tokendata['name'].toUpperCase()]=tokendata
     })
   })
 }

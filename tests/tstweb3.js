@@ -1,5 +1,78 @@
 
-var CoinKey = require('coinkey')
+fee==in-out
+> jhashtx['e0d16fb9fea351330760d175e108a56a576c7e459e8593df87d63cb8cbe08a12'].inputs[0].prev_out.value
+> jhashtx['e0d16fb9fea351330760d175e108a56a576c7e459e8593df87d63cb8cbe08a12'].out[0].value
+
+const sumupinvalues=txdata=>{let sum=0
+  txdata.inputs.forEach(e=>{    sum+=e.prev_out.value  })
+  return sum
+}
+const sumupoutvalues=txdata=>{let sum=0
+  txdata.out.forEach(e=>{    sum+=e.value  })
+  return sum
+}
+txdata.inputs.reduce((a,b)=>{return a.prev_out.value+b.prev_out.value},0)
+
+address='1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F'
+address='1GGsZ2bxtPaCNF98X9EExeDEfeUaGU5HMw'
+url=`https://blockchain.info/rawaddr/${address}`
+axios.get(url).then(resp0=>{resp=resp0;console.log(resp.data)})
+resp.data.txs.length
+jhashtx={}
+resp.data.txs.forEach(tx=>{
+  const key=tx['hash'];console.log(key);  jhashtx[ key]=tx
+})
+Object.keys(jhashtx).length
+jhashtx['7445b79c8293dcacb1af66163cdb70fcfe7aca4858ad7653e6fae8f4f139db4b'] // outgoing
+jhashtx['92b155a730680b0fb8df2fd14e27d9db3f29ca64648f6a1c80ec0b5770f3a88f'] // incoming
+
+> jhashtx['96ab155fd23cfde5695ca8a7003d9a8f4649050c24042f86f4e8bd3621050d9e'].inputs[0].prev_out.addr // sender's address
+
+
+url=`https://api.blockcypher.com/v1/btc/main/addrs/${address}?after=630711&before=630713`
+axios.get(url).then(resp0=>{resp=resp0;console.log(resp.data)})
+
+let jhashtx={}
+resp.data.txrefs.forEach(tx => {  
+  const key=tx['tx_hash'];console.log(key);  jhashtx[ key]=tx
+})
+
+
+$.post('https://api.blockcypher.com/v1/bcy/test/txs/new', JSON.stringify(newtx)).then(function(d) {console.log(d)})
+
+var utxo = {
+  "txId" : "115e8f72f39fad874cfab0deed11a80f24f967a84079fb56ddf53ea02e308986",
+  "outputIndex" : 0,
+  "address" : "17XBj6iFEsf8kzDMGQk5ghZipxX49VXuaV",
+  "script" : "76a91447862fe165e6121af80d5dde1ecb478ed170565b88ac",
+  "satoshis" : 50000
+};
+
+const newtx = {
+  inputs: [{addresses: ['mkTddhC91V3FSePXS1L31BKTLbaMRstnpt']}],
+  outputs: [{addresses: ['mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg'], value: 100000}]
+};
+axios.post('https://api.blockcypher.com/v1/bcy/test/txs/new', { ... newtx} ).then(function(d) {console.log(d)})
+
+[]btc testnet
+ [2]public: mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg
+ private: 9293qUfovVd76dLjBQqHqkim5GGgz1fbRFZqWJoHHXGMWpzvrUq
+
+[1]public mkTddhC91V3FSePXS1L31BKTLbaMRstnpt
+private : 93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg
+
+[]
+import * as bitcoin from 'bitcoinjs-lib'
+let bitcoin=require( 'bitcoinjs-lib')
+ TESTNET = bitcoin.networks.testnet
+
+ keyPair = bitcoin.ECPair.makeRandom({ network: TESTNET })
+keyPair.publicKey.toString('base64') => A0oEI4Go3f02vxvlFNHctruL3QPoC4IHe9mm5uKLGhB0'
+XXX 'AzM8KLXPiOfwTnpi4nmNzyIHss1U1m43tqs5H/aHf/8g'
+keyPair.privateKey.toString('base64')
+keyPair.privateKey.base64Slice() => 'T/GVwAV7LfdTYBrBGU0vkE2kOaBZ7JvB5E0fDxeLFSI='
+
+[]var CoinKey = require('coinkey')
 var ci = require('coininfo') 
 var ck = CoinKey.fromWif('Kx7c9qKwYkdgpPdD7rZk6tNJuEuRDBey3p8TMVFefLrpQS6WcSpN')
 ck.versions = ci('BTC-TEST')
@@ -7,6 +80,8 @@ console.log(ck.publicAddress)
 
 1GGsZ2bxtPaCNF98X9EExeDEfeUaGU5HMw
 
+[]
+axios.get('https://api.blockcypher.com/v1/btc/test3/addrs/mkTddhC91V3FSePXS1L31BKTLbaMRstnpt').then(resp=>{console.log(resp.data)})
 []
 axios.get('https://api.blockcypher.com/v1/btc/main/addrs/1GGsZ2bxtPaCNF98X9EExeDEfeUaGU5HMw?after=607749').then(resp=>{console.log(resp.data)})
 =>romise { <pending> }

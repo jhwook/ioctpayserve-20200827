@@ -14,7 +14,7 @@ const logger4 = log4js.getLogger(); logger4.level = 'debug'
 const ethNetKind='mainnet',netkind=ethNetKind
 const axios=require('axios');
 const API_EST_GAS=`${ethNetSvcAddr}`
-console.log('Polling gas prices')
+console.log('Polling-ETH gas')
 const tkntxdatalong='f8a90a8504e3b29200827458948686b7d8a9c10f53819ed2a8e3aac0cedf6fa9cf80b844a9059cbb000000000000000000000000729e5ae8e1b3dcab5f0a1dc74eac22937172e5c90000000000000000000000000000000000000000000000000000000005f5e10026a0ab4018f894b59a296654947cf303bdb60a35b6b1764ab70a2feee9101871cf2ca03486b30e6276ce883cdffa00051b127a3ba83d654f19d57cc972915015045596'
 const tkntxdata='0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675'
 cron.schedule(`*/15 * * * *`,()=>{
@@ -39,7 +39,7 @@ cron.schedule(`*/15 * * * *`,()=>{
 			, ratiolimituseoverest: GAS_LIMIT_ETH/estlimit
 			, currency:null
 		})
-		console.log(`${GAS_PRICE_ETH} wei: X${(GAS_PRICE_ETH/estprice).toFixed(3)},${GAS_LIMIT_ETH}: X${(GAS_LIMIT_ETH/estlimit).toFixed(3)},${moment().format('HH:mm:ss.SSS')}`)
+		console.log(`${(GAS_PRICE_ETH/10**9).toFixed(2)} GWei: X${(GAS_PRICE_ETH/estprice).toFixed(3)},${GAS_LIMIT_ETH}: X${(GAS_LIMIT_ETH/estlimit).toFixed(3)}@${moment().format('HH:mm:ss.SSS')}`)
 	})
 })
 module.exports={}
