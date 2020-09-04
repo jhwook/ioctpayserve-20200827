@@ -1,5 +1,5 @@
 const db=require('./models')
-const moment=require('moment');const {netkind}=require('./configs/ETH/configweb3')
+const moment=require('moment');const {netkind,nettype}=require('./configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 const {KEYNAME_MARKETPRICES,POINTSKINDS}=require('./configs/configs')
 const messages=require('./configs/messages')
@@ -9,7 +9,7 @@ const respwithdata=(res,data)=>{res.status(200).send({status:'OK',... data});ret
 const respok=(res,msg,code,jdata)=>{res.status(200).send({status:'OK',message:msg,code:code,... jdata});return false}
 const getpricesstr=async ()=>{return await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')}
 const getethfloatfromweistr=(str)=>{return parseInt(str)/10**18}
-const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return parseFloat(numfloat)*10**exp}
+const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return parseInt(parseFloat(numfloat)*10**exp) }
 const convweitoeth=(numint,decimals)=>  {const exp=decimals?decimals:18; return parseInt(numint)/10**exp}
 const convtohex=(intdec)=>{return `0x${intdec.toString(16)}`}
 const isequalinlowercases=(str0,str1)=>{return str0.toLowerCase()==str1.toLowerCase()}
@@ -24,18 +24,21 @@ const getusernamefromsession=async req=>{if(req.headers.token){} else {return nu
   const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}})
   if(session){ return session['username']} else {return null}
 }
-const incdecbalance=(jdata,txdata)=>{const {username,currency,amountdelta}=jdata
-  if(txdata){amountdelta+=txdata['gas']*txdata['gasPrice']}
-  db.balance.update({amount:db.sequelize.literal(`amount-${amountdelta}`)},{where:{username:username,currency:currency}})
+const incdecbalance=(jdata,txdata,calldata)=>{let {username,currency,amountdelta}=jdata;console.log(jdata)
+  if(txdata){amountdelta+=txdata['gasUsed']*calldata['GAS_PRICE']} // txdata['gas']*txdata['gasPrice']}
+  db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}}).then(resp=>{    const amt01=resp.dataValues.amount-parseInt(amountdelta)
+    resp.update({amount:amt01    , amountfloat:convweitoeth(amt01)    })
+  })
+//  db.balance.update({amount:db.sequelize.literal(`amount-${parseInt(amountdelta)}`)},{where:{username:username,currency:currency,nettype:nettype}})
 } // incdecbalance({username:'',curency:'',amountdelta:''})
-const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{
-  db.balance.findOne({raw:true,where:{ ... jdata }}).then(resp=>{
-    if(resp){    const amtwei=resp['amount']-resp['amountlocked']      
+const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,}=jdata
+  db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype }}).then(resp=>{
+    if(resp){    const amtwei=resp['amount']-resp['amountlocked']
       resolve(bfloatwei && bfloatwei=='float'? amtwei/10**resp['denominatorexp']: amtwei )
     } else {reject('NOT-FOUND')}
   }).catch(err=>{reject(err.toString())})
 })}
-const getRandomInt=(min,max)=> {
+const getRandomInt=(min,max)=>{
   min = Math.ceil(min)
   max = Math.floor(max)
   return Math.floor(Math.random() * (max - min)) + min; //최댓값은 제외, 최솟값은 포함

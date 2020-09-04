@@ -2,7 +2,7 @@
 delete from balance;
  delete from blockbalance;
 delete from transactions;
-
+delete from users
 delete from users;
 
 

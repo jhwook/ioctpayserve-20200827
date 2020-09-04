@@ -1,4 +1,8 @@
 
+acct #05 
+prvk: a92bab061a600a34ef211c8b3f1c27cdc349ecd7cd94a1c83ea5bcb999dc35e2
+addr: 0x13f4B0b65Ae6bCB8DfB7c98a54e74732a6D36BBB
+
  bitcoin = require('bitcoinjs-lib')
  currentNetwork = bitcoin.networks.testnet
   > keyPair = bitcoin.ECPair.fromWIF('93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg',currentNetwork)
@@ -7,10 +11,6 @@
   txb.addInput('3ea08344e15c0c6c84760ffcbb0bb98f28d12b1cd9bc7ac504dba31e6e9c869e', 0)
   txb.addOutput('mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg',100000)
   txb.sign(0, keyPair)
-
-
-
-
   currentNetwork = bitcoin.networks.testnet
 
 fee==in-out

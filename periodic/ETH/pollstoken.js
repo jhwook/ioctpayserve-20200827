@@ -3,9 +3,9 @@ let {web3,netkind,nettype}=require('../../configs/ETH/configweb3') //
 const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/api`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases, convweitoeth,gettimestr}=require('../../utils')
-const { max } = require('moment')
-const ENDBLOCKDUMMY4QUERY=70000000
-const PERIOD_DIST_POLLS=60*10*1000,CURRENCYKIND='ETH'
+const users = require('../../models/users')
+const ENDBLOCKDUMMY4QUERY=70000000,TIMESTRFORMAT='YYYY-MM-DD HH:mm:ss'
+const PERIOD_DIST_POLLS=60*10*1000,CURRENCYKIND='ETH',DECIMALS_DEF=18
 let jaddresses={},jaddresstokens={},jsymboltokens={}
 const init=()=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address
@@ -47,7 +47,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:'TOK
         , currency:tokendata['symbol']
         , fromamount:txdata['value']
         , toamount:txdata['value']
-        , amountfloatstr:convweitoeth(txdata['value'])
+        , amountfloatstr:convweitoeth(txdata['value'],jaddresstokens && jaddresstokens[address] && jaddresstokens[address].denomintorexp?jaddresstokens[address].denomintorexp:DECIMALS_DEF )
         , fromaddress:txdata['from']
         , toaddress:address
         , direction:'IN'
@@ -58,15 +58,20 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:'TOK
         , kind:'DEPOSIT'
         , netkind:netkind
         , nettype:nettype
-        , gaslimit:txdata['gas']
+        , gaslimitbid:txdata.gas, gaslimitoffer:txdata.gasUsed
         , gasprice:txdata['gasPrice']
         , fee:parseInt(txdata.gas)*parseInt(txdata.gasPrice)
         , txtime:moment.unix(txdata['timeStamp']).format(TIMESTRFORMAT)
       })
-      if(respbb){db.blockbalance.update({blocknumber:maxblocknumber,hash:txdataatmax.hash,amount:txdataatmax['value'],currencykind:CURRENCYKIND},{where:{address:address,currencykind:'TOKEN',direction:'IN',netkind:netkind}})}
-      else      {db.blockbalance.create({blocknumber:maxblocknumber,hash:txdataatmax.hash,amount:txdataatmax['value'],currencykind:CURRENCYKIND,address:address,currency:'TOKEN',direction:'IN',netkind:netkind})}
-      db.balance.update({blocknumber:jtokenupddata[symbol], amount:db.sequelize.literal(`amount+${jtokenamountcumul[symbol]}`)},{where:{username:username,currency:symbol,netkind:netkind}})
     }
+    Object.keys(jtokenamountcumul).forEach(symbol=>{      const amt2inc=jtokenamountcumul[symbol]
+      db.balance.update({blocknumber:jtokenupddata[symbol]
+        , amount:db.sequelize.literal(`amount+${amt2inc}`)
+        , amountfloat:db.sequelize.literal(`amountfloat+${convweitoeth(amt2inc,jsymboltokens[symbol].denomintorexp)}`)
+      },{where:{username:username,currency:symbol,netkind:netkind}})
+    })
+    if(respbb){db.blockbalance.update({blocknumber:maxblocknumber,hash:txdataatmax.hash,amount:txdataatmax['value'],currencykind:CURRENCYKIND},{where:{address:address,currencykind:'TOKEN',direction:'IN',netkind:netkind}})}
+    else      {db.blockbalance.create({blocknumber:maxblocknumber,hash:txdataatmax.hash,amount:txdataatmax['value'],currencykind:CURRENCYKIND,address:address,currency:'TOKEN',direction:'IN',netkind:netkind,username:username})}    
   }) } catch(err){console.log(err)}
 })
 }

@@ -9,7 +9,7 @@ let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN
 const {minAbi4tx}=require('./tokens/abis')
 let jcontracts={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1,DECIMALS=18
-const getgasfee=(limit,pricr,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**18 }
+const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**18 }
 const sendstoken=jdata=>{return new Promise((resolve,reject)=>{
   let {username,rxaddr,amt2sendfloat,amt2sendwei,currency}= jdata  // db.balance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
   getbalance({username:username,currency:'ETH'},'float').then(respbal=>{
@@ -44,7 +44,7 @@ const sendstoken=jdata=>{return new Promise((resolve,reject)=>{
               , amountafter:balance-amt2sendwei
               , kind:'WITHDRAW'
               , netkind:netkind
-              , gaslimit:resptx['gas']
+              , gaslimitbid:resptx['gas'], gaslimitoffer:resptx['gasUsed']
               , gasprice:resptx['gasPrice']
               , fee:fee
               ,txtime:moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT)
@@ -70,28 +70,34 @@ const sendstoken=jdata=>{return new Promise((resolve,reject)=>{
 })
 }
 const sendseth=jdata=>{return new Promise((resolve,reject)=>{
-  let {username,rxaddr,amt2sendfloat,amt2sendwei}= jdata
+  let {username,rxaddr,amt2sendfloat,amt2sendwei}= jdata;console.log(jdata, '@73')
   db.balance.findOne({raw:true,where:{username:username,currency:'ETH',netkind:netkind}}).then(respacct=>{
-    if(respacct){} else {console.log('acct not found');reject({status:'ERR',message:'Acct not found'})}
-    if(respacct['canwithdraw']){} else {reject({status:'ERR',message:'Withdraw BANNED'})}
-    let address=respacct['address']; if(address){} else {reject({status:'ERR',message:'Address not found'})}
+    if(respacct){} else {console.log('acct not found');reject({status:'ERR',message:'Acct not found'});return false}
+    if(respacct['canwithdraw']){} else {console.log('Withdraw BANNED'); reject({status:'ERR',message:'Withdraw BANNED'});return false}
+    let address=respacct['address']; if(address){} else {console.log('Address not found'); reject({status:'ERR',message:'Address not found'});return false}
 //    resolve('OK') ;return false
-    web3.eth.getBalance(address).then(async balance=>{		if(balance){} 	else {reject({status:'ERR',message:'Network not avail.'})}
+    web3.eth.getBalance(address).then(async balance=>{		if(balance){} 	else {reject({status:'ERR',message:'Network not avail.'});return false}
       const amteth=utils.getethfloatfromweistr(balance); console.log(address,balance,balance/10**18, gettimestr())
-      if(amt2sendfloat>=amteth){ reject({status:'ERR',message:'Balance not enough'})}
+
+      if(amt2sendfloat>=amteth){console.log('Balance not enough'); reject({status:'ERR',message:'Balance not enough'});return false}
       const gasfee=getgasfee(GAS_LIMIT_ETH,GAS_PRICE_ETH,'float')
-      if(amt2sendfloat+gasfee<=amteth){} else {reject({status:'ERR',message:'Balance not enough(77096)'})}
+      console.log(amt2sendfloat,gasfee,amteth)
+      if(amt2sendfloat+gasfee<=amteth){} else {console.log('Balance not enough(77906)');reject({status:'ERR',message:'Balance not enough(77096)'});return false}
       getbalance({username:username,currency:'ETH'},'float').then(balancecustom=>{
-        if(amt2sendfloat+gasfee<=balancecustom){} else {reject({status:'ERR',message:'Balance not enough(48286'})}
+        console.log('balancecustom' ,balancecustom)
+        if(amt2sendfloat+gasfee<=balancecustom){} else {console.log('Balance not enough(48286)'); reject({status:'ERR',message:'Balance not enough(48286)'});return false}
       const txData = {from:respacct['address']
         , to:rxaddr			, value:amt2sendwei // parseInt(tx.value.toString())- // tx.value.sub() // parseEther(amttoinc.toFixed(6)) //  parseEther( (rcvdamthexwei-).toString() )
         , gasLimit:convtohex(GAS_LIMIT_ETH)			, gasPrice:convtohex(GAS_PRICE_ETH), data:'0x1'
       }
+
       let resptxo={blockNumber:null,transactionHash:null} ;   console.log('sendinout',balance,txData)
       try{
       web3.eth.sendTransaction(txData).on('receipt',async resptx=>{console.log(resptx); resptxo=resptx // resptx0=resptx; // logger4.debug(`sending ${amt2sendfloat.toFixed(6)} ETH from ${address}`)
         if (resptx && resptx['blockNumber']){} else {console.log('TX-FAIL');reject({status:'ERR',message:'Tx fail'}) } //			cliredisa.hdel(KEYNAME_TX_IN_QUEUE,senderrowdata['wallet_address'].toUpperCase() )
-        const fee=parseInt(resptx.gas)*parseInt(resptx.gasPrice)
+        const fee=resptx.gasUsed *GAS_PRICE_ETH // parseInt(resptx.gas)*parseInt(resptx.gasPrice)
+        const _ethamt=convweitoeth(amt2sendwei); console.log(amt2sendwei,parseInt(resptx['blockNumber'])
+        ,resptx['gasUsed'],resptx['gas'],resptx['gasPrice'],_ethamt)
         db.transactions.create({
           username:username
           , currency:'ETH'
@@ -100,18 +106,18 @@ const sendseth=jdata=>{return new Promise((resolve,reject)=>{
           , fromaddress:address
           , toaddress:rxaddr
           , direction:'OUT'
-          , blocknumber:resptx['blockNumber']
+          , blocknumber:parseInt(resptx['blockNumber'])
           , hash:resptx['transactionHash']
-          , amountbefore:balance
-          , amountafter:balance-amt2sendwei
+          , amountbefore:  balance
+          , amountafter:  parseInt(balance)-amt2sendwei
           , kind:'WITHDRAW'
           , netkind:netkind
-          , gaslimit:resptx['gas']
-          , gasprice:resptx['gasPrice']
+          , gaslimitbid:resptx['gas']?resptx['gas']:GAS_LIMIT_ETH, gaslimitoffer:resptx['gasUsed']?resptx['gasUsed']:null
+          , gasprice:resptx['gasPrice']?resptx['gasPrice']:GAS_PRICE_ETH
           , fee:fee
-          , amountfloatstr:convweitoeth(amt2sendwei)
+          , amountfloatstr:_ethamt
         })
-        incdecbalance({... jdata,currency:'ETH', amountdelta:amt2sendwei},resptx)
+        incdecbalance({... jdata,currency:'ETH', amountdelta:amt2sendwei},resptx,{GAS_PRICE:GAS_PRICE_ETH,GAS_LIMIT:GAS_LIMIT_ETH})
         resolve(resptx)
       })
     }  catch(err){

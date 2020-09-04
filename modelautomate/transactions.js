@@ -166,14 +166,23 @@ module.exports = sequelize => {
       comment: null,
       field: "gasprice"
     },
-    gaslimit: {
+    gaslimitbid: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "gaslimit"
+      field: "gaslimitbid"
+    },
+    gaslimitoffer: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "gaslimitoffer"
     },
     fee: {
       type: DataTypes.BIGINT.UNSIGNED,

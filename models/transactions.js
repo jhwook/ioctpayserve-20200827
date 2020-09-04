@@ -78,7 +78,15 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BIGINT,
       allowNull: true
     },
-    gaslimit :{
+    gaslimitbid :{
+      type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    gaslimitoffer :{
+      type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    gasprice:{
       type: DataTypes.BIGINT,
       allowNull: true
     },

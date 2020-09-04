@@ -24,7 +24,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
           , currency:jdata['name']
           , netkind:netkind
           , nettype:nettype
-          , denominatorexp:jdata['demominatorexp']
+          , denominatorexp:jdata['denominatorexp']
           , address:account['address']
           , privatekey:account['privateKey']
           , group_:jdata['group_']

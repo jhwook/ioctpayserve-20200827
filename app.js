@@ -42,3 +42,8 @@ app.use(function(err, req, res, next) {
 
 module.exports = app;
 const periodic=require('./periodic')
+const cron=require('node-cron'),moment=require('moment')
+console.log(`Launching ${moment().format('HH:mm:ss, YYYY-MM-DD')}`)
+cron.schedule('*/1 * * * *',()=>{
+  console.log(moment().format('HH:mm:ss, YYYY-MM-DD')) 
+})

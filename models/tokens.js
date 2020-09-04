@@ -58,6 +58,9 @@ module.exports = function(sequelize, DataTypes) {
     }, nettype:{
       type: DataTypes.STRING(15),
       allowNull: true
+    }, canwithdraw:{
+      type: DataTypes.INTEGER(3),
+      allowNull: true
     }
     }, {
     tableName: 'tokens'

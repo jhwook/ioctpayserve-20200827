@@ -6,14 +6,14 @@ const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
 const {TIMESTRFORMAT}=require('../../configs/configs')
 const ENDBLOCKDUMMY4QUERY=50000000
-const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH'
+const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH',CURRENCYDECIMALS=18, DELTA_T_SHORT=60*1.5*1000
 let jaddresses={}
 const init=()=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address // ;console.log(address,'ETH')
     db.balance.findOne({raw:true,where:{address:address,netkind:netkind,currency:CURRENCYLOCAL }}).then(resp=>{      if(resp){} else {return false} // console.log(resp);
-      jaddresses[address]=resp['username'];const deltat=getRandomInt(5*1000, PERIOD_DIST_POLLS);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
-      setTimeout(()=>{
-        setInterval(()=>{pollblocks({address:address})
+      jaddresses[address]=resp['username'];const deltat=getRandomInt(5*1000, DELTA_T_SHORT);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
+      setTimeout(()=>{    pollblocks({address:address})
+        setInterval(()=>{ pollblocks({address:address})
         }, PERIOD_DIST_POLLS)
       } ,deltat )
     })
@@ -57,7 +57,7 @@ const pollblocks=jdata=>{  const {address,}=jdata
           , kind:'DEPOSIT'
           , netkind:netkind
           , nettype:nettype
-          , gaslimit:txdata.gas
+          , gaslimitbid:txdata.gas, gaslimitoffer:txdata.gasUsed
           , gasprice:txdata.gasPrice
           , fee:parseInt(txdata.gas)*parseInt(txdata.gasPrice)
           , txtime:moment.unix(txdata['timeStamp']).format(TIMESTRFORMAT)
@@ -65,9 +65,13 @@ const pollblocks=jdata=>{  const {address,}=jdata
       }
 //      })
 console.log('txdataatmax',txdataatmax)
+if(Object.keys(txdataatmax).length>0) {} else {return false}
       if(respbb){ db.blockbalance.update({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['value'],amountcumul:db.sequelize.literal(`amountcumul+${amountcumul}`),currencykind:CURRENCYLOCAL      },{where:{address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind}})      }  // txdataatmax['blockNumber']
-      else      { db.blockbalance.create({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['value'],amountcumul:amountcumul,      currencykind:CURRENCYLOCAL,address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind      })      }
-      db.balance.update({amount:db.sequelize.literal(`amount+${amountcumul}`)},{where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}})
+      else      { db.blockbalance.create({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['value'],amountcumul:amountcumul,      currencykind:CURRENCYLOCAL,address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind,username:username      })      }
+      db.balance.update({blocknumber:maxblocknumber
+        , amount:db.sequelize.literal(`amount+${amountcumul}`)
+        , amountfloat:db.sequelize.literal(`amountfloat+${convweitoeth(amountcumul,CURRENCYDECIMALS)}`)
+    },{where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}})
     })
   } catch(err){console.log(err)}
   })

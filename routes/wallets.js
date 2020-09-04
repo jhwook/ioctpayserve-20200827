@@ -35,8 +35,8 @@ router.post('/withdraw',async  (req,res)=>{  const username=await getuserortermi
     if(resp){} else {respreqinvalid(res,messages.MSG_ID_OR_PW_INVALID,59497);return false}  //
 //    respok(res);return false
     const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,nettype:nettype}});
-    if(tokendata){} else {return false} const decimals=tokendata['decimals']
-    sends({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount,decimals),currency:currency})
+    if(tokendata){} else {return false} const decimals=tokendata['denominatorexp']
+    sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency})
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})

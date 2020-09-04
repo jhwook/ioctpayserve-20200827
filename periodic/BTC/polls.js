@@ -49,16 +49,19 @@ const pollblocks=jdata=>{const {address,}=jdata
           , amountafter:null
           , kind:'DEPOSIT'
           , netkind:netkind
-          , gaslimit:null
+          , gaslimitbid:null,gaslimitoffer:null
           , gasprice:null
           , fee:getfee(txdata)
           , txtime:moment.unix(txdata['time']).format(TIMESTRFORMAT)
         })
       }
       console.log('txdataatmax',txdataatmax)
-      if(respbb){ db.blockbalance.update({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['result'],amountcumul:db.sequelize.literal(`amountcumul+${amountcumul}`)      },{where:{address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind}})      }  // txdataatmax['blockNumber']
-      else      { db.blockbalance.create({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['result'],amountcumul:amountcumul      ,address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind      })      }
-      db.balance.update({amount:db.sequelize.literal(`amount+${amountcumul}`)},{where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}})
+      if(Object.keys(txdataatmax).length>0) {} else {return false}
+      if(respbb){ db.blockbalance.update({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['result'],amountcumul:db.sequelize.literal(`amountcumul+${amountcumul}`)      },{where:{address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind,username:username}})      }  // txdataatmax['blockNumber']
+      else      { db.blockbalance.create({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['result'],amountcumul:amountcumul      ,address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind,username:username      })      }
+      db.balance.update({blocknumber:maxblocknumber
+        ,  amount:db.sequelize.literal(`amount+${amountcumul}`)
+        , amountfloat:db.sequelize.literal(`amountfloat+${convweitoeth(amountcumul,CURRENCYDECIMALS)}`      )},{where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}})
     })
   } catch(err){console.log(err)}
   })
