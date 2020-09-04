@@ -32,7 +32,7 @@ router.post('/withdraw',async  (req,res)=>{  const username=await getuserortermi
   const {amount,address,pw,currency}=req.body; console.log(req.body)
   if(amount && address && pw && username && currency){} else {respreqinvalid(res,messages.MSG_PLEASE_INPUT_DATA,67648);return false}
   db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(async resp=>{
-    if(resp){} else {respreqinvalid(res,'비번이맞지않습니다',59497);return false}  //
+    if(resp){} else {respreqinvalid(res,messages.MSG_ID_OR_PW_INVALID,59497);return false}  //
 //    respok(res);return false
     const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,nettype:nettype}});
     if(tokendata){} else {return false} const decimals=tokendata['decimals']

@@ -1,4 +1,18 @@
 
+ bitcoin = require('bitcoinjs-lib')
+ currentNetwork = bitcoin.networks.testnet
+  > keyPair = bitcoin.ECPair.fromWIF('93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg',currentNetwork)
+   txb = new bitcoin.TransactionBuilder(currentNetwork)
+
+  txb.addInput('3ea08344e15c0c6c84760ffcbb0bb98f28d12b1cd9bc7ac504dba31e6e9c869e', 0)
+  txb.addOutput('mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg',100000)
+  txb.sign(0, keyPair)
+
+
+
+
+  currentNetwork = bitcoin.networks.testnet
+
 fee==in-out
 > jhashtx['e0d16fb9fea351330760d175e108a56a576c7e459e8593df87d63cb8cbe08a12'].inputs[0].prev_out.value
 > jhashtx['e0d16fb9fea351330760d175e108a56a576c7e459e8593df87d63cb8cbe08a12'].out[0].value
@@ -28,7 +42,6 @@ jhashtx['92b155a730680b0fb8df2fd14e27d9db3f29ca64648f6a1c80ec0b5770f3a88f'] // i
 
 > jhashtx['96ab155fd23cfde5695ca8a7003d9a8f4649050c24042f86f4e8bd3621050d9e'].inputs[0].prev_out.addr // sender's address
 
-
 url=`https://api.blockcypher.com/v1/btc/main/addrs/${address}?after=630711&before=630713`
 axios.get(url).then(resp0=>{resp=resp0;console.log(resp.data)})
 
@@ -36,7 +49,6 @@ let jhashtx={}
 resp.data.txrefs.forEach(tx => {  
   const key=tx['tx_hash'];console.log(key);  jhashtx[ key]=tx
 })
-
 
 $.post('https://api.blockcypher.com/v1/bcy/test/txs/new', JSON.stringify(newtx)).then(function(d) {console.log(d)})
 
@@ -63,6 +75,9 @@ private : 93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg
 
 []
 import * as bitcoin from 'bitcoinjs-lib'
+import balance from '../models/balance'
+import blockbalance from '../models/blockbalance';
+import users from '../models/users';
 let bitcoin=require( 'bitcoinjs-lib')
  TESTNET = bitcoin.networks.testnet
 
@@ -178,7 +193,7 @@ curl -H "X-BH-APIKEY: tAQfOrPIZAhym0qHISRt8EFvxPemdBm5j5WMlkm3Ke9aFp0EGWC2CGM8GH
 https://openapi.digifinex.vip/v2/ticker?apiKey=98334b4bae50d4&symbol=
 
   for (let i in web3.eth.accounts.wallet.length){    const address=web3.eth.accounts.wallet[i].address;console.log(address)
-    db.balance.findOne({raw:true,where:{address:address.toLowerCase()}}).then(resp=>{      if(resp){} else {return false}
+    db.balance.findOne({raw:true,where:{address:address.toLower,Case()}}).then(resp=>{      if(resp){} else {return false}
       jaddresses[address]=resp['username']
     })
   }
