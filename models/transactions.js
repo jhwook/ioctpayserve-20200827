@@ -63,11 +63,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     }
     , amountbefore: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL,
       allowNull: true
     }
     , amountafter: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL,
       allowNull: true
     }    , 
     netkind: {

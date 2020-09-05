@@ -65,10 +65,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(20),
       allowNull: true
     }
-    , blocknumber : {
+    , blocknumberrx : {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: true
-    },
+    }
+    , blocknumbertx : {
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true
+    },    
     nettype:{
       type: DataTypes.STRING(15),
       allowNull: true

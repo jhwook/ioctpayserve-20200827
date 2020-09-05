@@ -66,6 +66,15 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "updatedat"
+    },
+    USDT: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "USDT"
     }
   };
   const options = {

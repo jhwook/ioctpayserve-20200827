@@ -24,12 +24,27 @@ const getusernamefromsession=async req=>{if(req.headers.token){} else {return nu
   const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}})
   if(session){ return session['username']} else {return null}
 }
-const incdecbalance=(jdata,txdata,calldata)=>{let {username,currency,amountdelta}=jdata;console.log(jdata)
-  if(txdata){amountdelta+=txdata['gasUsed']*calldata['GAS_PRICE']} // txdata['gas']*txdata['gasPrice']}
+const incdecbalance_reflfee=(jdata,txdata,calldata)=>{let {username,currency,amountdelta}=jdata;console.log(jdata);let  blocknumber
+  if(txdata){amountdelta+=txdata['gasUsed']*calldata['GAS_PRICE']
+    blocknumber=txdata['blockNumber']
+  } // txdata['gas']*txdata['gasPrice']}  
   db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}}).then(resp=>{    const amt01=resp.dataValues.amount-parseInt(amountdelta)
-    resp.update({amount:amt01    , amountfloat:convweitoeth(amt01)    })
+    let jdata2upd={amount:amt01    , amountfloat:convweitoeth(amt01),blocknumbertx:blocknumber    }
+    if(blocknumber>resp['blocknumbertx']){} else {delete jdata2upd['blocknumbertx']}
+    resp.update(jdata2upd)
+  }) //  db.balance.update({amount:db.sequelize.literal(`amount-${parseInt(amountdelta)}`)},{where:{username:username,currency:currency,nettype:nettype}})
+} // incdecbalance({username:'',curency:'',amountdelta:''})
+const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}=jdata;console.log(jdata) // ,txdata,calldata
+  let _respbal=db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}})
+  let _resptkn=db.tokens.findOne( {raw:true,where:{name:currency,nettype:nettype }})
+  const blocknumber=resptx['blockNumber']
+  Promise.all([_respbal,_resptkn]).then(aresps=>{
+    let [respbal,resptkn]=aresps; console.log('resptkn',resptkn)
+    const amt01= respbal.dataValues.amount-parseInt(amountdelta)
+    let jdata2upd={amount:amt01    , amountfloat:convweitoeth(amt01,resptkn['denominatorexp']),blocknumbertx:blocknumber    }
+    if(blocknumber>respbal['blocknumbertx']){}     else {      delete jdata2upd['blocknumbertx']    }
+    respbal.update(jdata2upd)
   })
-//  db.balance.update({amount:db.sequelize.literal(`amount-${parseInt(amountdelta)}`)},{where:{username:username,currency:currency,nettype:nettype}})
 } // incdecbalance({username:'',curency:'',amountdelta:''})
 const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,}=jdata
   db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype }}).then(resp=>{
@@ -104,5 +119,5 @@ const doexchangeXX=(username,jdata)=>{
 }
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,gettimestr,convtohex
-  ,incdecbalance,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorterminate
+  ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorterminate
 }

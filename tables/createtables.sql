@@ -1,10 +1,46 @@
 
+insert into exchangerates (sitename,currency0,C,S,K) values ('IOTC','BTC',40,60,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('IOTC','ETH',90,10,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('IOTC','GAIA',98,2,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('IOTC','IOTC',100,0,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('IOTC','USDT',92,8,10);
+
+create table exchangerates (
+	id int unsigned primary key auto_increment
+	, currency0 varchar(20)
+	, currency1 varchar(20)
+	, amount0 int unsigned
+	, amount1 int unsigned
+  , createdat datetime default current_timestamp
+  , updatedat datetime default current_timestamp
+  , partitionratios varchar(50)
+  , address varchar(80)
+  , netkind varchar(10)
+  , nettype varchar(10)
+  , sitename varchar(20) 
+  , collectoraddress varchar(80)
+  , priceisfixed tinyint
+  , fixedprice float 
+  , canwithdraw tinyint default 1
+);
+create table (
+  id int unsigned not null primary key auto_increment
+  , sitename varchar(20)
+  , tokenname varchar(20)
+  , address varchar(80)
+  , exchangerate 
+);
+select * from balance;
+select * from blockbalance;
+select * from transactions;
+select * from users;
+
+delete from sessionkeys;
+
 delete from balance;
  delete from blockbalance;
 delete from transactions;
 delete from users
-delete from users;
-
 
 insert into tokens(name,netkind,nettype,address) values ('USDT','ropsten','testnet','0xdac17f958d2ee523a2206206994597c13d831ec7');
 mysqldump -u root -p --databases ioctpay > ioctpaydump-20200903.sql

@@ -5,9 +5,11 @@ const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession,getuserorterminate}=require('../utils')
 const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
-const {sendseth,sendstoken}=require('../periodic/ETH/sends')
+const {sendseth}=require('../periodic/ETH/sendseth')
+const {sendstoken}=require('../periodic/ETH/sendstoken')
+// const {sendseth,sendstoken}=require('../periodic/ETH/sends')
 const utils = require('../utils');
-const { netkind,nettype } = require('../configs/ETH/configweb3');
+const { netkind,nettype } = require('../configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 /* GET users listing. */
 router.get('/marketprice',async (req,res)=>{const {currency}=req.query;
@@ -87,7 +89,6 @@ router.get('/userpref',async (req,res)=>{ const username=await getuserorterminat
   })
 }) //
 module.exports = router
-
 const sends=jdata=>{
   const {currency}=jdata
   switch(currency){
@@ -97,7 +98,6 @@ const sends=jdata=>{
   }
   return false
 }
-
 /*router.post('/exchangeXX',async (req,res)=>{  const {currency0, amount0}=req.body
   if(currency0 && amount0 ){} else {respreqinvalid(res,'ARG-MISSING',79655);return false} // && currency1 amount1 && && usernamecurrency1,,amount1,username
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{

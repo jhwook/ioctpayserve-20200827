@@ -23,9 +23,9 @@ module.exports = sequelize => {
       field: "username"
     },
     withdrawpw: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(15),
       allowNull: true,
-      defaultValue: null,
+      defaultValue: "123456",
       primaryKey: false,
       autoIncrement: false,
       comment: null,
@@ -66,6 +66,15 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "pw"
+    },
+    active: {
+      type: DataTypes.INTEGER(4),
+      allowNull: true,
+      defaultValue: "1",
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "active"
     }
   };
   const options = {

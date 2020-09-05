@@ -13,50 +13,41 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    name: {
-      type: DataTypes.STRING(10),
+    currency0: {
+      type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "name"
+      field: "currency0"
     },
-    address: {
-      type: DataTypes.STRING(80),
+    currency1: {
+      type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "address"
+      field: "currency1"
     },
-    decimals: {
-      type: DataTypes.INTEGER(3).UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "decimals"
-    },
-    supply: {
+    amount0: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "supply"
+      field: "amount0"
     },
-    netkind: {
-      type: DataTypes.STRING(10),
+    amount1: {
+      type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "netkind"
+      field: "amount1"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -76,75 +67,57 @@ module.exports = sequelize => {
       comment: null,
       field: "updatedat"
     },
-    MINAMOUNT_TOWITHDRAW: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
+    partitionratios: {
+      type: DataTypes.STRING(50),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "MINAMOUNT_TOWITHDRAW"
+      field: "partitionratios"
     },
-    MAXAMOUNT_TOWITHDRAW: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
+    C: {
+      type: DataTypes.INTEGER(11),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "MAXAMOUNT_TOWITHDRAW"
+      field: "C"
     },
-    symbol: {
-      type: DataTypes.STRING(15),
+    S: {
+      type: DataTypes.INTEGER(11),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "symbol"
+      field: "S"
     },
-    denominatorexp: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
+    K: {
+      type: DataTypes.INTEGER(11),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "denominatorexp"
+      field: "K"
     },
-    group_: {
-      type: DataTypes.STRING(15),
+    sitename: {
+      type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "group_"
-    },
-    nettype: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "nettype"
-    },
-    canwithdraw: {
-      type: DataTypes.INTEGER(4),
-      allowNull: true,
-      defaultValue: "1",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "canwithdraw"
+      field: "sitename"
     }
   };
   const options = {
-    tableName: "tokens",
+    tableName: "exchangeratesXX",
     comment: "",
     indexes: []
   };
-  const TokensModel = sequelize.define("tokens_model", attributes, options);
-  return TokensModel;
+  const ExchangeratesXxModel = sequelize.define("exchangeratesXX_model", attributes, options);
+  return ExchangeratesXxModel;
 };

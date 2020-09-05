@@ -13,41 +13,41 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    currency0: {
+    username: {
       type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "currency0"
+      field: "username"
     },
-    currency1: {
+    token: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "token"
+    },
+    loginip: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "loginip"
+    },
+    useragent: {
       type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "currency1"
-    },
-    amount0: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amount0"
-    },
-    amount1: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amount1"
+      field: "useragent"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -67,57 +67,21 @@ module.exports = sequelize => {
       comment: null,
       field: "updatedat"
     },
-    partitionratios: {
-      type: DataTypes.STRING(50),
+    active: {
+      type: DataTypes.INTEGER(4),
       allowNull: true,
-      defaultValue: null,
+      defaultValue: "1",
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "partitionratios"
-    },
-    C: {
-      type: DataTypes.INTEGER(11),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "C"
-    },
-    S: {
-      type: DataTypes.INTEGER(11),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "S"
-    },
-    K: {
-      type: DataTypes.INTEGER(11),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "K"
-    },
-    sitename: {
-      type: DataTypes.STRING(20),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "sitename"
+      field: "active"
     }
   };
   const options = {
-    tableName: "exchangerates",
+    tableName: "sessionkeys",
     comment: "",
     indexes: []
   };
-  const ExchangeratesModel = sequelize.define("exchangerates_model", attributes, options);
-  return ExchangeratesModel;
+  const SessionkeysModel = sequelize.define("sessionkeys_model", attributes, options);
+  return SessionkeysModel;
 };

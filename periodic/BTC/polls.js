@@ -1,39 +1,46 @@
 const axios=require('axios'),moment=require('moment')
 let configbtc=require('../../configs/BTC/configbtc'); const {netkind,nettype}=configbtc
-const API_TXS=`https://testnet.blockchain.info/rawaddr` // /${address}`
+const API_TXS=nettype=='testnet'? `https://testnet.blockchain.info/rawaddr` : 'https://blockchain.info/rawaddr' // /${address}`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
-const {TIMESTRFORMAT}=require('../../configs/configs')
+const {TIMESTRFORMAT}=require('../../configs/configs');
+const users = require('../../models/users');
 const ENDBLOCKDUMMY4QUERY=5000000
-const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='BTC',CURRENCYDECIMALS=8 // ,NETKIND=netkind // 'testnet'
+const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='BTC',CURRENCYKIND='BTC',CURRENCYTYPE='BTC',CURRENCYDECIMALS=8, DELTA_T_SHORT=60*1.5*1000 // ,NETKIND=netkind // 'testnet'
+const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
 let jaddresses={}
 const init=()=>{
   db.balance.findAll({raw:true,where:{currency:CURRENCYLOCAL,netkind:netkind}}).then(aresps=>{
     aresps.forEach(acct=>{
       const address=acct['address']
-      jaddresses['address']=acct['username'];const deltat=getRandomInt(9.5*1000, PERIOD_DIST_POLLS);console.log('\u0394',moment(deltat).format('mm:ss'), 'BTC',gettimestr())
-      setTimeout(()=>{
-        setInterval(()=>{pollblocks({address:address})
+      jaddresses[address]=acct['username'];const deltat=getRandomInt(9.5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'), 'BTC',gettimestr())
+      setTimeout(()=>{    pollblocks({address:address})
+        setInterval(()=>{ pollblocks({address:address})
         }, PERIOD_DIST_POLLS)
       }, deltat)
     })
+    console.log(jaddresses)
   })
 }
 const pollblocks=jdata=>{const {address,}=jdata
-  db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currency:CURRENCYLOCAL,netkind:netkind}}).then(respbb=>{let startblock=0
-    if(respbb){startblock=respbb['blocknumber']+1} else {}
-    console.log(startblock,ENDBLOCKDUMMY4QUERY,address)
+  db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYTYPE,netkind:netkind}}).then(respbb=>{let startblock=0
+    if(respbb){ startblock=respbb['blocknumber']+1} else {}
+    console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '@pollbtc')
 //    const query={after:startblock    }
     try{console.log('blockchain.info/')
-    axios.get(`${API_TXS}/${address}`,{params:{}}).then(resp=>{
+    axios.get(`${API_TXS}/${address}`,{params:{}}).then(resp=>{console.log(resp.data)
       if(resp){} else {return false}
-      if(resp.data.txs && resp.data.txs.length<1){return false} else {}
+      if(resp.data.txs && resp.data.txs.length>0){} else {return false}
       let maxblocknumber=-1,txdataatmax=null,amountcumul=0; const username=jaddresses[address]
-      for (let i in resp.data.txs){const txdata=resp.data.txs[i]
-        if(txdata.result>0){} else {return false}
-        if(startblock<txdata['block_height']){} else {return false}
+      for (let i in resp.data.txs){const txdata=resp.data.txs[i]   ;console.log(txdata.result)     
+        if(txdata.result>0){} else {continue}
+        const curbn=parseInt(txdata['block_height']);        console.log(startblock,curbn)
+        if(startblock<=curbn){} else {continue}
         if(maxblocknumber<curbn){maxblocknumber=curbn, txdataatmax=txdata}; amountcumul+=parseInt(txdata.result )
         const amtraw=txdata.result
+        db.balance.findOne({where:{username:username,currency:CURRENCYLOCAL,nettype:nettype}}).then(respbal=>{  const baldata=respbal.dataValues
+
+        })
         db.transactions.create({
           username:username
           , currency:CURRENCYLOCAL
@@ -43,10 +50,10 @@ const pollblocks=jdata=>{const {address,}=jdata
           , fromaddress:getmaxsenderaddress(txdata)
           , toaddress:address
           , direction:'IN'          
-          , blocknumber:txdata['block_height']
+          , blocknumber:curbn // txdata['block_height']
           , hash:txdata['hash']
-          , amountbefore:null
-          , amountafter:null
+          , amountbefore:baldata['amount']
+          , amountafter:baldata['amount']+amtraw
           , kind:'DEPOSIT'
           , netkind:netkind
           , gaslimitbid:null,gaslimitoffer:null
@@ -56,10 +63,10 @@ const pollblocks=jdata=>{const {address,}=jdata
         })
       }
       console.log('txdataatmax',txdataatmax)
-      if(Object.keys(txdataatmax).length>0) {} else {return false}
-      if(respbb){ db.blockbalance.update({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['result'],amountcumul:db.sequelize.literal(`amountcumul+${amountcumul}`)      },{where:{address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind,username:username}})      }  // txdataatmax['blockNumber']
-      else      { db.blockbalance.create({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['result'],amountcumul:amountcumul      ,address:address,currency:CURRENCYLOCAL,direction:'IN',netkind:netkind,username:username      })      }
-      db.balance.update({blocknumber:maxblocknumber
+      if(txdataatmax) {} else {return false}
+      if(respbb){ db.blockbalance.update({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['result'],amountcumul:db.sequelize.literal(`amountcumul+${amountcumul}`)      },{where:{address:address,currencytype:CURRENCYTYPE,currencykind:CURRENCYKIND, direction:'IN',netkind:netkind,username:username}})      }  // txdataatmax['blockNumber']
+      else      { db.blockbalance.create({blocknumber:maxblocknumber      , hash:txdataatmax.hash,amount:txdataatmax['result'],amountcumul:amountcumul      ,address:address,currencytype:CURRENCYTYPE,currencykind:CURRENCYKIND, direction:'IN',netkind:netkind,username:username      })      }
+      db.balance.update({blocknumberrx:maxblocknumber
         ,  amount:db.sequelize.literal(`amount+${amountcumul}`)
         , amountfloat:db.sequelize.literal(`amountfloat+${convweitoeth(amountcumul,CURRENCYDECIMALS)}`      )},{where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}})
     })

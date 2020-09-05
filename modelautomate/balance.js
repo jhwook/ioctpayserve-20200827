@@ -148,14 +148,41 @@ module.exports = sequelize => {
       comment: null,
       field: "netkind"
     },
-    blocknumber: {
+    blocknumberrx: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "blocknumber"
+      field: "blocknumberrx"
+    },
+    group_: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "group_"
+    },
+    nettype: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "nettype"
+    },
+    blocknumbertx: {
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "blocknumbertx"
     }
   };
   const options = {

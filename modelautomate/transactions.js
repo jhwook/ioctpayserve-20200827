@@ -131,7 +131,7 @@ module.exports = sequelize => {
       field: "hash"
     },
     amountbefore: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
@@ -140,7 +140,7 @@ module.exports = sequelize => {
       field: "amountbefore"
     },
     amountafter: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
@@ -175,15 +175,6 @@ module.exports = sequelize => {
       comment: null,
       field: "gaslimitbid"
     },
-    gaslimitoffer: {
-      type: DataTypes.BIGINT.UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "gaslimitoffer"
-    },
     fee: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: true,
@@ -210,6 +201,24 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "txtime"
+    },
+    nettype: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "nettype"
+    },
+    gaslimitoffer: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "gaslimitoffer"
     }
   };
   const options = {

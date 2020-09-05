@@ -84,7 +84,7 @@ module.exports = function(sequelize, DataTypes) {
       autoIncrement: false,
       comment: null,
       field: "updatedat"
-    }, currency:{
+    }, currencytype:{
       type: DataTypes.STRING(15),
       allowNull: true,
     }, currencykind:{

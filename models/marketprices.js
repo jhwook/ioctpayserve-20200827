@@ -20,6 +20,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.FLOAT,
       allowNull: true
     },
+    USDT: {
+      type: DataTypes.FLOAT,
+      allowNull: true
+    },
     units: {
       type: DataTypes.STRING(15),
       allowNull: true

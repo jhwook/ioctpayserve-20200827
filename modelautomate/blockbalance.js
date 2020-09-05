@@ -94,15 +94,6 @@ module.exports = sequelize => {
       comment: null,
       field: "amountcumul"
     },
-    currency: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "currency"
-    },
     currencykind: {
       type: DataTypes.STRING(15),
       allowNull: true,
@@ -111,6 +102,24 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "currencykind"
+    },
+    currencytype: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "currencytype"
+    },
+    netkind: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "netkind"
     }
   };
   const options = {
