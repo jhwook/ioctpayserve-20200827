@@ -46,7 +46,7 @@ const pollblocks=jdata=>{  const {address,}=jdata
         if (txdata.isError=='1'){continue} else {} // return false
         const curbn=parseInt(txdata.blockNumber)
         if(maxblocknumber<curbn){maxblocknumber=curbn, txdataatmax=txdata}; amountcumul+=parseInt(txdata.value )
-        const amtraw=txdata.value
+        const amtraw=txdata.value , fee=parseInt(txdata.gas)*parseInt(txdata.gasPrice)
         db.balance.findOne({where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}}).then(respbal=>{          const baldata=respbal.dataValues
           db.transactions.create({
             username:username
@@ -66,7 +66,8 @@ const pollblocks=jdata=>{  const {address,}=jdata
             , nettype:nettype
             , gaslimitbid:txdata.gas, gaslimitoffer:txdata.gasUsed
             , gasprice:txdata.gasPrice
-            , fee:parseInt(txdata.gas)*parseInt(txdata.gasPrice)
+            , fee:fee
+            , feestr:convweitoeth(fee,CURRENCYDECIMALS)
             , txtime:moment.unix(txdata['timeStamp']).format(TIMESTRFORMAT)
           })  
         })

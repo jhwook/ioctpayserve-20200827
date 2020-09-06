@@ -106,6 +106,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(15),
       allowNull: true
     },
+    feestr:{
+      type: DataTypes.STRING(15),
+      allowNull: true
+    },
   }, {
     tableName: 'transactions'
   });

@@ -9,6 +9,7 @@
     "ajax": "0.0.4",
     "async-redis": "^1.1.7",
     "axios": "^0.20.0",
+    "bigi": "^1.4.2",
     "bitcoinjs-lib": "^5.1.10",
     "bitcore": "^4.1.1",
     "coininfo": "^5.1.0",

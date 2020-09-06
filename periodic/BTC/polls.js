@@ -28,38 +28,39 @@ const pollblocks=jdata=>{const {address,}=jdata
     console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '@pollbtc')
 //    const query={after:startblock    }
     try{console.log('blockchain.info/')
-    axios.get(`${API_TXS}/${address}`,{params:{}}).then(resp=>{console.log(resp.data)
+    axios.get(`${API_TXS}/${address}`,{params:{}}).then(resp=>{ // console.log(resp.data)
       if(resp){} else {return false}
       if(resp.data.txs && resp.data.txs.length>0){} else {return false}
       let maxblocknumber=-1,txdataatmax=null,amountcumul=0; const username=jaddresses[address]
-      for (let i in resp.data.txs){const txdata=resp.data.txs[i]   ;console.log(txdata.result)     
+      for (let i in resp.data.txs){const txdata=resp.data.txs[i]   ;console.log(txdata.result)
         if(txdata.result>0){} else {continue}
         const curbn=parseInt(txdata['block_height']);        console.log(startblock,curbn)
         if(startblock<=curbn){} else {continue}
         if(maxblocknumber<curbn){maxblocknumber=curbn, txdataatmax=txdata}; amountcumul+=parseInt(txdata.result )
-        const amtraw=txdata.result
+        const amtraw=txdata.result , fee=getfee(txdata)
         db.balance.findOne({where:{username:username,currency:CURRENCYLOCAL,nettype:nettype}}).then(respbal=>{  const baldata=respbal.dataValues
-
-        })
-        db.transactions.create({
-          username:username
-          , currency:CURRENCYLOCAL
-          , fromamount:amtraw
-          , toamount:amtraw
-          , amountfloatstr:convweitoeth(amtraw,CURRENCYDECIMALS)
-          , fromaddress:getmaxsenderaddress(txdata)
-          , toaddress:address
-          , direction:'IN'          
-          , blocknumber:curbn // txdata['block_height']
-          , hash:txdata['hash']
-          , amountbefore:baldata['amount']
-          , amountafter:baldata['amount']+amtraw
-          , kind:'DEPOSIT'
-          , netkind:netkind
-          , gaslimitbid:null,gaslimitoffer:null
-          , gasprice:null
-          , fee:getfee(txdata)
-          , txtime:moment.unix(txdata['time']).format(TIMESTRFORMAT)
+          db.transactions.create({
+            username:username
+            , currency:CURRENCYLOCAL
+            , fromamount:amtraw
+            , toamount:amtraw
+            , amountfloatstr:convweitoeth(amtraw,CURRENCYDECIMALS)
+            , fromaddress:getmaxsenderaddress(txdata)
+            , toaddress:address
+            , direction:'IN'          
+            , blocknumber:curbn // txdata['block_height']
+            , hash:txdata['hash']
+            , amountbefore:baldata['amount']
+            , amountafter:baldata['amount']+amtraw
+            , kind:'DEPOSIT'
+            , netkind:netkind
+            , nettype:nettype
+            , gaslimitbid:null,gaslimitoffer:null
+            , gasprice:null
+            , fee:fee
+            , feestr:convweitoeth(fee,CURRENCYDECIMALS)
+            , txtime:moment.unix(txdata['time']).format(TIMESTRFORMAT)
+          })  
         })
       }
       console.log('txdataatmax',txdataatmax)

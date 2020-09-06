@@ -1,4 +1,13 @@
 
+insert into exchangerates (sitename,currency0,C,S,K) values ('CARRYON','BTC',90,10,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('CARRYON','USDT',92,8,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('CARRYON','ETH',95,5,10);
+
+insert into exchangerates (sitename,currency0,C,S,K) values ('SDC','BTC',50,50,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('SDC','USDT',92,8,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('SDC','ETH',95,5,10);
+insert into exchangerates (sitename,currency0,C,S,K) values ('SDC','MOKA',98,2,10);
+
 insert into exchangerates (sitename,currency0,C,S,K) values ('IOTC','BTC',40,60,10);
 insert into exchangerates (sitename,currency0,C,S,K) values ('IOTC','ETH',90,10,10);
 insert into exchangerates (sitename,currency0,C,S,K) values ('IOTC','GAIA',98,2,10);

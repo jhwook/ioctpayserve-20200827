@@ -4,6 +4,7 @@ const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/ap
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases, convweitoeth,gettimestr}=require('../../utils')
 const users = require('../../models/users')
+const { token } = require('morgan')
 const ENDBLOCKDUMMY4QUERY=70000000,TIMESTRFORMAT='YYYY-MM-DD HH:mm:ss'
 const PERIOD_DIST_POLLS=60*10*1000,CURRENCYKIND='TOKEN',CURRENCYTYPE='ETH', DECIMALS_DEF=18, DELTA_T_SHORT=60*1.5*1000
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
@@ -44,26 +45,28 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
       if(maxblocknumber<curbn){maxblocknumber=curbn,txdataatmax=txdata}; 
       jtokenamountcumul[symbol]=jtokenamountcumul[symbol]? jtokenamountcumul[symbol]+parseInt(txdata.value):parseInt(txdata.value)
       jtokenupddata[symbol] = jtokenupddata[symbol]? (jtokenupddata[symbol]>curbn?jtokenupddata[symbol]:curbn) :curbn
+      const amtraw=txdata['value'] , fee=parseInt(txdata.gas)*parseInt(txdata.gasPrice)
       db.balance.findOne({where:{username:username,currency:symbol,netkind:netkind}}).then(respbal=>{      const baldata=respbal.dataValues
         db.transactions.create({
           username:username
           , currency:tokendata['symbol']
-          , fromamount:txdata['value']
-          , toamount:txdata['value']
-          , amountfloatstr:convweitoeth(txdata['value'],jaddresstokens && jaddresstokens[address] && jaddresstokens[address].denominatorexp?jaddresstokens[address].denominatorexp:DECIMALS_DEF )
+          , fromamount:amtraw
+          , toamount:amtraw
+          , amountfloatstr:convweitoeth(amtraw,jaddresstokens && jaddresstokens[address] && jaddresstokens[address].denominatorexp?jaddresstokens[address].denominatorexp:DECIMALS_DEF )
           , fromaddress:txdata['from']
           , toaddress:address
           , direction:'IN'
           , blocknumber:txdata['blockNumber']
           , hash:txdata['hash']
           , amountbefore:baldata['amount']
-          , amountafter:baldata['amount']+parseInt(txdata['value'])
+          , amountafter:baldata['amount']+parseInt(amtraw)
           , kind:'DEPOSIT'
           , netkind:netkind
           , nettype:nettype
           , gaslimitbid:txdata.gas, gaslimitoffer:txdata.gasUsed
           , gasprice:txdata['gasPrice']
-          , fee:parseInt(txdata.gas)*parseInt(txdata.gasPrice)
+          , fee:fee
+          , feestr:convweitoeth(fee , tokendata['denominatorexp'])
           , txtime:moment.unix(txdata['timeStamp']).format(TIMESTRFORMAT)
         })
     })
