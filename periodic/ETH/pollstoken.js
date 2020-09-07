@@ -3,10 +3,9 @@ let {web3,netkind,nettype}=require('../../configs/ETH/configweb3') //
 const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/api`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases, convweitoeth,gettimestr}=require('../../utils')
-const users = require('../../models/users')
-const { token } = require('morgan')
 const ENDBLOCKDUMMY4QUERY=70000000
-const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs');
+const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
+const configs=require('../../configs/configs'); const {queuenamesj}=configs
 const PERIOD_DIST_POLLS=60*10*1000,CURRENCYKIND='TOKEN',CURRENCYTYPE='ETH', DECIMALS_DEF=18, DELTA_T_SHORT=60*1.5*1000
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
 let jaddresses={},jaddresstokens={},jsymboltokens={}
@@ -95,3 +94,16 @@ const inittoken=()=>{ // .toLower,Case()
 setTimeout(()=>{init()}, 1.5*1000) // init()
 inittoken()
 module.exports={pollblocks}
+setTimeout(()=>{
+const qname=queuenamesj['ADDR-TOKEN']
+const channel=require('../../reqqueue/dequeuer')(qname)
+channel.then(ch=>{
+  ch.consume( qname , (msg)=> {
+    const str=msg.content.toString();                       
+    console.log(` [x] Received %s@${qname}`,str)
+    const packet=JSON.parse(str) 
+    if(packet['flag']=='ADD'){}  else {return false} //console.log('INCAMT')
+    jaddresses[packet['username']]=packet['address']
+  })
+})  
+} , 3700)

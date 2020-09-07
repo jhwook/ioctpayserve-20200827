@@ -5,7 +5,7 @@ const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/ap
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
 const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
-const users = require('../../models/users')
+const configs=require('../../configs/configs'); const {queuenamesj}=configs
 const ENDBLOCKDUMMY4QUERY=50000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH',CURRENCYDECIMALS=18, DELTA_T_SHORT=60*1.5*1000
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
@@ -87,6 +87,21 @@ console.log('txdataatmax',txdataatmax)
 }
 setTimeout(()=>{init()}, 1.5*1000) 
 module.exports={pollblocks}
+
+setTimeout(()=>{
+  const qname=queuenamesj['ADDR-ETH']
+const channel=require('../../reqqueue/dequeuer')(qname) //  ch.consume( 'ADDR-TOKEN' , function(msg) {			const str=msg.content.toString();			console.log(" [x] Received %s",str)})
+channel.then(ch=>{
+  ch.consume( qname , (msg)=> {
+    const str=msg.content.toString();                       
+    console.log(` [x] Received %s@${qname}`,str)
+    const packet=JSON.parse(str) 
+    if(packet['flag']=='ADD'){}  else {return false} //console.log('INCAMT')
+    jaddresses[packet['username']]=packet['address']
+  })
+})  
+} , 2700)
+
 /* {
 "status": "0",
 "message": "No transactions found",

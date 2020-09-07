@@ -3,8 +3,8 @@ let configbtc=require('../../configs/BTC/configbtc'); const {netkind,nettype}=co
 const API_TXS=nettype=='testnet'? `https://testnet.blockchain.info/rawaddr` : 'https://blockchain.info/rawaddr' // /${address}`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
-const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs');
-const users = require('../../models/users');
+const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
+const configs=require('../../configs/configs'); const {queuenamesj}=configs
 const ENDBLOCKDUMMY4QUERY=5000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='BTC',CURRENCYKIND='BTC',CURRENCYTYPE='BTC',CURRENCYDECIMALS=8, DELTA_T_SHORT=60*1.5*1000 // ,NETKIND=netkind // 'testnet'
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
@@ -88,3 +88,17 @@ const sumupoutvalues=txdata=>{let sum=0;  txdata.out.forEach(e=>{    sum+=e.valu
 setTimeout(()=>{init()}, 1.5*1000)  // init()
 module.exports={pollblocks}
   
+setTimeout(()=>{
+const qname=queuenamesj['ADDR-BTC']
+const channel=require('../../reqqueue/dequeuer')(qname) 
+channel.then(ch=>{
+  ch.consume( qname , (msg)=> {
+    const str=msg.content.toString();                       
+    console.log(` [x] Received %s@${qname}`,str)
+    const packet=JSON.parse(str) 
+    if(packet['flag']=='ADD'){}  else {return false} 
+    jaddresses[packet['username']]=packet['address']
+  })
+})
+  
+}, 1700)

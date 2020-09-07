@@ -21,7 +21,6 @@ router.get('/marketprice',async (req,res)=>{const {currency}=req.query;
 })
 router.get('/transactions',async (req,res)=>{ const username=await getuserorterminate(req,res);if(username){} else {return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
   db.transactions.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{
-
     res.status(200).send({status:'OK'    , txs:aresps  }) //  res.status(200).send({status:'OK'    , txs:[      {from:'3N5jVaj3qTbiCuBF22ZNBK43ENEgw6J6P5',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'in',createdat:'2020-08-08 22:55:26'}      ]  })
   })
 })
