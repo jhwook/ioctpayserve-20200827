@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     fromamount: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.DECIMAL, // BIGINT,
       allowNull: true
     },
     toamount: {

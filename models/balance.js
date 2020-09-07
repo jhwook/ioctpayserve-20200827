@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     amount: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.DECIMAL, // BIGINT,
       allowNull: true
     },
     amountfloat: {
@@ -29,7 +29,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     amountlocked: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.DECIMAL,
       allowNull: true
     },
     createdat: {

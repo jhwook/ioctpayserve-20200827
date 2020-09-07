@@ -1,4 +1,32 @@
 
+sequelizeStream= require( 'sequelize-stream')
+db=require('./models')
+ stream = sequelizeStream(db.sequelize)
+ stream.on('data', ({instance, event}) => console.log(event, instance.toJSON()))
+
+ stream = db.users.findAllWithStream({batchSize: 5})
+ stream.pipe(res)
+
+stream.pipe(res);
+ sequelizeStream(db.sequelize, 10)
+
+
+tm0='2020-07-23 00:00:00'
+tm1='2020-09-06 00:00:00'
+getrandomtime=()=>{return momentRandom(tm1, tm0).format('YYYY-MM-DD HH:mm:ss')}
+momentRandom=require('moment-random')
+db=require('./models')
+db.transactions.findAll({}).then(aresps=>{
+  aresps.forEach(e=>{console.log(e)
+    e.update({txtime:getrandomtime()})
+  })
+})
+Uncaught Error: End date is before start date!
+    at momentRandom (/Users/yeom/works/ioctserve/node_modules/moment-random/src/index.js:18:13)
+> momentRandom(tm1, tm0)
+Moment<2020-08-21T01:47:17+09:00>
+> momentRandom(tm1, tm0)
+
 acct #05 
 prvk: a92bab061a600a34ef211c8b3f1c27cdc349ecd7cd94a1c83ea5bcb999dc35e2
 addr: 0x13f4B0b65Ae6bCB8DfB7c98a54e74732a6D36BBB
@@ -82,6 +110,7 @@ import * as bitcoin from 'bitcoinjs-lib'
 import balance from '../models/balance'
 import blockbalance from '../models/blockbalance';
 import users from '../models/users';
+import db from '../models'
 let bitcoin=require( 'bitcoinjs-lib')
  TESTNET = bitcoin.networks.testnet
 

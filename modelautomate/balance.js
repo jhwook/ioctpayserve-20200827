@@ -32,9 +32,9 @@ module.exports = sequelize => {
       field: "currency"
     },
     amount: {
-      type: DataTypes.BIGINT.UNSIGNED,
+      type: DataTypes.DECIMAL,
       allowNull: true,
-      defaultValue: "0",
+      defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,

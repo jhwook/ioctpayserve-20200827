@@ -3,7 +3,7 @@ let configbtc=require('../../configs/BTC/configbtc'); const {netkind,nettype}=co
 const API_TXS=nettype=='testnet'? `https://testnet.blockchain.info/rawaddr` : 'https://blockchain.info/rawaddr' // /${address}`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
-const {TIMESTRFORMAT}=require('../../configs/configs');
+const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs');
 const users = require('../../models/users');
 const ENDBLOCKDUMMY4QUERY=5000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='BTC',CURRENCYKIND='BTC',CURRENCYTYPE='BTC',CURRENCYDECIMALS=8, DELTA_T_SHORT=60*1.5*1000 // ,NETKIND=netkind // 'testnet'
@@ -25,7 +25,7 @@ const init=()=>{
 const pollblocks=jdata=>{const {address,}=jdata
   db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYTYPE,netkind:netkind}}).then(respbb=>{let startblock=0
     if(respbb){ startblock=respbb['blocknumber']+1} else {}
-    console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '@pollbtc')
+    console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '@pollbtc',moment().format(TIMESTRFORMATMILI))
 //    const query={after:startblock    }
     try{console.log('blockchain.info/')
     axios.get(`${API_TXS}/${address}`,{params:{}}).then(resp=>{ // console.log(resp.data)

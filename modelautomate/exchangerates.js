@@ -13,68 +13,41 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    username: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "username"
-    },
-    currency: {
+    currency0: {
       type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "currency"
+      field: "currency0"
     },
-    fromamount: {
-      type: DataTypes.DECIMAL,
+    currency1: {
+      type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "fromamount"
+      field: "currency1"
     },
-    toamount: {
-      type: DataTypes.BIGINT.UNSIGNED,
+    amount0: {
+      type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "toamount"
+      field: "amount0"
     },
-    fromaddress: {
-      type: DataTypes.STRING(100),
+    amount1: {
+      type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "fromaddress"
-    },
-    toaddress: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "toaddress"
-    },
-    direction: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "direction"
+      field: "amount1"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -94,62 +67,26 @@ module.exports = sequelize => {
       comment: null,
       field: "updatedat"
     },
-    blocknumber: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "blocknumber"
-    },
-    kind: {
-      type: DataTypes.STRING(20),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "kind"
-    },
-    description: {
+    partitionratios: {
       type: DataTypes.STRING(50),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "description"
+      field: "partitionratios"
     },
-    hash: {
+    address: {
       type: DataTypes.STRING(80),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "hash"
-    },
-    amountbefore: {
-      type: DataTypes.DECIMAL,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amountbefore"
-    },
-    amountafter: {
-      type: DataTypes.DECIMAL,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amountafter"
+      field: "address"
     },
     netkind: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(10),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
@@ -157,53 +94,8 @@ module.exports = sequelize => {
       comment: null,
       field: "netkind"
     },
-    gasprice: {
-      type: DataTypes.BIGINT.UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "gasprice"
-    },
-    gaslimitbid: {
-      type: DataTypes.BIGINT.UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "gaslimitbid"
-    },
-    fee: {
-      type: DataTypes.BIGINT.UNSIGNED,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "fee"
-    },
-    amountfloatstr: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "amountfloatstr"
-    },
-    txtime: {
-      type: DataTypes.STRING(20),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "txtime"
-    },
     nettype: {
-      type: DataTypes.STRING(15),
+      type: DataTypes.STRING(10),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
@@ -211,30 +103,84 @@ module.exports = sequelize => {
       comment: null,
       field: "nettype"
     },
-    gaslimitoffer: {
-      type: DataTypes.BIGINT.UNSIGNED,
+    sitename: {
+      type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "gaslimitoffer"
+      field: "sitename"
     },
-    feestr: {
-      type: DataTypes.STRING(15),
+    collectoraddress: {
+      type: DataTypes.STRING(80),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "feestr"
+      field: "collectoraddress"
+    },
+    priceisfixed: {
+      type: DataTypes.INTEGER(4),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "priceisfixed"
+    },
+    fixedprice: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "fixedprice"
+    },
+    canwithdraw: {
+      type: DataTypes.INTEGER(4),
+      allowNull: true,
+      defaultValue: "1",
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "canwithdraw"
+    },
+    C: {
+      type: DataTypes.INTEGER(11),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "C"
+    },
+    S: {
+      type: DataTypes.INTEGER(11),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "S"
+    },
+    K: {
+      type: DataTypes.INTEGER(11),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "K"
     }
   };
   const options = {
-    tableName: "transactions",
+    tableName: "exchangerates",
     comment: "",
     indexes: []
   };
-  const TransactionsModel = sequelize.define("transactions_model", attributes, options);
-  return TransactionsModel;
+  const ExchangeratesModel = sequelize.define("exchangerates_model", attributes, options);
+  return ExchangeratesModel;
 };

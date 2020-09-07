@@ -1,4 +1,36 @@
 
+> use iotcpay;
+
+
+db.createUser({ user: 'root', pwd: 'rY3f0qKSN6', roles: ['root']})
+mongo admin -u root -p rY3f0qKSN6
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'rY3f0qKSN6';
+
+XXX pw:PFmzI4WKqV
+
+INSERT INTO `tokens` (id,name,address,decimals,supply,netkind,createdat,updatedat,MINAMOUNT_TOWITHDRAW,MAXAMOUNT_TOWITHDRAW,symbol,denominatorexp,group_,nettype) VALUES 
+(1,'IOTC','0xa01977400427ab074d365814d1ed1ac514d57a26',NULL,NULL,'mainnet','2020-08-30 21:44:30','2020-08-30 21:44:30',NULL,NULL,'IOTC',18,'ETH','mainnet')
+,(2,'GAIA','0xD944Dac1a03db027AcC5618095251d5E90C4A37b',NULL,NULL,'mainnet','2020-08-30 21:44:32','2020-08-30 21:44:32',NULL,NULL,'GAIA',18,'ETH','mainnet')
+,(3,'AUDUS','0x5789e290020317ee07a21012db9ee1e3e43e56f1',5,NULL,'ropsten','2020-08-30 21:53:13','2020-08-30 21:53:13',NULL,NULL,'AUDUS',NULL,'ETH','testnet')
+,(5,'USDT','0xdac17f958d2ee523a2206206994597c13d831ec7',6,NULL,'mainnet','2020-09-01 10:15:38','2020-09-01 10:15:38',NULL,NULL,'USDT',NULL,'ETH','mainnet')
+,(6,'IOTC','0xe58a38a4598e93207be87077fd6ce1ff288cd4c4',18,NULL,'ropsten','2020-09-01 15:53:34','2020-09-01 15:53:34',NULL,NULL,'IOTC',18,'ETH','testnet')
+,(7,'GAIA','0xe70ed70f9ffaa651ccd80790b48092f7b5589279',18,NULL,'ropsten','2020-09-01 15:57:02','2020-09-01 15:57:02',NULL,NULL,'GAIA',18,'ETH','testnet')
+,(8,'ETH',NULL,18,NULL,'ropsten','2020-09-02 23:06:11','2020-09-02 23:06:11',NULL,NULL,NULL,18,'ETH','testnet')
+,(9,'BTC',NULL,8,NULL,'testnet','2020-09-02 23:06:37','2020-09-02 23:06:37',NULL,NULL,NULL,8,'BTC','testnet')
+,(10,'ETH',NULL,18,NULL,'mainnet','2020-09-02 23:07:09','2020-09-02 23:07:09',NULL,NULL,NULL,18,'ETH','mainnet')
+,(11,'BTC',NULL,8,NULL,'mainnet','2020-09-02 23:07:19','2020-09-02 23:07:19',NULL,NULL,NULL,8,'BTC','mainnet');
+
+create table variableprices (
+	id int unsigned primary key auto_increment
+  , currency varchar(20)
+  , price float
+  , pricestr varchar(20)
+  , units varchar(15)
+  , sitename varchar(20)
+  , createdat datetime default current_timestamp
+  , updatedat datetime default current_timestamp
+);
 insert into exchangerates (sitename,currency0,C,S,K) values ('CARRYON','BTC',90,10,10);
 insert into exchangerates (sitename,currency0,C,S,K) values ('CARRYON','USDT',92,8,10);
 insert into exchangerates (sitename,currency0,C,S,K) values ('CARRYON','ETH',95,5,10);
@@ -104,11 +136,15 @@ insert into fixedprices (tokenname,price,units) values ('IOTC',120,'KRW');
 insert into fixedprices (tokenname,price,units) values ('GAIA',100,'KRW');
 insert into fixedprices (tokenname,price,units) values ('MOKA',140,'KRW');
 
+insert into operations (key_,value_,subkey_) values ('GAS_PRICE_TOKEN','300000000000','ropsten');
+insert into operations (key_,value_,subkey_) values ('GAS_PRICE_ETH','300000000000','ropsten');
+insert into operations (key_,value_,subkey_) values ('GAS_LIMIT_ETH','30000','ropsten');
+insert into operations (key_,value_,subkey_) values ('GAS_LIMIT_TOKEN','30000','ropsten');
+insert into operations (key_,value_,subkey_) values ('GAS_PRICE_TOKEN','30000','ropsten');
+
 insert into operations (key_,value_,subkey_) values ('GAS_PRICE_TOKEN','300000000000','mainnet');
 insert into operations (key_,value_,subkey_) values ('GAS_PRICE_ETH','300000000000','mainnet');
-
 insert into operations (key_,value_,subkey_) values ('GAS_LIMIT_ETH','30000','mainnet');
-
 insert into operations (key_,value_,subkey_) values ('GAS_LIMIT_TOKEN','30000','mainnet');
 insert into operations (key_,value_,subkey_) values ('GAS_PRICE_TOKEN','30000','mainnet');
 
@@ -193,6 +229,7 @@ create table operations (
 	id int unsigned primary key auto_increment
   , key_ varchar(50)
   , value_ varchar(50)
+  , subkey_ varchar(100)
   , memo varchar(50)
   , createdat datetime default current_timestamp
   , updatedat datetime default current_timestamp
@@ -219,6 +256,7 @@ create table users (
 	id int unsigned primary key auto_increment
 , username varchar(20)
 , withdrawpw varchar(20)
+, active tinyint default 1
   , createdat datetime default current_timestamp
   , updatedat datetime default current_timestamp
 );

@@ -1,8 +1,9 @@
 const db=require('./models')
 const moment=require('moment');const {netkind,nettype}=require('./configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
-const {KEYNAME_MARKETPRICES,POINTSKINDS}=require('./configs/configs')
+const {KEYNAME_MARKETPRICES,POINTSKINDS,KEYNAME_KRWUSD, TIMESTRFORMAT}=require('./configs/configs')
 const messages=require('./configs/messages')
+const MAP_KRWUSD_APPLIES={BTC:1,ETH:1,USDT:1}
 const gettimestr=()=>{return moment().format('YYYY-MM-DD HH:mm:ss.SSS')}
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}, resperr=respreqinvalid
 const respwithdata=(res,data)=>{res.status(200).send({status:'OK',... data});return false}
@@ -65,33 +66,50 @@ function generateRandomStr (length) {
 	return result;
 }
 const getip=(req)=>{	return req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.headers['x-real-ip']}
-const doexchange=(username,jdata,respbal,resprates)=>{
-  return new Promise ((resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata)
-    const amount0wei=convethtowei(amount0)
-    cliredisa.hget(KEYNAME_MARKETPRICES,currency0).then(price=>{  price=parseFloat(price)
-      const respbaldata=respbal.dataValues
+const doexchange=async (username,jdata,respbal,resprates)=>{
+  return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata)
+    let respbaldata=respbal.dataValues;let price=null
+    const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] ) //    const amount0wei=convethtowei(amount0)    
+    if(resprates.priceisfixed && resprates.priceisfixed==1){price=resprates['fixedprice']}
+    else {      price=await cliredisa.hget(KEYNAME_MARKETPRICES,currency0)    }
+    if(price){price=parseFloat(price)}
+    else {
+      let respvarprice=await db.variableprices.findOne({currency:currency0})
+      if(respvarprice){} else {reject('DB-ENTRY-NOT-FOUND');return false}
+      if(respvarprice['units']=='KRW'){}
+      else {
+        const exratekrwusd=await cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD)
+        price=respvarprice['price']*parseFloat(exratekrwusd)
+      }
+    } //    cliredisa.hget(KEYNAME_MARKETPRICES,currency0).then(price=>{  price=parseFloat(price)//      const respbaldata=respbal.dataValues
+    if(MAP_KRWUSD_APPLIES[currency0]){ price *= parseFloat(await cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD))
+    }
+    console.log('amount0wei',amount0wei,'price',price)
       const amtlockedtoupd=parseInt(respbaldata['amountlocked'])+parseInt(amount0wei)
       const amtbefore=respbaldata['amount']-respbaldata['amountlocked'],amountafter=amtbefore-parseInt(amount0wei)
       respbal.update({amountlocked:amtlockedtoupd})
-      let extodata={};
-      Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100)
-        extodata[pointkind]=amttoinc
-        db.balance.findOne({where:{username:username,currency:pointkind,netkind:netkind }}).then(resp=>{const respdata=resp.dataValues          
-          resp.update({amount:respdata['amount']+amttoinc })
+      let extodata={}; 
+      Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log(amount0,price , resprates[pointkind],amttoinc)
+        extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,netkind:netkind}
+        db.balance.findOne({where:{... jdataq }}).then(resp=>{
+          if(resp){          const respdata=resp.dataValues          ;          resp.update({amount:respdata['amount']+amttoinc })          } 
+          else {            db.balance.create({amount:amttoinc, nettype:nettype, ... jdataq })          }
         })
       })
       db.transactions.create({
         username:username
         , currency:currency0
         , fromamount:amount0wei
-        , amountfloatstr:convweitoeth(amount0wei)
-        , amountbefore:null
-        , amountafter:null
+        , amountfloatstr:amount0 // convweitoeth(amount0wei , respbaldata['den'])
+        , amountbefore:respbaldata['amount']
+        , amountafter:respbaldata['amount']-amount0wei
         , kind:'EXCHANGE'
         , netkind:netkind
+        , nettype:nettype
         , description:JSON.stringify(extodata)
+        , txtime:moment().format(TIMESTRFORMAT)
       })
-    }).catch(err=>{reject(err.toString())})
+//    }).catch(err=>{reject(err.toString())})
     resolve(jdata)
   })
 }

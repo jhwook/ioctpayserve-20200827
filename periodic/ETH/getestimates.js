@@ -11,7 +11,7 @@ const moment=require('moment') // ; const bn=require('bignumber');const B_VERB=f
 const cron=require('node-cron');
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth-polls.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'
-const ethNetKind='mainnet',netkind=ethNetKind
+const {netkind,nettype}=require('../../configs/ETH/configweb3') // const ethNetKind='mainnet',netkind=ethNetKind
 const axios=require('axios');
 const API_EST_GAS=`${ethNetSvcAddr}`
 console.log('Polling-ETH gas')

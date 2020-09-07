@@ -50,7 +50,7 @@ module.exports = sequelize => {
       field: "hash"
     },
     amount: {
-      type: DataTypes.BIGINT.UNSIGNED,
+      type: DataTypes.DECIMAL,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
@@ -86,7 +86,7 @@ module.exports = sequelize => {
       field: "updatedat"
     },
     amountcumul: {
-      type: DataTypes.BIGINT.UNSIGNED,
+      type: DataTypes.DECIMAL,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,

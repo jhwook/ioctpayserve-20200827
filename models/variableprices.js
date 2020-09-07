@@ -1,9 +1,5 @@
-const {
-  DataTypes
-} = require('sequelize');
-
-module.exports = sequelize => {
-  const attributes = {
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('variableprices', {
     id: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: false,
@@ -13,41 +9,50 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    username: {
+    currency: {
       type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "username"
+      field: "currency"
     },
-    token: {
-      type: DataTypes.STRING(30),
+    price: {
+      type: DataTypes.FLOAT,
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "token"
+      field: "price"
     },
-    loginip: {
-      type: DataTypes.STRING(30),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "loginip"
-    },
-    useragent: {
+    pricestr: {
       type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "useragent"
+      field: "pricestr"
+    },
+    units: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "units"
+    },
+    sitename: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: "sitename"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -66,31 +71,8 @@ module.exports = sequelize => {
       autoIncrement: false,
       comment: null,
       field: "updatedat"
-    },
-    active: {
-      type: DataTypes.INTEGER(4),
-      allowNull: true,
-      defaultValue: "1",
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "active"
-    },
-    sitename: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "sitename"
     }
-  };
-  const options = {
-    tableName: "sessionkeys",
-    comment: "",
-    indexes: []
-  };
-  const SessionkeysModel = sequelize.define("sessionkeys_model", attributes, options);
-  return SessionkeysModel;
+  }, {
+    tableName: 'variableprices'
+  });
 };

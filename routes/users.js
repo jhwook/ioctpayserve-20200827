@@ -11,7 +11,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
   if(username && pw){} else {respreqinvalid(res,'ARGMISSING',40761);return false}
   db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{
     if(respuser){respreqinvalid(res,messages.MSG_ID_DUP,82532);return false}
-    db.users.create({username:username,pw:pw})
+    db.users.create({username:username,pw:pw,sitename:sitename})
 //    db.operations.findOne({raw:true,where:{key_:'CURRENCIES'}}).then(respcurr=>{      const currencies=JSON.parse(respcurr['value_'])
     db.tokens.findAll({raw:true,where:{nettype:nettype}}).then(aresps=>{ let accounteth=configweb3.createaccount() // web3.createaccount()
       let accountbtc=configbtc.createaccount() ;  let account=null,netkind // acct.publicAddress , acct.privateWif
@@ -35,7 +35,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
     })
   })
 })
-router.post('/login',(req,res)=>{const {username,pw}=req.body
+router.post('/login',(req,res)=>{const {username,pw,sitename}=req.body
   if(username && pw){} else {respreqinvalid(res,'ARGMISSING',68961);return false}
   db.users.findOne({raw:true,where:{... req.body,active:1}}).then(resp=>{
     if(resp){} else {respreqinvalid(res,'INVALID',76323);return false}
@@ -43,6 +43,7 @@ router.post('/login',(req,res)=>{const {username,pw}=req.body
     respok(res,null,null,{token:token})
     db.sessionkeys.create({      username:username
       , token:token
+      , sitename:sitename
       , loginip:getip(req)
     });return false
   })

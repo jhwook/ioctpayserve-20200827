@@ -5,7 +5,8 @@ const db=require('../../models')
 const {getRandomInt,isequalinlowercases, convweitoeth,gettimestr}=require('../../utils')
 const users = require('../../models/users')
 const { token } = require('morgan')
-const ENDBLOCKDUMMY4QUERY=70000000,TIMESTRFORMAT='YYYY-MM-DD HH:mm:ss'
+const ENDBLOCKDUMMY4QUERY=70000000
+const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs');
 const PERIOD_DIST_POLLS=60*10*1000,CURRENCYKIND='TOKEN',CURRENCYTYPE='ETH', DECIMALS_DEF=18, DELTA_T_SHORT=60*1.5*1000
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
 let jaddresses={},jaddresstokens={},jsymboltokens={}
@@ -23,7 +24,7 @@ const init=()=>{ // .toLower,Case()
 const pollblocks=jdata=>{  const {address,}=jdata
 db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURRENCYKIND,currencytype:CURRENCYTYPE}}).then(respbb=>{let startblock=1
   if(respbb){startblock=respbb['blocknumber']+1} else {}
-  console.log(startblock,ENDBLOCKDUMMY4QUERY,address,'@polltoken')
+  console.log(startblock,ENDBLOCKDUMMY4QUERY,address,'@polltoken',moment().format(TIMESTRFORMATMILI))
   const query={startblock:startblock    ,endblock:ENDBLOCKDUMMY4QUERY    ,address:address
     ,module:'account'
     ,action:'tokentx' // txlist

@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const {KEYNAME_MARKETPRICES, POINTSKINDS,A_POINTSKINDS}=require('../configs/configs')
 const messages=require('../configs/messages')
-const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession,getuserorterminate}=require('../utils')
+const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession,getuserorterminate, convweitoeth}=require('../utils')
 const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth}=require('../periodic/ETH/sendseth')
@@ -21,7 +21,7 @@ router.get('/marketprice',async (req,res)=>{const {currency}=req.query;
 })
 router.get('/transactions',async (req,res)=>{ const username=await getuserorterminate(req,res);if(username){} else {return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
   db.transactions.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{
-    
+
     res.status(200).send({status:'OK'    , txs:aresps  }) //  res.status(200).send({status:'OK'    , txs:[      {from:'3N5jVaj3qTbiCuBF22ZNBK43ENEgw6J6P5',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'in',createdat:'2020-08-08 22:55:26'}      ]  })
   })
 })
@@ -44,7 +44,7 @@ router.post('/withdraw',async  (req,res)=>{  const username=await getuserortermi
     res.status(200).send({status:'OK'});return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
 }) //
-router.post('/exchange',async (req,res)=>{  const username=await getuserorterminate(req,res);if(username){} else {return false} 
+router.post('/exchange',async (req,res)=>{  const username=await getuserorterminate(req,res);if(username){} else {return false}
   let {currency0, amount0,sitename}=req.body;console.log(req.body)
   if(currency0 && amount0){} else {respreqinvalid(res,'ARG-MISSING',79654);return false}
   amount0=parseFloat(amount0);  console.log(amount0)
@@ -52,7 +52,8 @@ router.post('/exchange',async (req,res)=>{  const username=await getuserortermin
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
     db.balance.findOne({where:{currency:currency0,username:username,nettype:nettype}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
-      const amount0wei=convethtowei(amount0),respbaldata=respbal.dataValues
+      let respbaldata=respbal.dataValues
+      const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] )
       if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
       doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp);return false
       }).catch(err=>{respreqinvalid(res,err.toString(),62015);return false})
@@ -77,7 +78,8 @@ if(false){	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=
 router.get('/balances', async (req, res, next)=> {  const username=await getuserorterminate(req,res);if(username){} else {return false} 
   db.balance.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{let a2send=[]
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
-		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
+    res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) ,e['address'] ]})})
+//		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	})
 //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 });
@@ -105,7 +107,7 @@ const sends=jdata=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
     db.balance.find_One({where:{currency:currency0}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
-      if(respbal['amount']-respbal['amountlocked']>=parseInt(amount0)){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
+      if(respbal['amount']-respbal['amountlocked']>=parseInt(amount0)){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',33212);return false}
       doexchange(username,req.body).then(resp=>{        respok(res,null,38800);return false
       }).catch(err=>{respreqinvalid(res,err.toString(),62016);return false})      
     })

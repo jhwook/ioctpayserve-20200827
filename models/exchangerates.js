@@ -146,6 +146,18 @@ module.exports = function(sequelize, DataTypes) {
       comment: null,
       field: "canwithdraw"
     }
+    , C:{
+      type: DataTypes.INTEGER(10),
+      allowNull: true,
+    }
+    , S:{
+      type: DataTypes.INTEGER(10),
+      allowNull: true,
+    }
+    , K:{
+      type: DataTypes.INTEGER(10),
+      allowNull: true,
+    }
   }, {
     tableName: 'exchangerates'
   });
