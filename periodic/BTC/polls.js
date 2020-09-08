@@ -25,7 +25,7 @@ const init=()=>{
 const pollblocks=jdata=>{const {address,}=jdata
   db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYTYPE,netkind:netkind}}).then(respbb=>{let startblock=0
     if(respbb){ startblock=respbb['blocknumber']+1} else {}
-    console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '@pollbtc',moment().format(TIMESTRFORMATMILI))
+    console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '\u26F5','','@pollbtc',moment().format(TIMESTRFORMATMILI))
 //    const query={after:startblock    }
     try{console.log('blockchain.info/')
     axios.get(`${API_TXS}/${address}`,{params:{}}).then(resp=>{ // console.log(resp.data)
@@ -94,7 +94,7 @@ const channel=require('../../reqqueue/dequeuer')(qname)
 channel.then(ch=>{
   ch.consume( qname , (msg)=> {
     const str=msg.content.toString();                       
-    console.log(` [x] Received %s@${qname}`,str)
+    console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
     const packet=JSON.parse(str) 
     if(packet['flag']=='ADD'){}  else {return false} 
     jaddresses[packet['username']]=packet['address']

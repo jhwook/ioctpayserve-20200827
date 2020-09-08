@@ -1,6 +1,8 @@
 
-> use iotcpay;
+Update transactions set amountfloatstr = CAST(RAND() * 10000 AS UNSIGNED)
 
+update `transactions` set txtime=(    FROM_UNIXTIME(        UNIX_TIMESTAMP('2020-08-01 01:23:45') + FLOOR(0 + (RAND() * 2592000))    ))
+> use iotcpay;
 
 db.createUser({ user: 'root', pwd: 'rY3f0qKSN6', roles: ['root']})
 mongo admin -u root -p rY3f0qKSN6
@@ -84,7 +86,7 @@ delete from transactions;
 delete from users
 
 insert into tokens(name,netkind,nettype,address) values ('USDT','ropsten','testnet','0xdac17f958d2ee523a2206206994597c13d831ec7');
-mysqldump -u root -p --databases ioctpay > ioctpaydump-20200903.sql
+mysqldump -u root -p --databases ioctpay > ioctpaydump-20200908.sql
 
 insert 126ccS2semhunmsgjAUCBnQNZpDuzr6Vt1
 insert into tokens (name,decimals,netkind,denominatorexp) values ('ETH',18,'ropsten',18);

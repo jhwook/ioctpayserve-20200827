@@ -158,6 +158,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(10),
       allowNull: true,
     }
+    , units:{
+      type: DataTypes.INTEGER(15),
+      allowNull: true,
+    }
   }, {
     tableName: 'exchangerates'
   });

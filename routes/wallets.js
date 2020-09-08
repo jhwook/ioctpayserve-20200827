@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {KEYNAME_MARKETPRICES, POINTSKINDS,A_POINTSKINDS}=require('../configs/configs')
+const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD}=require('../configs/configs')
 const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession,getuserorterminate, convweitoeth}=require('../utils')
 const db=require('../models')
@@ -60,6 +60,25 @@ router.post('/exchange',async (req,res)=>{  const username=await getuserortermin
   })
 }) //
 router.get('/balance',async (req,res)=>{  const username=await getuserorterminate(req,res);if(username){} else {return false} 
+  const {currency,sitename}=req.query; console.log(req.query)
+  if(username && currency && sitename){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
+  let _balance=utils.getbalance({username:username,currency:currency},'float')
+  let _resprate = await db.exchangerates.findOne({raw:true,where:{currency0:currency,sitename:sitename}}) // .then(respate=>{let price
+  let _forexrate= cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD)
+  Promise.all([_balance,_resprate,_forexrate]).then(async aresps=>{
+    const [balance,resprate,forexrate]=aresps; let price=null
+    if(resprate['priceisfixed']){      price={price:resprate['fixedprice'],units:resprate['units'],KRWUSD:forexrate}    } 
+    else {
+      let _priceredis=cliredisa.hget(KEYNAME_MARKETPRICES,currency)
+      let _unitsredis=cliredisa.hget(KEYNAME_UNITS,currency)
+      const aresps=await Promise.all([_priceredis,_unitsredis]) //.then(aresps=>{        
+      const [priceredis,unitsredis]=aresps
+      price={price:priceredis,units:unitsredis,KRWUSD:forexrate} //      })
+    }
+    respok(res,null,null,{amountstr:balance.toString(), price:price})
+  }) //  })
+})
+router.get('/balance_mixed',async (req,res)=>{  const username=await getuserorterminate(req,res);if(username){} else {return false} 
   const {currency}=req.query; console.log(req.query)
   if(username && currency){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
   utils.getbalance({username:username,currency:currency},'float').then(async respbal=>{

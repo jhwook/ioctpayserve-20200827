@@ -28,7 +28,7 @@ const reinit=()=>{  db.balance.findOne({raw:true,where:{address:address,netkind:
 const pollblocks=jdata=>{  const {address,}=jdata
   db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYLOCAL,netkind:netkind}}).then(respbb=>{let startblock=1
     if(respbb){startblock=respbb['blocknumber']+1} else {}
-    console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '@polleth',moment().format(TIMESTRFORMATMILI))
+    console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '\u2618','@polleth',moment().format(TIMESTRFORMATMILI))
     const query={startblock:startblock,endblock:ENDBLOCKDUMMY4QUERY,address:address
       ,module:'account'
       ,action:'txlist'
@@ -94,7 +94,7 @@ const channel=require('../../reqqueue/dequeuer')(qname) //  ch.consume( 'ADDR-TO
 channel.then(ch=>{
   ch.consume( qname , (msg)=> {
     const str=msg.content.toString();                       
-    console.log(` [x] Received %s@${qname}`,str)
+    console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
     const packet=JSON.parse(str) 
     if(packet['flag']=='ADD'){}  else {return false} //console.log('INCAMT')
     jaddresses[packet['username']]=packet['address']

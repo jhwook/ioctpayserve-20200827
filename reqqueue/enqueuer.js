@@ -3,9 +3,9 @@ const amqp = require('amqplib/callback_api')
 const {queuenames}=require('../configs/configs')// const queuenames=['ADDR-TOKEN','ADDR-ETH','ADDR-BTC','AMOUNT']
 let jqnamechs={}
 amqp.connect('amqp://localhost', function(error0, connection) {    if (error0) { throw error0;    }
-//	queuenames.forEach(qname=>{
+	queuenames.forEach(qname=>{
 		connection.createChannel(function(error1, channel) {        if (error1) { throw error1;        } //		channel=channel0
-		queuenames.forEach(qname=>{
+//		queuenames.forEach(qname=>{
 		try{channel.assertQueue(qname, {  durable: false        })}
 		catch(err){console.log(err)}
 		jqnamechs[qname]=channel

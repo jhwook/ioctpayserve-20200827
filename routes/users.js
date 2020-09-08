@@ -34,11 +34,12 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
           , sitename:sitename
         })
       })
-      respok(res,null,null);return false
+      respok(res,null,null)
+      enqueuedataj(queuenamesj['ADDR-TOKEN'], {flag:'ADD', username:username,address:accounteth['address'] })
+      enqueuedataj(queuenamesj['ADDR-ETH'] ,  {flag:'ADD', username:username,address:accounteth['address'] })
+      enqueuedataj(queuenamesj['ADDR-BTC'] ,  {flag:'ADD', username:username,address:accountbtc['address'] })            
+      return false
     })
-    enqueuedataj(queuenamesj['ADDR-TOKEN'], {flag:'ADD', username:username,address:accounteth['address'] })
-    enqueuedataj(queuenamesj['ADDR-ETH'] ,  {flag:'ADD', username:username,address:accounteth['address'] })
-    enqueuedataj(queuenamesj['ADDR-BTC'] ,  {flag:'ADD', username:username,address:accountbtc['address'] })
   })
 })
 router.post('/login',(req,res)=>{const {username,pw,sitename}=req.body
