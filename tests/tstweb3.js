@@ -118,12 +118,6 @@ var utxo = {
   "satoshis" : 50000
 };
 
-const newtx = {
-  inputs: [{addresses: ['mkTddhC91V3FSePXS1L31BKTLbaMRstnpt']}],
-  outputs: [{addresses: ['mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg'], value: 100000}]
-};
-axios.post('https://api.blockcypher.com/v1/bcy/test/txs/new', { ... newtx} ).then(function(d) {console.log(d)})
-
 []btc testnet
 
 [3]btc testnet@bitpay : mwg1NMTC9TF9pj9wLLwk8gov3sZboPavGv 

@@ -70,7 +70,6 @@ key = new bitcoin.ECPair.fromPrivateKey(Buffer.from(prvkhex, 'hex'), { network: 
 
 key = new bitcoin.ECPair.fromPrivateKey(Buffer.from(prvkhex, 'hex'), { network: bitcoin.networks.testnet })
 
-
 key=new bitcoin.ECPair.fromPrivateKey('93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg', TESTNET)
 
 key   = new bitcoin.ECPair.fromWIF( '93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg', TESTNET)

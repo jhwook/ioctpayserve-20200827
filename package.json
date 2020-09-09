@@ -15,6 +15,7 @@
     "bitcoin-transaction": "^1.2.1",
     "bitcoinjs-lib": "^5.1.10",
     "bitcore": "^4.1.1",
+    "bitcore-message": "^1.0.4",
     "coininfo": "^5.1.0",
     "coinkey": "^3.0.0",
     "cookie-parser": "~1.4.4",

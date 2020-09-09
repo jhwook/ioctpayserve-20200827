@@ -47,12 +47,14 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
     })
   })
 })
-router.post('/login',(req,res)=>{const {username,pw,sitename}=req.body
+router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body
   if(username && pw){} else {respreqinvalid(res,'ARGMISSING',68961);return false}
-  db.users.findOne({raw:true,where:{... req.body,active:1}}).then(resp=>{
+  db.users.findOne({raw:true,where:{... req.body,active:1}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,'INVALID',76323);return false}
-    const token=generateRandomStr(15)
-    respok(res,null,null,{token:token})
+    const aexrates=await db.exchangerates.findAll({raw:true,where:{nettype:nettype,sitename:sitename}})
+    const atokens=aexrates.map(e=>{return e['currency0']})
+    const token=generateRandomStr(32)
+    respok(res,null,null,{token:token, atokens:atokens})``
     db.sessionkeys.create({      username:username
       , token:token
       , sitename:sitename
