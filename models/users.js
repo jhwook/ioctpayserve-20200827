@@ -40,7 +40,11 @@ module.exports = function(sequelize, DataTypes) {
     }
     , sitename:{
       type: DataTypes.STRING(20),
-      allowNull: true,      
+      allowNull: true,
+    }
+    , pwhash: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
     }
   }, {
     tableName: 'users'

@@ -1,6 +1,7 @@
 const db=require('./models')
 const moment=require('moment');const {netkind,nettype}=require('./configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
+const md5 = require('md5');const  sha1 = require('sha1')
 const {KEYNAME_MARKETPRICES,POINTSKINDS,KEYNAME_KRWUSD, TIMESTRFORMAT}=require('./configs/configs')
 const messages=require('./configs/messages')
 const MAP_KRWUSD_APPLIES={BTC:1,ETH:1,USDT:1}
@@ -135,7 +136,10 @@ const doexchangeXX=(username,jdata)=>{
     } catch(err){reject(err)}
   })
 }
+const hasher=str=>{  return sha1(md5(md5(sha1('abcde'))))
+}
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,gettimestr,convtohex
   ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorterminate
+  , hasher
 }

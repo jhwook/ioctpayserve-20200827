@@ -1,4 +1,35 @@
 
+request=require('request')
+headers = {  "content-type": "text/plain;"}
+hash='7dae58e890a29c780c33785079f93e278c5e5d27a8287f30e9f9c040aef47faa'
+dataString = `{"jsonrpc":"1.0","id":"curltext","method":"getrawtransaction","params":["${hash}"]}`
+USER='root',PASS='b8P9hiHAAD'
+url=`http://182.162.21.240:18332`
+url=`http://${USER}:${PASS}@182.162.21.240:18332`
+options = {    url:url ,    method: "POST",    headers: headers,    body: dataString}
+callback = (error, response, body) => {console.log(error);console.log(body);    if (!error && response.statusCode == 200) {       data = JSON.parse(body)    }  }
+request(options, callback)
+
+  url=`http://${USER}:${PASS}@182.162.21.240:18333`
+  url=`http://${USER}:${PASS}@localhost:18332/`
+    
+input=[
+  { key: '1', val: 'a' },
+  { key: '2', val: 'b' },
+  { key: '3', val: 'c' }
+]
+//Desired output
+{
+  '1': 'a',
+  '2': 'b',
+  '3': 'c'
+}
+//Current best solution
+_.fromPairs(_.map(input, i => [i.key, i.val]))
+//With toObject()
+_.toObject(input, i => i.key, i => i.val);
+
+
 sequelizeStream= require( 'sequelize-stream')
 db=require('./models')
  stream = sequelizeStream(db.sequelize)
@@ -9,7 +40,6 @@ db=require('./models')
 
 stream.pipe(res);
  sequelizeStream(db.sequelize, 10)
-
 
 tm0='2020-07-23 00:00:00'
 tm1='2020-09-06 00:00:00'

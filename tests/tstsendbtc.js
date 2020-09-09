@@ -1,4 +1,25 @@
 
+ bitcoinTransaction = require('bitcoin-transaction')
+ bitcore = require("bitcore")
+ privateKey = new bitcore.PrivateKey('93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg')
+
+ from = "mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"
+ to = "mwg1NMTC9TF9pj9wLLwk8gov3sZboPavGv"
+ privKeyWIF = "93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg"	
+ bitcoinTransaction.getBalance(from, { network: "testnet" }).then((balanceInBTC) => {console.log(balanceInBTC)}).catch(console.log)
+
+bitcoinTransaction.getBalance(from, { network: "testnet" }).then((balanceInBTC) => {
+	return bitcoinTransaction.sendTransaction({
+		from: from,
+		to: to,
+		privKeyWIF: privKeyWIF,
+		btc: balanceInBTC,
+		network: "testnet"
+	});
+});
+
+axios.post('https://blockstream.info/testnet/api/tx',{tx:sig}).then(resp=>{console.log(resp.data)}).catch(console.log)
+
  privateKey = new bitcore.PrivateKey('93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg')
 // txid=txid.match(/.{2}/g).reverse().join("")
  "9f0f220ae4d78071d03c54d53227fadc6c43553537ca68c78ec64332c912889e"
@@ -51,7 +72,6 @@ key = new bitcoin.ECPair.fromPrivateKey(Buffer.from(prvkhex, 'hex'), { network: 
 
 
 key=new bitcoin.ECPair.fromPrivateKey('93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg', TESTNET)
-
 
 key   = new bitcoin.ECPair.fromWIF( '93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg', TESTNET)
 tx.sign(0, key)
