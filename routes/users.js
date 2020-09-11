@@ -58,7 +58,7 @@ router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body; con
     db.sessionkeys.create({      username:username
       , token:token
       , sitename:sitename
-      , useragent:req.headers['user-agent'].substr(0,150)
+      , useragent:req.headers['user-agent'].substr(0,150).replace(/ /g,'')
       , loginip:getip(req)
     });return false
   })
