@@ -52,7 +52,7 @@ router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body; con
   db.users.findOne({raw:true,where:{... req.body,active:1}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,'INVALID',76323);return false}
     const aexrates=await db.exchangerates.findAll({raw:true,where:{nettype:nettype,sitename:sitename}})
-    const atokens=aexrates.map(e=>{return e['currency0']})
+    const atokens=aexrates.map(e=>{return e['currency0']});console.log(atokens)
     const token=generateRandomStr(32)
     respok(res,null,null,{token:token, atokens:atokens})
     db.sessionkeys.create({      username:username
