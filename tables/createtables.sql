@@ -1,4 +1,6 @@
 
+CREATE USER 'iotcpay'@'localhost' IDENTIFIED BY 'rY3f0qKSN6';
+
 Update transactions set amountfloatstr = CAST(RAND() * 10000 AS UNSIGNED)
 
 update `transactions` set txtime=(    FROM_UNIXTIME(        UNIX_TIMESTAMP('2020-08-01 01:23:45') + FLOOR(0 + (RAND() * 2592000))    ))

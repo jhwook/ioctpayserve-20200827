@@ -8,11 +8,11 @@ var indexRouter = require('./routes/index');
 var usersrouter = require('./routes/users');
 const walletsrouter=require('./routes/wallets')
 var app = express();
-
+const {requestIp}=require('request-ip')
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
+logger.token('IP',req=>requestIp.getClientIp(req))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

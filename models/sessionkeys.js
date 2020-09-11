@@ -37,7 +37,7 @@ module.exports = function(sequelize, DataTypes) {
       field: "loginip"
     },
     useragent: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(150),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,

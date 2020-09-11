@@ -22,8 +22,9 @@ const delsession=(req)=>{const token=req.headers.token
 }
 const getuserorterminate=async (req,res)=>{  const username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73200);return false}
 }
-const getusernamefromsession=async req=>{if(req.headers.token){} else {return null}
-  const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}})
+const getusernamefromsession=async req=>{  console.log('headers',req.headers)
+  if(req.headers.token){} else {return null}
+  const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}});console.log('session',session)
   if(session){ return session['username']} else {return null}
 }
 const incdecbalance_reflfee=(jdata,txdata,calldata)=>{let {username,currency,amountdelta}=jdata;console.log(jdata);let  blocknumber

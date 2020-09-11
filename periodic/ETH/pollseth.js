@@ -10,6 +10,13 @@ const ENDBLOCKDUMMY4QUERY=50000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH',CURRENCYDECIMALS=18, DELTA_T_SHORT=60*1.5*1000
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
 let jaddresses={}
+const setpoller=jdata=>{const {username,address}=jdata
+  const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
+  setTimeout(()=>{    pollblocks({address:address,username:username})
+    setInterval(()=>{ pollblocks({address:address,username:username})
+    }, PERIOD_DIST_POLLS)
+  } ,deltat )
+}
 const init=()=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address // ;console.log(address,'ETH')
     db.balance.findOne({raw:true,where:{address:address,netkind:netkind,currency:CURRENCYLOCAL }}).then(resp=>{      if(resp){} else {return false} ; const username=resp['username']// console.log(resp);
@@ -98,6 +105,7 @@ channel.then(ch=>{
     const packet=JSON.parse(str) 
     if(packet['flag']=='ADD'){}  else {return false} //console.log('INCAMT')
     jaddresses[packet['username']]=packet['address']
+    setpoller({username:packet['username'], address:packet['address']})
   })
 })  
 } , 2700)

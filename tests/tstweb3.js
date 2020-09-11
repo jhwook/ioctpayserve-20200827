@@ -29,7 +29,6 @@ _.fromPairs(_.map(input, i => [i.key, i.val]))
 //With toObject()
 _.toObject(input, i => i.key, i => i.val);
 
-
 sequelizeStream= require( 'sequelize-stream')
 db=require('./models')
  stream = sequelizeStream(db.sequelize)
@@ -120,8 +119,9 @@ var utxo = {
 
 []btc testnet
 
+bitcoin-cli -chain=test listunspent 1 99999999 '''["mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg"]'''
 [3]btc testnet@bitpay : mwg1NMTC9TF9pj9wLLwk8gov3sZboPavGv 
-Seed : update spot chunk floor olympic junior arctic clap absorb two random youth 
+Seed : update spot chunk floor olympic junior arctic clap absorb two random youth
 
  [2]public: mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg
  private: 9293qUfovVd76dLjBQqHqkim5GGgz1fbRFZqWJoHHXGMWpzvrUq

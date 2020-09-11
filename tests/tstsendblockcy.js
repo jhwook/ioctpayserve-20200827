@@ -1,13 +1,20 @@
+const { sign } = require('crypto');
 
-newtx = {  inputs: [{addresses: ['mkTddhC91V3FSePXS1L31BKTLbaMRstnpt']}],  outputs: [{addresses: ['mwg1NMTC9TF9pj9wLLwk8gov3sZboPavGv'], value: 100000}]
-}
+newtx = {  inputs: [{addresses: ['mkTddhC91V3FSePXS1L31BKTLbaMRstnpt']}],  outputs: [{addresses: ['mwg1NMTC9TF9pj9wLLwk8gov3sZboPavGv'], value: 100000}] }
 axios=require('axios')
-
 rootUrl = "https://api.blockcypher.com/v1/btc/test3"
 axios.post(rootUrl+"/txs/new", newtx).then(resp0=>{resp=resp0;console.log(resp.data)}).catch(console.log)
 bitcore = require("bitcore")
 prvk = new bitcore.PrivateKey('93DbQP89FDm983qFpVFyVrFh2X33KLyxQP7P5FmCrkBF8fpSPVg')
+tmptx.pubkeys=[]
+tmptx.pubkeys.push(prvk.publicKey.toString())
+tmptx.signatures=[]
+signed='3044022023f305f387b04c88beab7fe94fb74918abab35b417d8016e268d785420b3785a022058a5c43bba8d3332d5a54ce2af1f2774683d169353cd596a155479839427519b'
+tmptx.signatures.push(signed)
+axios.defaults.headers.common['Content-Type']='application/json'
+axios.post( 'https://api.blockcypher.com/v1/btc/test3/txs/send', {tx:JSON.stringify(tmptx)}).then(finaltx0=> {finaltx=finaltx0}).catch(console.log)
 
+//
 utxo=resp.data.tx.inputs
 [
   {
@@ -23,8 +30,6 @@ utxo=resp.data.tx.inputs
  Message = require('bitcore-message')
  tosign='7fcdf9687940f862499f5ef4cfd85fb9b571408a4d23edfe77ec7454edf77c74' // resp.data.tosign[0]
  signature = Message(tosign).sign(prvk) // mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg.log
-tmpx.pubkeys=[]
-tmpx.pubkeys.push(prvk.publicKey.toString())
 
 
 
@@ -55,3 +60,5 @@ tmptx={
     '712b569c9a27f03d48be72a32a3adb9ec16a2d9f4b3070071899e9e8a9aaf454'
   ]
 }
+// ./signer 7fcdf9687940f862499f5ef4cfd85fb9b571408a4d23edfe77ec7454edf77c74 d6f9875dd5e67eaa5bbdc28c3e4b2f4006725092ae6cc4de98630e6432a9ca61
+// 3044022023f305f387b04c88beab7fe94fb74918abab35b417d8016e268d785420b3785a022058a5c43bba8d3332d5a54ce2af1f2774683d169353cd596a155479839427519b

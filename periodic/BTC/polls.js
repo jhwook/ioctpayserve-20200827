@@ -9,6 +9,13 @@ const ENDBLOCKDUMMY4QUERY=5000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='BTC',CURRENCYKIND='BTC',CURRENCYTYPE='BTC',CURRENCYDECIMALS=8, DELTA_T_SHORT=60*1.5*1000 // ,NETKIND=netkind // 'testnet'
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
 let jaddresses={}
+const setpoller=jdata=>{const {username,address}=jdata
+  const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
+  setTimeout(()=>{    pollblocks({address:address,username:username})
+    setInterval(()=>{ pollblocks({address:address,username:username})
+    }, PERIOD_DIST_POLLS)
+  } ,deltat )
+}
 const init=()=>{
   db.balance.findAll({raw:true,where:{currency:CURRENCYLOCAL,netkind:netkind}}).then(aresps=>{
     aresps.forEach(acct=>{
@@ -98,6 +105,7 @@ channel.then(ch=>{
     const packet=JSON.parse(str) 
     if(packet['flag']=='ADD'){}  else {return false} 
     jaddresses[packet['username']]=packet['address']
+    setpoller({username:packet['username'], address:packet['address']})
   })
 })
   

@@ -25,7 +25,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
       resprates.forEach(ratedata=>{ let netkind,nettype
         const jdata=jtokens[ratedata['currency0']]; if (jdata){} else {console.log(`Data missing-${ratedata['currency0']}`);return false}
         if(jdata['group_']=='ETH')      { account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
-        else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }  
+        else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }
         db.balance.create({
           username:username
           , currency:jdata['name']
@@ -47,17 +47,18 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
     })
   })
 })
-router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body
+router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body; console.log(req.body)
   if(username && pw){} else {respreqinvalid(res,'ARGMISSING',68961);return false}
   db.users.findOne({raw:true,where:{... req.body,active:1}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,'INVALID',76323);return false}
     const aexrates=await db.exchangerates.findAll({raw:true,where:{nettype:nettype,sitename:sitename}})
     const atokens=aexrates.map(e=>{return e['currency0']})
     const token=generateRandomStr(32)
-    respok(res,null,null,{token:token, atokens:atokens})``
+    respok(res,null,null,{token:token, atokens:atokens})
     db.sessionkeys.create({      username:username
       , token:token
       , sitename:sitename
+      , useragent:req.headers['user-agent'].substr(0,150)
       , loginip:getip(req)
     });return false
   })
