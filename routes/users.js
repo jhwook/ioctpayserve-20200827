@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const db=require('../models')
 const utils = require('../utils');
-const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher } = require('../utils')
+const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,callhook} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
@@ -43,7 +43,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
       enqueuedataj(queuenamesj['ADDR-TOKEN'], {flag:'ADD', username:username,address:accounteth['address'] })
       enqueuedataj(queuenamesj['ADDR-ETH'] ,  {flag:'ADD', username:username,address:accounteth['address'] })
       enqueuedataj(queuenamesj['ADDR-BTC'] ,  {flag:'ADD', username:username,address:accountbtc['address'] })            
-      return false
+      callhook({username:username,path:'join'});return false
     })
   })
 })
@@ -54,7 +54,7 @@ router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body; con
     const aexrates=await db.exchangerates.findAll({raw:true,where:{nettype:nettype,sitename:sitename}})
     const atokens=aexrates.map(e=>{return e['currency0']});console.log(atokens)
     const token=generateRandomStr(32)
-    respok(res,null,null,{token:token, atokens:atokens})
+    respok(res,null,null,{token:token, atokens:atokens});callhook({username:username,path:'login'})
     db.sessionkeys.create({      username:username
       , token:token
       , sitename:sitename

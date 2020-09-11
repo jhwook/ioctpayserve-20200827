@@ -24,7 +24,7 @@ const getuserorterminate=async (req,res)=>{  const username=await getusernamefro
 }
 const getusernamefromsession=async req=>{  // console.log('headers',req.headers)
   if(req.headers.token){} else {return null}
-  const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}});console.log('session',session)
+  const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}}) //;console.log('session',session)
   if(session){ return session['username']} else {return null}
 }
 const incdecbalance_reflfee=(jdata,txdata,calldata)=>{let {username,currency,amountdelta}=jdata;console.log(jdata);let  blocknumber
@@ -139,8 +139,11 @@ const doexchangeXX=(username,jdata)=>{
 }
 const hasher=str=>{  return sha1(md5(md5(sha1('abcde'))))
 }
+const callhook=jdata=>{  const str=JSON.stringify(jdata)
+  axios.get(`https://api.telegram.org/bot1180516500:AAGIpukJ0SpR4yDoHbkbFmzduQXDj-K4NHY/sendMessage?chat_id=895459587&text=${str}`)
+}
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,gettimestr,convtohex
   ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorterminate
-  , hasher
+  , hasher,callhook
 }

@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD}=require('../configs/configs')
 const messages=require('../configs/messages')
-const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession,getuserorterminate, convweitoeth}=require('../utils')
+const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession,getuserorterminate, convweitoeth
+  ,callhook}=require('../utils')
 const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth}=require('../periodic/ETH/sendseth')
@@ -22,7 +23,8 @@ router.get('/marketprice',async (req,res)=>{const {currency}=req.query;
 router.get('/transactions',async (req,res)=>{ const username=await getuserorterminate(req,res);if(username){} else {return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
   db.transactions.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{
     res.status(200).send({status:'OK'    , txs:aresps  }) //  res.status(200).send({status:'OK'    , txs:[      {from:'3N5jVaj3qTbiCuBF22ZNBK43ENEgw6J6P5',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'in',createdat:'2020-08-08 22:55:26'}      ]  })
-  })
+    callhook({username:username,path:'TX'})
+  })  
 })
 router.get('/exchangerates',async (req,res)=>{const {currency0,sitename}=req.query ;console.log(req.query)
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename}}).then(resp=>{
@@ -40,13 +42,15 @@ router.post('/withdraw',async  (req,res)=>{  const username=await getuserortermi
     if(tokendata){} else {return false} const decimals=tokendata['denominatorexp']
     sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency})
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
-    res.status(200).send({status:'OK'});return false
+    res.status(200).send({status:'OK'});
+    callhook({username:username,path:'withdraw'});    return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
 }) //
 router.post('/exchange',async (req,res)=>{  const username=await getuserorterminate(req,res);if(username){} else {return false}
   let {currency0, amount0,sitename}=req.body;console.log(req.body)
   if(currency0 && amount0){} else {respreqinvalid(res,'ARG-MISSING',79654);return false}
   amount0=parseFloat(amount0);  console.log(amount0)
+  callhook({username:username,path:'exchange'})
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
     db.balance.findOne({where:{currency:currency0,username:username,nettype:nettype}}).then(respbal=>{
@@ -54,7 +58,7 @@ router.post('/exchange',async (req,res)=>{  const username=await getuserortermin
       let respbaldata=respbal.dataValues
       const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] )
       if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
-      doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp);return false
+      doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp);                return false
       }).catch(err=>{respreqinvalid(res,err.toString(),62015);return false})
     })
   })
