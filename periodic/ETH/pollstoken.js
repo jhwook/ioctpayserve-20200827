@@ -42,7 +42,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
     if(resp){} else {return false}
     if(resp.data.result && resp.data.result.length>0){} else {return false}
     let maxblocknumber=-1,txdataatmax=null,amountcumul=0,jtokenamountcumul={},jtokenupddata={};const username=jaddresses[address]
-    for (let i in resp.data.result){const txdata=resp.data.result[i]
+    for (let i in resp.data.result){const txdata=resp.data.result[i]; if(txdata.to && txdata.to.length>40){} else {continue}
       if(isequalinlowercases(txdata.to,address)){} else {continue} console.log(txdata)
       if(txdata.isError=='1'){continue} else {}
       let tokendata=null

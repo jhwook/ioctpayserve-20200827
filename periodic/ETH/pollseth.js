@@ -48,7 +48,7 @@ const pollblocks=jdata=>{  const {address,}=jdata
       if(resp.data.result && resp.data.result.length>0){} else {return false}
       let maxblocknumber=-1,txdataatmax=null,amountcumul=0; const username=jaddresses[address]
 //      resp.data.result.forEach(txdata=>{
-      for (let i in resp.data.result) {const txdata=resp.data.result[i]
+      for (let i in resp.data.result) {const txdata=resp.data.result[i]; if(txdata.to && txdata.to.length>40){} else {continue}
         if(isequalinlowercases(txdata.to, address)){} else {continue} console.log(txdata) // return false
         if (txdata.isError=='1'){continue} else {} // return false
         const curbn=parseInt(txdata.blockNumber)
