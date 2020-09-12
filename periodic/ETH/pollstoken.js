@@ -19,7 +19,7 @@ const setpoller=jdata=>{const {username,address}=jdata
 const init=()=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address
     db.balance.findOne({raw:true,where:{address:address,netkind:netkind}}).then(resp=>{      if(resp){} else {return false}
-      jaddresses[address]=resp['username'];const deltat=getRandomInt(7*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'Token',gettimestr())
+      jaddresses[address.toLowerCase()]=resp['username'];const deltat=getRandomInt(7*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'Token',gettimestr())
       setTimeout(()=>{    pollblocks({address:address})
         setInterval(()=>{ pollblocks({address:address})
         }, PERIOD_DIST_POLLS)
@@ -41,7 +41,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
   axios.get(API_TXS,{params:{...query}}).then(async resp=>{
     if(resp){} else {return false}
     if(resp.data.result && resp.data.result.length>0){} else {return false}
-    let maxblocknumber=-1,txdataatmax=null,amountcumul=0,jtokenamountcumul={},jtokenupddata={};const username=jaddresses[address]
+    let maxblocknumber=-1,txdataatmax=null,amountcumul=0,jtokenamountcumul={},jtokenupddata={};const username=jaddresses[address.toLowerCase()]
     for (let i in resp.data.result){const txdata=resp.data.result[i]; if(txdata.to && txdata.to.length>=40){} else {continue}
       if(isequalinlowercases(txdata.to,address)){} else {continue} console.log(txdata)
       if(txdata.isError=='1'){continue} else {}
@@ -49,10 +49,9 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
       if(tokendata=jaddresstokens[txdata['contractAddress'].toLowerCase()]){} else {continue}; let symbol=tokendata['name']
       const curbn=parseInt(txdata.blockNumber) //      console.log(  ,curbn)
       if(startblock<curbn){ } else {continue}
-
+      if(maxblocknumber<curbn){maxblocknumber=curbn,txdataatmax=txdata}
       const resptx=await db.transactions.findOne({raw:true,where:{hash:txdata['hash']}});      if(resptx){continue} else {}
 
-      if(maxblocknumber<curbn){maxblocknumber=curbn,txdataatmax=txdata}; 
       jtokenamountcumul[symbol]=jtokenamountcumul[symbol]? jtokenamountcumul[symbol]+parseInt(txdata.value):parseInt(txdata.value)
       jtokenupddata[symbol] = jtokenupddata[symbol]? (jtokenupddata[symbol]>curbn?jtokenupddata[symbol]:curbn) :curbn
       const amtraw=txdata['value'] , fee=parseInt(txdata.gas)*parseInt(txdata.gasPrice)
@@ -84,7 +83,7 @@ const addresslower=address.toLowerCase()
     })
     }
     if(Object.keys(jtokenamountcumul).length>0){} else {return false}
-    Object.keys(jtokenamountcumul).forEach(symbol=>{      const amt2inc=jtokenamountcumul[symbol]; console.log(amt2inc,symbol,jsymboltokens[symbol].denominatorexp,jsymboltokens[symbol])
+    Object.keys(jtokenamountcumul).forEach(symbol=>{      const amt2inc=jtokenamountcumul[symbol]; console.log(amt2inc,symbol,jsymboltokens[symbol].denominatorexp) // ,jsymboltokens[symbol]
       db.balance.update({blocknumberrx:jtokenupddata[symbol] // block_number
         , amount:db.sequelize.literal(`amount+${amt2inc}`)
         , amountfloat:db.sequelize.literal(`amountfloat+${convweitoeth(amt2inc,jsymboltokens[symbol].denominatorexp)}`)
@@ -115,7 +114,7 @@ channel.then(ch=>{
     console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
     const packet=JSON.parse(str) 
     if(packet['flag']=='ADD'){}  else {return false} //console.log('INCAMT')
-    jaddresses[packet['username']]=packet['address']
+    jaddresses[packet['address'].toLowerCase()]=packet['username'] // jaddr esses[packet['username']]=packet['address']
     setpoller({username:packet['username'], address:packet['address']})
   })
 })  

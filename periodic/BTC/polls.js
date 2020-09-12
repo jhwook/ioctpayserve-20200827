@@ -104,7 +104,7 @@ channel.then(ch=>{
     console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
     const packet=JSON.parse(str) 
     if(packet['flag']=='ADD'){}  else {return false} 
-    jaddresses[packet['username']]=packet['address']
+    jaddresses[packet['address']]=packet['username'] // jaddresses[packet['username']]=packet['address']
     setpoller({username:packet['username'], address:packet['address']})
   })
 })
