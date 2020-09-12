@@ -46,7 +46,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
       if(isequalinlowercases(txdata.to,address)){} else {continue} console.log(txdata)
       if(txdata.isError=='1'){continue} else {}
       let tokendata=null
-      if(tokendata=jaddresstokens[txdata['contractAddress']]){} else {continue}; let symbol=tokendata['name']
+      if(tokendata=jaddresstokens[txdata['contractAddress'].toLowerCase()]){} else {continue}; let symbol=tokendata['name']
       const curbn=parseInt(txdata.blockNumber) //      console.log(  ,curbn)
       if(startblock<curbn){ } else {continue}
 
@@ -57,14 +57,14 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
       jtokenupddata[symbol] = jtokenupddata[symbol]? (jtokenupddata[symbol]>curbn?jtokenupddata[symbol]:curbn) :curbn
       const amtraw=txdata['value'] , fee=parseInt(txdata.gas)*parseInt(txdata.gasPrice)
       callhook({username:username,currency:tokendata['name'],amount:convweitoeth(amtraw)})
-
+const addresslower=address.toLowerCase()
       db.balance.findOne({where:{username:username,currency:symbol,netkind:netkind}}).then(respbal=>{      const baldata=respbal.dataValues
         db.transactions.create({
           username:username
           , currency:tokendata['symbol']
           , fromamount:amtraw
 //          , toamount:amtraw
-          , amountfloatstr:convweitoeth(amtraw,jaddresstokens && jaddresstokens[address] && jaddresstokens[address].denominatorexp?jaddresstokens[address].denominatorexp:DECIMALS_DEF )
+          , amountfloatstr:convweitoeth(amtraw,jaddresstokens && jaddresstokens[addresslower] && jaddresstokens[addresslower].denominatorexp?jaddresstokens[addresslower].denominatorexp:DECIMALS_DEF )
           , fromaddress:txdata['from']
           , toaddress:address
           , direction:'IN'
@@ -99,7 +99,7 @@ const inittoken=()=>{ // .toLower,Case()
   db.tokens.findAll({raw:true}).then(aresps=>{
     aresps.forEach(tokendata=>{      if(tokendata['netkind']==netkind){} else {return false}
       if(tokendata['address']){} else {return false}
-      jaddresstokens[tokendata['address']]=tokendata;      jsymboltokens [tokendata['name'].toUpperCase()]=tokendata
+      jaddresstokens[tokendata['address'].toLowerCase()]=tokendata;      jsymboltokens [tokendata['name'].toUpperCase()]=tokendata
     })
   })
 }
