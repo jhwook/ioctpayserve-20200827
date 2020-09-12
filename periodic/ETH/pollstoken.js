@@ -2,7 +2,7 @@ const axios=require('axios'),moment=require('moment')
 let {web3,netkind,nettype}=require('../../configs/ETH/configweb3') // 
 const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/api`
 const db=require('../../models')
-const {getRandomInt,isequalinlowercases, convweitoeth,gettimestr}=require('../../utils')
+const {getRandomInt,isequalinlowercases, convweitoeth,gettimestr,callhook}=require('../../utils')
 const ENDBLOCKDUMMY4QUERY=70000000
 const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
 const configs=require('../../configs/configs'); const {queuenamesj}=configs
@@ -27,8 +27,8 @@ const init=()=>{ // .toLower,Case()
     })
   }
 }
-const pollblocks=jdata=>{  const {address,}=jdata
-db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURRENCYKIND,currencytype:CURRENCYTYPE}}).then(respbb=>{let startblock=1
+const pollblocks=async jdata=>{  const {address,}=jdata
+db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURRENCYKIND,currencytype:CURRENCYTYPE}}).then(async respbb=>{let startblock=1
   if(respbb){startblock=respbb['blocknumber']+1} else {}
   console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
   const query={startblock:startblock    ,endblock:ENDBLOCKDUMMY4QUERY    ,address:address
@@ -38,27 +38,32 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
     , apikey:'GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
   }
   try{  console.log(API_TXS) // .toLower,Case()
-  axios.get(API_TXS,{params:{...query}}).then(resp=>{
+  axios.get(API_TXS,{params:{...query}}).then(async resp=>{
     if(resp){} else {return false}
     if(resp.data.result && resp.data.result.length>0){} else {return false}
     let maxblocknumber=-1,txdataatmax=null,amountcumul=0,jtokenamountcumul={},jtokenupddata={};const username=jaddresses[address]
-    for (let i in resp.data.result){const txdata=resp.data.result[i]; if(txdata.to && txdata.to.length>40){} else {continue}
+    for (let i in resp.data.result){const txdata=resp.data.result[i]; if(txdata.to && txdata.to.length>=40){} else {continue}
       if(isequalinlowercases(txdata.to,address)){} else {continue} console.log(txdata)
       if(txdata.isError=='1'){continue} else {}
       let tokendata=null
       if(tokendata=jaddresstokens[txdata['contractAddress']]){} else {continue}; let symbol=tokendata['name']
       const curbn=parseInt(txdata.blockNumber) //      console.log(  ,curbn)
       if(startblock<curbn){ } else {continue}
+
+      const resptx=await db.transactions.findOne({raw:true,where:{hash:txdata['hash']}});      if(resptx){continue} else {}
+
       if(maxblocknumber<curbn){maxblocknumber=curbn,txdataatmax=txdata}; 
       jtokenamountcumul[symbol]=jtokenamountcumul[symbol]? jtokenamountcumul[symbol]+parseInt(txdata.value):parseInt(txdata.value)
       jtokenupddata[symbol] = jtokenupddata[symbol]? (jtokenupddata[symbol]>curbn?jtokenupddata[symbol]:curbn) :curbn
       const amtraw=txdata['value'] , fee=parseInt(txdata.gas)*parseInt(txdata.gasPrice)
+      callhook({username:username,currency:tokendata['name'],amount:convweitoeth(amtraw)})
+
       db.balance.findOne({where:{username:username,currency:symbol,netkind:netkind}}).then(respbal=>{      const baldata=respbal.dataValues
         db.transactions.create({
           username:username
           , currency:tokendata['symbol']
           , fromamount:amtraw
-          , toamount:amtraw
+//          , toamount:amtraw
           , amountfloatstr:convweitoeth(amtraw,jaddresstokens && jaddresstokens[address] && jaddresstokens[address].denominatorexp?jaddresstokens[address].denominatorexp:DECIMALS_DEF )
           , fromaddress:txdata['from']
           , toaddress:address

@@ -39,8 +39,8 @@ XXX curl --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspe
 
 curl --user root --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"] }' -H 'content-type: text/plain;' http://182.162.21.240:8332/
 
-curl --user root --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"] }' -H 'content-type: text/plain;' http://localhost:8332/
-b8P9hiHAAD
+curl --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"] }' -H 'content-type: text/plain;' http://root:b8P9hiHAAD@localhost:18332/
+
 
 [1] bitcoin-cli -chain=test listunspent 1 99999999 '''["mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg"]'''
 [

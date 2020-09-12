@@ -6,7 +6,7 @@ let rxaddr='mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg'
 let fee=0.0006
 const URLBTCREQ='http://182.162.21.240/tmp/curls.php'
 const send=async ()=>{
-  axios.get(URLBTCREQ).then(async resp=>{const jdata=JSON.parse(resp.data);jtmp=jdata;  console.log(jdata)
+  axios.get(URLBTCREQ, {params:{mode:'listunspent'}}).then(async resp=>{const jdata=JSON.parse(resp.data);jtmp=jdata;  console.log(jdata)
     if(jdata['error']){console.log('ERR-listunspent');return false} else {}
     let atxs=jdata.result
     atxs=atxs.sort((a,b)=>{return parseFloat(a.amount)-parseFloat(b.amount)}) // > ares.map(e=>e['amount'])
@@ -15,19 +15,17 @@ const send=async ()=>{
       if(sum+fee>=amtreqd){i01=i;break}
     }
     if(sum+fee>=amtreqd){} else {console.log('ERR-BALANCE_NOT-ENOUGH');return false}
-    const txreqstr=await getrawtxreqstr({autxo:[... atxs.slice(0,i01+1)]})
-    const respcreatetx=await axios.get(URLBTCREQ,{params:{mode:'rawch',datastr:txreqstr}})
-    console.log(respcreatetx)
+    const txreqstr=await getrawtxreqstr({autxo:[... atxs.slice(0,i01+1)]}); console.log(txreqstr)
+    const respcreatetx=await axios.get(URLBTCREQ,{params:{mode:'rawch',datastr:txreqstr}});    console.log(respcreatetx)
   }).catch(console.log)
 }
 
-const getrawtxreqstr=async jdata=>{  const {autxo,rxaddress,amtreqd,sumutxo,senderwallet}=jdata;const sumutxosave=sumutxo
+const getrawtxreqstr=async jdatain=>{  const {autxo,rxaddress,amtreqd,sumutxo,senderwallet}=jdatain;const sumutxosave=sumutxo
 //  let jdata={jsonrpc:1.0,id:'curltest',method:'createtransaction',params:[[{txid:1,vout:0}],[{address:0.01}]]}
   let jdata={jsonrpc:1.0,id:'curltest',method:'createtransaction',params:[[],[]]}
   autxo.forEach(utxo=>{    jdata.params[0].push ({txid:utxo.txid,vout:utxo.vout})
   })
-  let fee=await db.operations.findOne({raw:true,where:{key_:'SENDFEE',subkey_:'BTC'}});if(fee){} else {console.log('sendfee not found');return null}
-  fee=parseFloat(fee)
+  let fee=await db.operations.findOne({raw:true,where:{key_:'SENDFEE',subkey_:'BTC'}});if(fee){} else {console.log('sendfee not found');return null};  fee=parseFloat(fee)
   let arxs=[]
   arxs[0]={};arxs[0][rxaddr]=amtreqd.toString()
   sumutxo-=fee;sumutxo-=amtreqd
