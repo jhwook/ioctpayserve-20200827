@@ -43,7 +43,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
       enqueuedataj(queuenamesj['ADDR-TOKEN'], {flag:'ADD', username:username,address:accounteth['address'] })
       enqueuedataj(queuenamesj['ADDR-ETH'] ,  {flag:'ADD', username:username,address:accounteth['address'] })
       enqueuedataj(queuenamesj['ADDR-BTC'] ,  {flag:'ADD', username:username,address:accountbtc['address'] })            
-      callhook({username:username,path:'join'});return false
+      callhook({name:username,path:'join'});return false
     })
   })
 })
@@ -54,7 +54,7 @@ router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body; con
     const aexrates=await db.exchangerates.findAll({raw:true,where:{nettype:nettype,sitename:sitename}})
     const atokens=aexrates.map(e=>{return e['currency0']});console.log(atokens)
     const token=generateRandomStr(32)
-    respok(res,null,null,{token:token, atokens:atokens});callhook({username:username,path:'login'})
+    respok(res,null,null,{token:token, atokens:atokens});callhook({name:username,path:'login'})
     db.sessionkeys.create({      username:username
       , token:token
       , sitename:sitename

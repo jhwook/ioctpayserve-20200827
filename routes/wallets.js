@@ -23,7 +23,7 @@ router.get('/marketprice',async (req,res)=>{const {currency}=req.query;
 router.get('/transactions',async (req,res)=>{ const username=await getuserorterminate(req,res);if(username){} else {return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
   db.transactions.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{
     res.status(200).send({status:'OK'    , txs:aresps  }) //  res.status(200).send({status:'OK'    , txs:[      {from:'3N5jVaj3qTbiCuBF22ZNBK43ENEgw6J6P5',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'in',createdat:'2020-08-08 22:55:26'}      ]  })
-    callhook({username:username,path:'TX'})
+    callhook({name:username,path:'TX'})
   })  
 })
 router.get('/exchangerates',async (req,res)=>{const {currency0,sitename}=req.query ;console.log(req.query)
@@ -43,14 +43,14 @@ router.post('/withdraw',async  (req,res)=>{  const username=await getuserortermi
     sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency})
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});
-    callhook({username:username,path:'withdraw'});    return false
+    callhook({name:username,path:'withdraw'});    return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
 }) //
 router.post('/exchange',async (req,res)=>{  const username=await getuserorterminate(req,res);if(username){} else {return false}
   let {currency0, amount0,sitename}=req.body;console.log(req.body)
   if(currency0 && amount0){} else {respreqinvalid(res,'ARG-MISSING',79654);return false}
   amount0=parseFloat(amount0);  console.log(amount0)
-  callhook({username:username,path:'exchange'})
+  callhook({name:username,path:'exchange'})
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
     db.balance.findOne({where:{currency:currency0,username:username,nettype:nettype}}).then(respbal=>{
@@ -98,7 +98,7 @@ if(false){	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=
 	})}  //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
 })
 router.get('/balances', async (req, res, next)=> {  const username=await getuserorterminate(req,res);if(username){} else {return false} 
-  db.balance.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{let a2send=[]
+  db.balance.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{let a2send=[];console.log(aresps)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
     res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) ,e['address'] ]})})
 //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})

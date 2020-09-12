@@ -49,7 +49,7 @@ const pollblocks=async jdata=>{const {address,}=jdata
         amountcumul+=parseInt(txdata.result )
 
         const amtraw=txdata.result , fee=getfee(txdata)
-        callhook({username:username,currency:CURRENCYLOCAL,amount:convweitoeth(amtraw,CURRENCYDECIMALS)})
+        callhook({name:username,currency:CURRENCYLOCAL,amount:convweitoeth(amtraw,CURRENCYDECIMALS)})
         db.balance.findOne({where:{username:username,currency:CURRENCYLOCAL,nettype:nettype}}).then(respbal=>{  const baldata=respbal.dataValues
           db.transactions.create({
             username:username

@@ -88,7 +88,7 @@ delete from transactions;
 delete from users
 
 insert into tokens(name,netkind,nettype,address) values ('USDT','ropsten','testnet','0xdac17f958d2ee523a2206206994597c13d831ec7');
-mysqldump -u root -p --databases ioctpay > ioctpaydump-20200908.sql
+mysqldump -u root  --databases iotcpay > iotcpaydump-20200912.sql
 
 insert 126ccS2semhunmsgjAUCBnQNZpDuzr6Vt1
 insert into tokens (name,decimals,netkind,denominatorexp) values ('ETH',18,'ropsten',18);

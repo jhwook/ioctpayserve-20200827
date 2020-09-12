@@ -1,4 +1,4 @@
-const db=require('./models')
+const db=require('./models');const axios=require('axios')
 const moment=require('moment');const {netkind,nettype}=require('./configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 const md5 = require('md5');const  sha1 = require('sha1')

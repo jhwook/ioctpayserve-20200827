@@ -55,7 +55,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
       jtokenamountcumul[symbol]=jtokenamountcumul[symbol]? jtokenamountcumul[symbol]+parseInt(txdata.value):parseInt(txdata.value)
       jtokenupddata[symbol] = jtokenupddata[symbol]? (jtokenupddata[symbol]>curbn?jtokenupddata[symbol]:curbn) :curbn
       const amtraw=txdata['value'] , fee=parseInt(txdata.gas)*parseInt(txdata.gasPrice)
-      callhook({username:username,currency:tokendata['name'],amount:convweitoeth(amtraw)})
+      callhook({name:username,currency:tokendata['name'],amount:convweitoeth(amtraw)})
 const addresslower=address.toLowerCase()
       db.balance.findOne({where:{username:username,currency:symbol,netkind:netkind}}).then(respbal=>{      const baldata=respbal.dataValues
         db.transactions.create({

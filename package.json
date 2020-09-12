@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "bitcore-explorers": "^1.0.1",
-    "bs58": "^4.0.1"
+    "bs58": "^4.0.1",
+    "form-data": "^3.0.0"
   }
 }

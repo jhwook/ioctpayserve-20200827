@@ -1,4 +1,21 @@
 
+let data = new FormData()
+data.append("jsonrpc", "1.0")
+data.append("id", "curltest")
+data.append("method", "listunspent")
+data.append("params", JSON.stringify([1,1000000,['mkTddhC91V3FSePXS1L31BKTLbaMRstnpt'],true,{'minimalamount':0.00001}]))
+
+axios({
+  method: 'post',
+  url: 'http://root:b8P9hiHAAD@182.162.21.240:18332',
+  data: data,
+  config: {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+}).then(resp=>{console.log(resp.data)}).catch(console.log)
+
 http://182.162.21.240/tmp/tst.php
 
 OOO$ curl --user root --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "dumpwallet", "params": ["test"]}' -H 'content-type: text/plain;' http://localhost:8332/
