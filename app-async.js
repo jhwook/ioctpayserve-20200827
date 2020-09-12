@@ -1,3 +1,4 @@
+(async ()=>{
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -5,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors=require('cors')
 var indexRouter = require('./routes/index');
-var usersrouter = require('./routes/users');
+var usersrouter = await require('./routes/users');
 const walletsrouter=require('./routes/wallets')
 var app = express();
 const {requestIp}=require('request-ip')
@@ -38,8 +39,11 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+module.exports = new Promise ((resolve,reject)=>{
+  resolve(app)
 })
-module.exports =app
+})();
 
 const periodic=require('./periodic')
 const cron=require('node-cron'),moment=require('moment')

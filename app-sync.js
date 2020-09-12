@@ -1,3 +1,4 @@
+(asyn)
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -38,9 +39,9 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-})
-module.exports =app
+});
 
+module.exports = app;
 const periodic=require('./periodic')
 const cron=require('node-cron'),moment=require('moment')
 console.log(`Launching ${moment().format('HH:mm:ss, YYYY-MM-DD')}`)

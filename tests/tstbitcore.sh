@@ -1,4 +1,47 @@
 
+http://182.162.21.240/tmp/tst.php
+
+OOO$ curl --user root --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "dumpwallet", "params": ["test"]}' -H 'content-type: text/plain;' http://localhost:8332/
+
+OOO $ curl --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": [1, 1000000, [],true,{"minimalamount":0.00001}] }' -H 'content-type: text/plain;' http://root:b8P9hiHAAD@localhost:18332/
+
+OOO $ curl --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": [1, 1000000, ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"],true,{"minimalamount":0.00001}] }' -H 'content-type: text/plain;' http://root:b8P9hiHAAD@localhost:18332/
+
+OOO strbody='{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": [1, 1000000, ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"],true,{"minimalamount":0.00001}] }'
+axios.post('http://root:b8P9hiHAAD@localhost:18332/', strbody).then(resp=>{console.log(resp.data)}).catch(console.log)
+
+axios.get('http://182.162.21.240/tmp/curls.php').then(console.log).catch(console.log)
+axios.get('http://182.162.21.240/tmp/curls.php').then(resp=>{console.log(JSON.parse(resp.data))}).catch(console.log)
+
+curl --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "createrawtransaction", "params": ["[{\"txid\":\"myid\",\"vout\":0}]", "[{\"address\":0.01}]"] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
+
+>>{
+  result: [
+    {
+      txid: '126e86cc0ae10a280a62350c448dde3ad35441b860f68f763b102e1e97d5312a',
+      vout: 1,
+      address: 'mkTddhC91V3FSePXS1L31BKTLbaMRstnpt',
+      label: '',
+      scriptPubKey: '76a9143637cda4bff30631b420f1a091db3e515b25038988ac',
+      amount: 0.008,
+      confirmations: 2098,
+      spendable: true,
+      solvable: true,
+      desc: 'pkh([3637cda4]044b29387ecf71f5e5061ed830a4b8c0a89f859c264bbe0feff122e5b78d5c7f26b5151246d61b31b95654e136dcf2bcea1c4fbbcddbbbbf2151a241d50ff64b4b)#y55xlk8l',
+      safe: true
+    },
+  ],
+  error: null,
+  id: 'curltest'
+}
+
+XXX curl --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": [1, 1000000, [],true,{"minimalamount":0.00001}] }' -H 'content-type: text/plain;' http://root:b8P9hiHAAD@182.162.21.240:18332/
+
+curl --user root --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"] }' -H 'content-type: text/plain;' http://182.162.21.240:8332/
+
+curl --user root --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"] }' -H 'content-type: text/plain;' http://localhost:8332/
+b8P9hiHAAD
+
 [1] bitcoin-cli -chain=test listunspent 1 99999999 '''["mnFATxRQgTw6PzVYYCygJfJUgom1AvkuBg"]'''
 [
   {

@@ -2,7 +2,7 @@ const configEthers=require('../../configs/ETH/configEthers') // ,configtokens=re
 const ethers=require('ethers');		const { Contract, Wallet, providers } = ethers; const moment=require('moment')
 const {ethersProvider,etherScanProvider,defProvider,ethNetKind}=configEthers
 const db=require('../../models')
-const {web3}=require('../../configs/ETH/configweb3')
+const {web3}=require('../../configs/ETH/conf_igweb3')
 const B_VERB=true,DT_STR_FORMAT_DEF='YYYY-MM-DD HH:mm:ss.SSS'
 const doreceiveethtkn=async tx=>{	if(tx && tx.to && tx.from){}	else {return false}
 	const addressrcv=tx.to ; const addressrcvNorm=ethers.utils.getAddress(addressrcv),addresslowewr=addressrcv.toLocaleLowerCase(), addressupper=addressrcv.toUpperCase()

@@ -1,5 +1,5 @@
 const axios=require('axios'),moment=require('moment')
-let configbtc=require('../../configs/BTC/configbtc'); const {netkind,nettype}=configbtc
+let confi_gbtc=require('../../configs/BTC/conf_igbtc'); const {netkind,nettype}=config_btc
 const API_TXS=`https://api.blockcypher.com/v1/btc/${netkind=='mainnet'?'main':'test'}/addrs`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases}=require('../../utils')
