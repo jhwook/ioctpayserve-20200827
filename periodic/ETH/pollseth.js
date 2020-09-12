@@ -28,8 +28,8 @@ const init=()=>{ // .toLower,Case()
     })
   }
 } //const reinit=()=>{  db.balance.findOne({raw:true,where:{address:address,netkind:netkind,currency:CURRENCYLOCAL }}).then(resp=>{      if(resp){} else {return false} ;    jaddre sses[address]=resp['username']  })}
-const pollblocks=jdata=>{  const {address,}=jdata
-  db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYLOCAL,netkind:netkind}}).then(respbb=>{let startblock=1
+const pollblocks=async jdata=>{  const {address,}=jdata
+  db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYLOCAL,netkind:netkind}}).then(async respbb=>{let startblock=1
     if(respbb){startblock=respbb['blocknumber']+1} else {}
     console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '\u2618','@polleth',moment().format(TIMESTRFORMATMILI))
     const query={startblock:startblock,endblock:ENDBLOCKDUMMY4QUERY,address:address
@@ -39,7 +39,7 @@ const pollblocks=jdata=>{  const {address,}=jdata
       , apikey:'GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
     }
     try{console.log(API_TXS)
-    axios.get(API_TXS,{params:{... query}}).then(resp=>{ // console.log(resp)
+    axios.get(API_TXS,{params:{... query}}).then(async resp=>{ // console.log(resp)
       if(resp){} else {return false}
       if(resp.data.result && resp.data.result.length>0){} else {return false}
       let maxblocknumber=-1,txdataatmax=null,amountcumul=0; const username=jaddresses[address.toLowerCase()]
@@ -48,8 +48,13 @@ const pollblocks=jdata=>{  const {address,}=jdata
         if(isequalinlowercases(txdata.to, address)){} else {continue} console.log(txdata) // return false
         if (txdata.isError=='1'){continue} else {} // return false
         const curbn=parseInt(txdata.blockNumber)
-        if(maxblocknumber<curbn){maxblocknumber=curbn, txdataatmax=txdata}; amountcumul+=parseInt(txdata.value )
+        if(maxblocknumber<curbn){maxblocknumber=curbn, txdataatmax=txdata}
+        
+        const resptx=await db.transactions.findOne({raw:true,where:{currency:CURRENCYLOCAL,hash:txdata['hash']}});      if(resptx){continue} else {}
+        amountcumul+=parseInt(txdata.value )
+
         const amtraw=txdata.value , fee=parseInt(txdata.gas)*parseInt(txdata.gasPrice)
+        callhook({username:username,currency:CURRENCYLOCAL,amount:convweitoeth(amtraw)})
         db.balance.findOne({where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}}).then(respbal=>{          const baldata=respbal.dataValues
           db.transactions.create({
             username:username

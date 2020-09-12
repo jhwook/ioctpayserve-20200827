@@ -29,13 +29,13 @@ const init=()=>{
     console.log(jaddresses)
   })
 }
-const pollblocks=jdata=>{const {address,}=jdata
-  db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYTYPE,netkind:netkind}}).then(respbb=>{let startblock=0
+const pollblocks=async jdata=>{const {address,}=jdata
+  db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYTYPE,netkind:netkind}}).then(async respbb=>{let startblock=0
     if(respbb){ startblock=respbb['blocknumber']+1} else {}
     console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '\u26F5','','@pollbtc',moment().format(TIMESTRFORMATMILI))
 //    const query={after:startblock    }
     try{console.log('blockchain.info/')
-    axios.get(`${API_TXS}/${address}`,{params:{}}).then(resp=>{ // console.log(resp.data)
+    axios.get(`${API_TXS}/${address}`,{params:{}}).then(async resp=>{ // console.log(resp.data)
       if(resp){} else {return false}
       if(resp.data.txs && resp.data.txs.length>0){} else {return false}
       let maxblocknumber=-1,txdataatmax=null,amountcumul=0; const username=jaddresses[address]
@@ -43,8 +43,13 @@ const pollblocks=jdata=>{const {address,}=jdata
         if(txdata.result>0){} else {continue}
         const curbn=parseInt(txdata['block_height']);        console.log(startblock,curbn)
         if(startblock<=curbn){} else {continue}
-        if(maxblocknumber<curbn){maxblocknumber=curbn, txdataatmax=txdata}; amountcumul+=parseInt(txdata.result )
+        if(maxblocknumber<curbn){maxblocknumber=curbn, txdataatmax=txdata} // ; amountcumul+=parseInt(txdata.result )
+
+        const resptx=await db.transactions.findOne({raw:true,where:{currency:CURRENCYLOCAL,hash:txdata['hash']}});      if(resptx){continue} else {}
+        amountcumul+=parseInt(txdata.result )
+
         const amtraw=txdata.result , fee=getfee(txdata)
+        callhook({username:username,currency:CURRENCYLOCAL,amount:convweitoeth(amtraw,CURRENCYDECIMALS)})
         db.balance.findOne({where:{username:username,currency:CURRENCYLOCAL,nettype:nettype}}).then(respbal=>{  const baldata=respbal.dataValues
           db.transactions.create({
             username:username

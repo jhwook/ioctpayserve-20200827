@@ -50,7 +50,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
       const curbn=parseInt(txdata.blockNumber) //      console.log(  ,curbn)
       if(startblock<curbn){ } else {continue}
       if(maxblocknumber<curbn){maxblocknumber=curbn,txdataatmax=txdata}
-      const resptx=await db.transactions.findOne({raw:true,where:{hash:txdata['hash']}});      if(resptx){continue} else {}
+      const resptx=await db.transactions.findOne({raw:true,where:{hash:txdata['hash'],currency:symbol}});      if(resptx){continue} else {}
 
       jtokenamountcumul[symbol]=jtokenamountcumul[symbol]? jtokenamountcumul[symbol]+parseInt(txdata.value):parseInt(txdata.value)
       jtokenupddata[symbol] = jtokenupddata[symbol]? (jtokenupddata[symbol]>curbn?jtokenupddata[symbol]:curbn) :curbn
