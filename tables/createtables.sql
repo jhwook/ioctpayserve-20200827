@@ -1,4 +1,7 @@
 
+ALTER TABLE `exchangerates` ADD UNIQUE `unique_sitetoken`(`sitename`, `currency0`, `nettype`);
+
+
 CREATE USER 'iotcpay'@'localhost' IDENTIFIED BY 'rY3f0qKSN6';
 
 Update transactions set amountfloatstr = CAST(RAND() * 10000 AS UNSIGNED)
@@ -90,6 +93,12 @@ delete from users
 insert into tokens(name,netkind,nettype,address) values ('USDT','ropsten','testnet','0xdac17f958d2ee523a2206206994597c13d831ec7');
 mysqldump -u root  --databases iotcpay > iotcpaydump-20200912.sql
 
+create table sitenameholder (
+  id int unsigned not null primary key auto_increment
+  , sitename varchar(20) unique
+  , createdat datetime default current_timestamp
+  , updatedat datetime default current_timestamp
+)
 insert 126ccS2semhunmsgjAUCBnQNZpDuzr6Vt1
 insert into tokens (name,decimals,netkind,denominatorexp) values ('ETH',18,'ropsten',18);
 insert into tokens (name,decimals,netkind,denominatorexp) values ('ETH',18,'mainnet',18);

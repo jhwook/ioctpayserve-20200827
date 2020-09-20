@@ -162,6 +162,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(15),
       allowNull: true,
     }
+    , valid :{
+      type: DataTypes.INTEGER(4),
+      allowNull:true
+    }
+    , active:{
+      type: DataTypes.INTEGER(4),
+      allowNull:true
+    }
   }, {
     tableName: 'exchangerates'
   });

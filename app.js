@@ -5,7 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors=require('cors')
 var indexRouter = require('./routes/index');
-var usersrouter = require('./routes/users');
+var usersrouter = require('./routes/users')
+const adminrouter=require('./routes/admin')
 const walletsrouter=require('./routes/wallets')
 var app = express();
 const {requestIp}=require('request-ip')
@@ -23,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter)
 app.use('/wallets',walletsrouter)
 app.use('/users', usersrouter);
-
+app.use('/admin', adminrouter)
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

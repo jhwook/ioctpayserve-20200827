@@ -1,9 +1,5 @@
-const {
-  DataTypes
-} = require('sequelize');
-
-module.exports = sequelize => {
-  const attributes = {
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('sitenameholder', {
     id: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: false,
@@ -13,32 +9,15 @@ module.exports = sequelize => {
       comment: null,
       field: "id"
     },
-    currency: {
-      type: DataTypes.STRING(15),
+    sitename: {
+      type: DataTypes.STRING(20),
       allowNull: true,
       defaultValue: null,
       primaryKey: false,
       autoIncrement: false,
       comment: null,
-      field: "currency"
-    },
-    price: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "price"
-    },
-    units: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      defaultValue: null,
-      primaryKey: false,
-      autoIncrement: false,
-      comment: null,
-      field: "units"
+      field: "sitename",
+      unique: "sitename"
     },
     createdat: {
       type: DataTypes.DATE,
@@ -58,12 +37,15 @@ module.exports = sequelize => {
       comment: null,
       field: "updatedat"
     }
-  };
-  const options = {
-    tableName: "XXmarketprices",
-    comment: "",
-    indexes: []
-  };
-  const XXmarketpricesModel = sequelize.define("XXmarketprices_model", attributes, options);
-  return XXmarketpricesModel;
-};
+    ,nettype:{
+      type: DataTypes.STRING(15),
+      allowNull: true,
+    }
+    ,urladdress:{
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    }
+  }, {
+    tableName: 'sitenameholder'
+  });
+}

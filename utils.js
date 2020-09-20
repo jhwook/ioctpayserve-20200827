@@ -16,6 +16,8 @@ const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return 
 const convweitoeth=(numint,decimals)=>  {const exp=decimals?decimals:18; return parseInt(numint)/10**exp}
 const convtohex=(intdec)=>{return `0x${intdec.toString(16)}`}
 const isequalinlowercases=(str0,str1)=>{return str0.toLowerCase()==str1.toLowerCase()}
+const MIN_ETH_ADDRESS_LEN=40
+const validateethaddress=str=>{return parseInt(str,16) && str.length>=MIN_ETH_ADDRESS_LEN}
 const delsession=(req)=>{const token=req.headers.token
   db.sessionkeys.findOne({where:{token:token}}).then(resp=>{
     if(resp){resp.update({active:0})} else {return false}
@@ -146,5 +148,5 @@ const callhook=jdata=>{  const str=JSON.stringify(jdata)
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,gettimestr,convtohex
   ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorterminate
-  , hasher,callhook,validatekey,validatekeyorterminate
+  , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress
 }

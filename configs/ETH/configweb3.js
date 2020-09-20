@@ -20,3 +20,12 @@ const createaccount=()=>{return web3.eth.accounts.create()}
 web3 = Object.assign(web3, createaccount)
 module.exports={ web3 ,netkind,nettype,createaccount}
 // module.exports={web3,netkind,nettype}
+
+const tst=_=>{
+  let {web3,netkind,nettype}=require('./configs/ETH/configweb3')
+  tokenaddress='0x5789e290020317ee07a21012db9ee1e3e43e56f1'
+  let {minAbi4tx}=require('./periodic/ETH/tokens/abis')  
+  contract=new web3.eth.Contract(minAbi4tx,tokenaddress) // let contract = web3.eth.contract(minAbi4tx).at(tokenaddress)
+  contract.methods.decimals().call((err,decimals)=>{console.log(decimals)})
+
+}

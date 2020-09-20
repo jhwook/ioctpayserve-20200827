@@ -14,12 +14,19 @@ const minAbi4tx = [
 	   "outputs" : [],
 	   "payable" : false
 	},
-	{	// balanceOf
-		"constant":true,
+	{	'name': 'balanceOf'
+		,"constant":true,
 		"inputs":[{"name":"_owner","type":"address"}],
 		"name":"balanceOf",
 		"outputs":[{"name":"balance","type":"uint256"}],
 		"type":"function"
+	}
+	, {	'name': 'decimals'
+	  , "constant":true,
+	  "inputs":[],
+	  "name":"decimals",
+	  "outputs":[{"name":"","type":"uint8"}],
+	  "type":"function"
 	}
  ];
 const minABI = [
