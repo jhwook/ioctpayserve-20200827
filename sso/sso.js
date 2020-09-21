@@ -7,8 +7,7 @@ const URLS_SSO_SERVE={
 , SDCPAY: 'http://www.sdcpay.co.kr/sso_api.php'
 , CARRYON:'http://www.carryonpay.com/sso_api.php'
 }
-const MAP_SITENAME={  IOTC:   'IOTC', SDC:    'SDCPAY', SDCPAY: 'SDCPAY', CARRYON:'CARRYON'
-}
+const {MAP_SITENAME}=require('../configs/configs')
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}
 const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
   return new Promise((resolve,reject)=>{
@@ -20,15 +19,19 @@ const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
     })
   })
 }
-const validatekeyorterminate=(req,res)=>{let {sitename,token}=req.headers // res,req
-  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
-  return new Promise((resolve,reject)=>{    if(sitename && token){} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);reject(null);return false}
+const validatekeyorterminate=(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token
+//  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
+  return new Promise((resolve,reject)=>{    if(sitename && hashcode){} else {//respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
+    resolve(null);return false} // token
     sitename=MAP_SITENAME[sitename]
-    if (sitename){} else {console.log('invalid sitename',sitename); respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201); reject(null);return false}
-    if(URLS_SSO_SERVE[sitename]){} else {console.log('invalid sitename',sitename);respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);reject(null);return false} //   axios.get(`${URLS_SSO_SERVE[sitename]}?site_code=${sitename.toLowerCase()}&hash_code=${token}`).then(resp=>{console.log(resp.data)
-    axios.get( URLS_SSO_SERVE[sitename] , {params:{site_code:sitename.toLowerCase(),hash_code:token}}).then(resp=>{console.log(resp.data)
+    if (sitename){} else {console.log('invalid sitename',sitename); //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
+      resolve(null);return false}
+    if(URLS_SSO_SERVE[sitename]){} else {console.log('invalid sitename',sitename) //;respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73203);
+      resolve(null);return false} //   axios.get(`${URLS_SSO_SERVE[sitename]}?site_code=${sitename.toLowerCase()}&hash_code=${token}`).then(resp=>{console.log(resp.data)
+    axios.get( URLS_SSO_SERVE[sitename] , {params:{site_code:sitename.toLowerCase(),hash_code:hashcode}}).then(resp=>{console.log(resp.data) // token
       if(resp.data.result){      resolve(resp.data.user_code);return false
-      } else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);reject(null); return false}
+      } else {//respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
+        resolve(null); return false}
     })  
   })
 }

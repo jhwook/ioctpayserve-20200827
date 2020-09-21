@@ -6,6 +6,8 @@ const queuenamesj={
   ,'ADDR-BTC':'ADDR-BTC'
   ,'AMOUNT':'AMOUNT'
 }
+const MAP_SITENAME={  IOTC:   'IOTC', SDC:    'SDC', SDCPAY: 'SDC', CARRYON:'CARRYON'
+}
 module.exports={
   KEYNAME_MARKETPRICES:'PRICES'
   , KEYNAME_UNITS:'UNITS'
@@ -21,5 +23,6 @@ module.exports={
   }*/
   , queuenames:queuenames
   , queuenamesj
+  , MAP_SITENAME
 }
 // a={BTC:1,ETH:1,USDT:1,IOTC:1,MOKA:1,GAIA:1}

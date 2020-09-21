@@ -23,8 +23,14 @@ const delsession=(req)=>{const token=req.headers.token
     if(resp){resp.update({active:0})} else {return false}
   })
 }
-const getuserorterminate=async (req,res)=>{  const username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73200);return false}
-}
+const getuserorterminate=async (req,res)=>{  let username=null
+  try {username=await validatekeyorterminate(req,res)
+    if(username){return username}
+    else {      username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73200);return null} }
+  }
+  catch(err){   username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73210);return null}
+  }
+} //
 const getusernamefromsession=async req=>{  // console.log('headers',req.headers)
   if(req.headers.token){} else {return null}
   const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}}) //;console.log('session',session)

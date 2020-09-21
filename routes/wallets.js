@@ -3,7 +3,7 @@ var router = express.Router();
 const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD}=require('../configs/configs')
 const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
-,validatekey,validatekeyorterminate:getuserorterminate
+,validatekey,getuserorterminate
 }=require('../utils')
 const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
@@ -14,7 +14,7 @@ const utils = require('../utils');
 const { netkind,nettype } = require('../configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 /* GET users listing. */
-router.get('/marketprice',async (req,res)=>{const {currency}=req.query;
+router.get('/marketprice',async (req,res)=>{const {currency}=req.query
   db.marketprices.findAll({raw:true,attributes: [[db.sequelize.fn('max', db.sequelize.col('id')), 'maxid']]})
   .then(aresps=>{console.log(aresps);    const {maxid}=aresps[0]
     db.marketprices.findOne({raw:true,where:{id:maxid}}).then(resp=>{const jdata={};jdata['marketprice']=resp[currency];      respok(res,null,null,jdata)

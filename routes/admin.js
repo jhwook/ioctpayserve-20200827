@@ -3,7 +3,7 @@ const express = require('express');
 var router = express.Router();
 const db=require('../models')
 const utils = require('../utils');
-const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,callhook,validateethaddress} = require('../utils')
+const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
@@ -24,18 +24,18 @@ router.delete('/sitenameholder',(req,res)=>{const {sitename}=req.body
     respok(res,MSG_DELETED,19774);return false
   })
 }) //
-router.get('/sitenameholder',(req,res)=>{
+router.get('/sitenameholder',(req,res)=>{callhook({verb:'get',user:'admin',path:'sitenameholder'})
   db.sitenameholder.findAll({raw:true}).then(resp=>{    res.status(200).send({status:'OK',sitenameholders:resp});return false
   })
 })
 router.delete('/sitetoken',(req,res)=>{let {sitename,tokenname}=req.body
   db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname}}).then(resp=>{
     if(resp){} else {respreqinvalid(res,MSG_SITETOKEN_NOTFOUND);return false}
-    resp.update({active:0})    // resp.des troy()    
+    resp.update({active:0})    // resp.des troy()
     respok(res,MSG_DELETED,29532);return false
   })
 })
-router.get('/sitetoken',(req,res)=>{let {sitename,tokenname}=req.query
+router.get('/sitetoken',(req,res)=>{let {sitename,tokenname}=req.query;  callhook({verb:'get',user:'admin',path:'sitetoken'})
   if(sitename && tokenname){
     db.exchangerates.findOne({raw:true,where:{currency0:tokenname,sitename:sitename,nettype:nettype}}).then(resp=>{
       if(resp){} else {respreqinvalid(res,MSG_TOKEN_NOTREGISTERED);return false}
@@ -47,6 +47,7 @@ router.get('/sitetoken',(req,res)=>{let {sitename,tokenname}=req.query
   }
 }) //
 router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddress,C,S,K,collectoraddress,fixedprice,isvariableprice,canwithdraw}=req.body; let jdata={}
+  callhook({verb:'post',user:'admin',path:'sitetoken'})
   sitename=sitename.toUpperCase(),tokenname=tokenname.toUpperCase()
   if(sitename && sitename.length>=MIN_SITENAME_LEN){jdata['sitename']=sitename}     else {respreqinvalid(res,MSG_SITENAME_INVALID);return false}
   if(tokenname && tokenname.length>=MIN_TOKENNAME_LEN){jdata['currency0']=tokenname}  else {respreqinvalid(res,MSG_TOKENNAME_INVALID);return false}
@@ -90,7 +91,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   }) //  db.sitenameholder.des troy()
 })
 router.post('/sitenameholder',(req,res)=>{const {sitename,urladdress}=req.body; if (sitename && sitename.length>=4){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(sitename)
-  sitename=sitename.toUpperCase()
+  sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'})
   db.sitenameholder.findOne({raw:true,where:{sitename:sitename}}).then(resp=>{
     if(resp){      if(urladdress && urladdress.length>=5){}      
       else {respreqinvalid(res,MSG_DATA_DUP,43550);return false}
