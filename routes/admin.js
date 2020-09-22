@@ -11,7 +11,7 @@ const messages=require('../configs/messages'); const SITENAME_DEF='IOTC'
 const configs=require('../configs/configs'); const {queuenamesj}=configs;const MAX_URLADDRESS_LEN=100
 const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
-const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다'
+const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다'
 const MSG_CONVRATE_INVALID='변환율이 유효하지 않습니다',MSG_FIXEDPRICE_INVALID='고정가격이 유효하지 않습니다',MSG_TOKEN_NOTREGISTERED='등록되지 않은 토큰입니다',MSG_SITETOKEN_NOTFOUND='등록되지 않은 사이트/토큰입니다'
 const MSG_DELETED='삭제되었습니다'
 const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
@@ -46,7 +46,7 @@ router.get('/sitetoken',(req,res)=>{let {sitename,tokenname}=req.query;  callhoo
     })
   }
 }) //
-router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddress,C,S,K,collectoraddress,fixedprice,isvariableprice,canwithdraw}=req.body; let jdata={}
+router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddress,C,S,K,collectoraddress,fixedprice,isvariableprice,canwithdraw}=req.body; let jdata={}; console.log(req.body)
   callhook({verb:'post',user:'admin',path:'sitetoken'})
   sitename=sitename.toUpperCase(),tokenname=tokenname.toUpperCase()
   if(sitename && sitename.length>=MIN_SITENAME_LEN){jdata['sitename']=sitename}     else {respreqinvalid(res,MSG_SITENAME_INVALID);return false}
@@ -68,7 +68,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   if(fixedprice){    if( fixedprice>=MIN_FIXEDPRICE && fixedprice<=MAX_FIXEDPRICE){ jdata['fixedprice']=fixedprice}    else {respreqinvalid(res,MSG_FIXEDPRICE_INVALID);return false}
   }
   isvariableprice=parseInt(isvariableprice);canwithdraw=parseInt(canwithdraw)
-  jdata['priceisfixed']=1-isvariableprice; jdata['canwithdraw']=canwithdraw
+  jdata['priceisfixed']=1-isvariableprice; jdata['canwithdraw']=canwithdraw;jdata['nettype']=nettype
   if(collectoraddress ){    if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}    else {}  }
   db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}).then(resp=>{
     if(resp){resp.update(jdata);respok(res,'Updated')}
@@ -82,6 +82,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
       , sitename:sitename
       , netkind:netkind
       , nettype:nettype
+      , address:contractaddress
       , canwithdraw:canwithdraw
     })
   })
@@ -90,7 +91,8 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
     }
   }) //  db.sitenameholder.des troy()
 })
-router.post('/sitenameholder',(req,res)=>{const {sitename,urladdress}=req.body; if (sitename && sitename.length>=4){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(sitename)
+const MINSITENAMELEN=3 // 4
+router.post('/sitenameholder',(req,res)=>{const {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(sitename)
   sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'})
   db.sitenameholder.findOne({raw:true,where:{sitename:sitename}}).then(resp=>{
     if(resp){      if(urladdress && urladdress.length>=5){}      

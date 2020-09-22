@@ -1,6 +1,6 @@
 
 const axios=require('axios'),moment=require('moment')
-let {web3,netkind,nettype}=require('../../configs/ETH/configweb3') // const API_TXS=netkind=='mainnet'? 'https://api.etherscan.io/api?module=account&action=txlist&sort=asc&apikey=GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'  : 'https://api-ropsten.etherscan.io/api?module=account&action=txlist&sort=asc&apikey=GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
+let {web3,netkind,nettype,getapikey}=require('../../configs/ETH/configweb3') // const API_TXS=netkind=='mainnet'? 'https://api.etherscan.io/api?module=account&action=txlist&sort=asc&apikey=GWF185A95F1KRA2B 37ZU6B8WRVZUZ2ZUPW'  : 'https://api-ropsten.etherscan.io/api?module=account&action=txlist&sort=asc&apikey=GWF185A95F1KR A2B37ZU6B8WRVZUZ2ZUPW'
 const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/api`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
@@ -36,7 +36,7 @@ const pollblocks=async jdata=>{  const {address,}=jdata
       ,module:'account'
       ,action:'txlist'
       ,sort:'asc'
-      , apikey:'GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
+      , apikey:getapikey()
     }
     try{console.log(API_TXS)
     axios.get(API_TXS,{params:{... query}}).then(async resp=>{ // console.log(resp)

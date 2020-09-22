@@ -18,7 +18,12 @@ db.balance.findAll({raw:true,where:{currency:'ETH',netkind:netkind}}).then(aresp
 })
 const createaccount=()=>{return web3.eth.accounts.create()}
 web3 = Object.assign(web3, createaccount)
-module.exports={ web3 ,netkind,nettype,createaccount}
+const aapikeys=['WV9NKZ8XPHMSN98ZXBRR4GJPDDNR3TH6AH','GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW']
+const getRandomInt=(min,max)=>{  min = Math.ceil(min);  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min)) + min; //최댓값은 제외, 최솟값은 포함
+} //
+const getapikey=_=> aapikeys[getRandomInt(0,aapikeys.length)]
+module.exports={ web3 ,netkind,nettype,createaccount,aapikeys,getapikey}
 // module.exports={web3,netkind,nettype}
 
 const tst=_=>{

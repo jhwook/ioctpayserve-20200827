@@ -19,8 +19,8 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body
     if(respuser){respreqinvalid(res,messages.MSG_ID_DUP,82532);return false}
     db.users.create({username:username,pw:pw,sitename:sitename,active:1,pwhash:hasher(pw),createpath:'CREATE'}) //    db.operations.findOne({raw:true,where:{key_:'CURRENCIES'}}).then(respcurr=>{      const currencies=JSON.parse(respcurr['value_'])
     let accounteth,accountbtc
-    let _arespsrates = db.exchangerates.findAll({raw:true,where:{sitename:sitename}})
-    let _arespstokens= db.tokens.findAll({raw:true,where:{nettype:nettype}})
+    let _arespsrates = db.exchangerates.findAll({raw:true,where:{sitename:sitename,nettype:nettype}})
+    let _arespstokens= db.tokens.findAll({raw:true,where:{nettype:nettype,nettype:nettype}})
     Promise.all([_arespsrates,_arespstokens]).then(aresps=>{      const resprates=aresps[0];      const resptokens=aresps[1]
       accounteth=configweb3.createaccount() // web3.createaccount()
       accountbtc=configbtc.createaccount() ;  let account=null,netkind // acct.publicAddress , acct.privateWif      

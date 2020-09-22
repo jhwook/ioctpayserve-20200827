@@ -1,5 +1,5 @@
 const axios=require('axios'),moment=require('moment')
-let {web3,netkind,nettype}=require('../../configs/ETH/configweb3') // 
+let {web3,netkind,nettype,getapikey}=require('../../configs/ETH/configweb3') // 
 const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/api`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases, convweitoeth,gettimestr,callhook}=require('../../utils')
@@ -35,7 +35,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
     ,module:'account'
     ,action:'tokentx' // txlist
     ,sort:'asc'
-    , apikey:'GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW'
+    , apikey:getapikey()
   }
   try{  console.log(API_TXS) // .toLower,Case()
   axios.get(API_TXS,{params:{...query}}).then(async resp=>{
