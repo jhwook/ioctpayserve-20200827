@@ -26,9 +26,10 @@ const validatekeyorterminate=(req,res)=>{let {sitename,hashcode}=req.headers; si
     sitename=MAP_SITENAME[sitename]
     if (sitename){} else {console.log('invalid sitename',sitename); //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
       resolve(null);return false}
-    if(URLS_SSO_SERVE[sitename]){} else {console.log('invalid sitename',sitename) //;respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73203);
+    let URLSSO=URLS_SSO_SERVE[sitename];console.log(URLSSO)
+    if(URLSSO){} else {console.log('invalid sitename',sitename) //;respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73203);
       resolve(null);return false} //   axios.get(`${URLS_SSO_SERVE[sitename]}?site_code=${sitename.toLowerCase()}&hash_code=${token}`).then(resp=>{console.log(resp.data)
-    axios.get( URLS_SSO_SERVE[sitename] , {params:{site_code:sitename.toLowerCase(),hash_code:hashcode}}).then(resp=>{console.log(resp.data) // token
+    axios.get( URLSSO , {params:{site_code:sitename.toLowerCase(),hash_code:hashcode}}).then(resp=>{console.log(resp.data) // token
       if(resp.data.result){      resolve(resp.data.user_code);return false
       } else {//respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
         resolve(null); return false}

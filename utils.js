@@ -23,7 +23,7 @@ const delsession=(req)=>{const token=req.headers.token
     if(resp){resp.update({active:0})} else {return false}
   })
 }
-const getuserorterminate=async (req,res)=>{  let username=null
+const getuserorterminate=async (req,res)=>{  let username=null // ;req.headers.sitename=req.body.sitename; req.headers.hashcode=req.body.hashcode
   try {username=await validatekeyorterminate(req,res)
     if(username){return username}
     else {      username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73200);return null} }
