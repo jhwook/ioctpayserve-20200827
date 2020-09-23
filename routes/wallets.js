@@ -28,7 +28,7 @@ router.get('/transactions',async (req,res)=>{ let username; try{username=await g
   })  
 })
 router.get('/exchangerates',async (req,res)=>{const {currency0,sitename}=req.query ;console.log(req.query)
-  db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename}}).then(resp=>{
+  db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename,active:1}}).then(resp=>{
     respwithdata(res,resp);return false
   }).catch(err=>{    respreqinvalid(res,err.toString(),30379);return false
   })
@@ -52,9 +52,9 @@ router.post('/exchange',async (req,res)=>{  let username; try{username=await get
   if(currency0 && amount0){} else {respreqinvalid(res,'ARG-MISSING',79654);return false}
   amount0=parseFloat(amount0);  console.log(amount0)
   callhook({name:username,path:'exchange'})
-  db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename}}).then(resprates=>{
+  db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename,active:1}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
-    db.balance.findOne({where:{currency:currency0,username:username,nettype:nettype}}).then(respbal=>{
+    db.balance.findOne({where:{currency:currency0,username:username,nettype:nettype,active:1}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       let respbaldata=respbal.dataValues
       const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] )
@@ -68,7 +68,7 @@ router.get('/balance',async (req,res)=>{  let username; try{username=await getus
   const {currency,sitename}=req.query; console.log(req.query)
   if(username && currency && sitename){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
   let _balance=utils.getbalance({username:username,currency:currency},'float')
-  let _resprate = await db.exchangerates.findOne({raw:true,where:{currency0:currency,sitename:sitename}}) // .then(respate=>{let price
+  let _resprate = await db.exchangerates.findOne({raw:true,where:{currency0:currency,sitename:sitename,active:1}}) // .then(respate=>{let price
   let _forexrate= cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD)
   Promise.all([_balance,_resprate,_forexrate]).then(async aresps=>{
     const [balance,resprate,forexrate]=aresps; let price=null
@@ -88,18 +88,18 @@ router.get('/balance_mixed',async (req,res)=>{  let username; try{username=await
   if(username && currency){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
   utils.getbalance({username:username,currency:currency},'float').then(async respbal=>{
     let _pricesstr= cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')
-    let _fixedpricesj=utils.getfixedtokenprices() // db.balance.findOne({raw:true,where:{... req.query}}).then(resp=>{    })
+    let _fixedpricesj=utils.getfixedtokenprices() // db.balanc e.findOne({raw:true,where:{... req.query}}).then(resp=>{    })
     Promise.all([_pricesstr,_fixedpricesj]).then(aresps=>{
       const [pricesstr,fixedpricesj]=aresps
       const jdata={... JSON.parse(pricesstr), ... fixedpricesj}
       respok(res,null,null,{amountstr:respbal.toString(), prices:JSON.stringify(jdata)})
     })
   })
-if(false){	db.balance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
+if(false){	db.ba_lance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
 	})}  //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
 })
 router.get('/balances', async (req, res, next)=> {  let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false}
-  db.balance.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{let a2send=[];console.log(aresps)
+  db.balance.findAll({raw:true,where:{username:username,nettype:nettype,active:1}}).then(aresps=>{let a2send=[];console.log(aresps)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
     res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) ,e['address'] ]})})
 //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
@@ -125,9 +125,9 @@ const sends=jdata=>{  const {currency}=jdata
 }
 /*router.post('/exchangeXX',async (req,res)=>{  const {currency0, amount0}=req.body
   if(currency0 && amount0 ){} else {respreqinvalid(res,'ARG-MISSING',79655);return false} // && currency1 amount1 && && usernamecurrency1,,amount1,username
-  db.exchangerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{
+  db.excha ngerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
-    db.balance.find_One({where:{currency:currency0}}).then(respbal=>{
+    db.bal ance.find_One({where:{currency:currency0}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       if(respbal['amount']-respbal['amountlocked']>=parseInt(amount0)){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',33212);return false}
       doexchange(username,req.body).then(resp=>{        respok(res,null,38800);return false

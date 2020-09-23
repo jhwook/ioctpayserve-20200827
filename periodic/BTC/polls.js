@@ -1,18 +1,20 @@
+
 const axios=require('axios'),moment=require('moment')
 let configbtc=require('../../configs/BTC/configbtc'); const {netkind,nettype}=configbtc
 const API_TXS=nettype=='testnet'? `https://testnet.blockchain.info/rawaddr` : 'https://blockchain.info/rawaddr' // /${address}`
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
 const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
-const configs=require('../../configs/configs'); const {queuenamesj}=configs
+const configs=require('../../configs/configs');const { delete } = require('request');
+ const {queuenamesj}=configs
 const ENDBLOCKDUMMY4QUERY=5000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='BTC',CURRENCYKIND='BTC',CURRENCYTYPE='BTC',CURRENCYDECIMALS=8, DELTA_T_SHORT=60*1.5*1000 // ,NETKIND=netkind // 'testnet'
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
-let jaddresses={}
+let jaddresses={},jhandlers={}
 const setpoller=jdata=>{const {username,address}=jdata
   const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
-  setTimeout(()=>{    pollblocks({address:address,username:username})
-    setInterval(()=>{ pollblocks({address:address,username:username})
+  setTimeout(()=>{    if(false){pollblocks({address:address,username:username})}
+    jhandlers[address]= setInterval(()=>{ pollblocks({address:address,username:username})
     }, PERIOD_DIST_POLLS)
   } ,deltat )
 }
@@ -107,10 +109,16 @@ channel.then(ch=>{
   ch.consume( qname , (msg)=> {
     const str=msg.content.toString();                       
     console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
-    const packet=JSON.parse(str) 
-    if(packet['flag']=='ADD'){}  else {return false} 
-    jaddresses[packet['address']]=packet['username'] // jaddresses[packet['username']]=packet['address']
-    setpoller({username:packet['username'], address:packet['address']})
+    const packet=JSON.parse(str) ; const address=packet['address']
+    if(packet['flag']=='ADD'){
+      jaddresses[address]=packet['username'] // jaddresses[packet['username']]=packet['address']
+      setpoller({username:packet['username'], address:packet['address']})
+    }  
+    else if (packet['flag']=='DELETE'){
+      delete jaddresses[address]
+      clearInterval(jhandlers[address])
+    }
+    else {return false} 
   })
 })
   

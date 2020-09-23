@@ -81,6 +81,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(20),
       allowNull: true
     }
+    , active:{
+      type: DataTypes.INTEGER(4),
+      allowNull: true
+    }
+    , group_:{
+      type: DataTypes.STRING(15),
+      allowNull: true
+    }
     }, {
     tableName: 'balance'
   });

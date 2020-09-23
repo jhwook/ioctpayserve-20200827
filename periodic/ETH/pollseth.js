@@ -5,15 +5,16 @@ const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/ap
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
 const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
-const configs=require('../../configs/configs'); const {queuenamesj}=configs
+const configs=require('../../configs/configs');const { delete } = require('request')
+ const {queuenamesj}=configs
 const ENDBLOCKDUMMY4QUERY=50000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH',CURRENCYDECIMALS=18, DELTA_T_SHORT=60*1.5*1000
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
-let jaddresses={}
+let jaddresses={},jhandlers={}
 const setpoller=jdata=>{const {username,address}=jdata
   const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
-  setTimeout(()=>{    pollblocks({address:address,username:username})
-    setInterval(()=>{ pollblocks({address:address,username:username})
+  setTimeout(()=>{    if(false){pollblocks({address:address,username:username})}
+    jhandlers[address.toLowerCase()]=    setInterval(()=>{ pollblocks({address:address,username:username})
     }, PERIOD_DIST_POLLS)
   } ,deltat )
 }
@@ -21,7 +22,7 @@ const init=()=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address // ;console.log(address,'ETH')
     db.balance.findOne({raw:true,where:{address:address,netkind:netkind,currency:CURRENCYLOCAL }}).then(resp=>{      if(resp){} else {return false} ; const username=resp['username']// console.log(resp);
       jaddresses[address.toLowerCase()]=username;const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
-      setTimeout(()=>{    pollblocks({address:address,username:username})
+      setTimeout(()=>{    if(false){pollblocks({address:address,username:username})}
         setInterval(()=>{ pollblocks({address:address,username:username})
         }, PERIOD_DIST_POLLS)
       } ,deltat )
@@ -103,10 +104,16 @@ channel.then(ch=>{
   ch.consume( qname , (msg)=> {
     const str=msg.content.toString();                       
     console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
-    const packet=JSON.parse(str) 
-    if(packet['flag']=='ADD'){}  else {return false} //console.log('INCAMT')
-    jaddresses[packet['address'].toLowerCase()]=packet['username'] // jaddresses[packet['username']]=packet['address']
-    setpoller({username:packet['username'], address:packet['address']})
+    const packet=JSON.parse(str) ; const addresslower=packet['address'].toLowerCase()
+    if(packet['flag']=='ADD'){
+      jaddresses[addresslower]=packet['username'] // jaddresses[packet['username']]=packet['address']
+      setpoller({username:packet['username'], address:packet['address']})  
+    }
+    else if (packet['flag']=='DELETE'){
+      delete jaddresses[addresslower]
+      clearInterval(jhandlers[addresslower])
+    }
+    else {return false} //console.log('INCAMT')
   })
 })  
 } , 2700)

@@ -94,6 +94,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(10),
       allowNull: true,
     }
+    , active:{
+      type: DataTypes.INTEGER(4),
+      allowNull: true
+    }
   }, {
     tableName: 'blockbalance'
   });

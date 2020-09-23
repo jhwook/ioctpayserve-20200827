@@ -6,20 +6,19 @@ const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,ge
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
-const messages=require('../configs/messages'); const SITENAME_DEF='IOTC',RANDOM_PW_LEN=10
+const messages=require('../configs/messages'); const SITENAME_DEF='IOTC',RANDOM_PW_LEN=10;const MSG_ID_DUP_LOCAL='ID in use'
 const configs=require('../configs/configs'); const {queuenamesj}=configs
 const {enqueuedataj}=require('../reqqueue/enqueuer')
-
 router.post('/create',async(req,res)=>{let {username,sitename}=req.body
   if(username && sitename){} else {respreqinvalid(res,'ARG-MISSING',40761);return false} //  if(MAP_SITENAME[sitename]){} else {respreqinvalid(res,'ARG-MISSING',40762); ifsitename=SITENAME_DEF}
   sitename=sitename.toUpperCase()
   if(await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})){} else {respreqinvalid(res,'SITENAME-INVALID',64749);return false}
   const pw=generateRandomStr(RANDOM_PW_LEN)
   db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{
-    if(respuser){respreqinvalid(res,messages.MSG_ID_DUP,82532);return false}
+    if(respuser){respreqinvalid(res,MSG_ID_DUP_LOCAL,82532);return false}
     db.users.create({username:username,pw:pw,sitename:sitename,active:1,pwhash:hasher(pw),createpath:'CREATE'}) //    db.operations.findOne({raw:true,where:{key_:'CURRENCIES'}}).then(respcurr=>{      const currencies=JSON.parse(respcurr['value_'])
     let accounteth,accountbtc
-    let _arespsrates = db.exchangerates.findAll({raw:true,where:{sitename:sitename,nettype:nettype}})
+    let _arespsrates = db.exchangerates.findAll({raw:true,where:{sitename:sitename,nettype:nettype,active:1}})
     let _arespstokens= db.tokens.findAll({raw:true,where:{nettype:nettype,nettype:nettype}})
     Promise.all([_arespsrates,_arespstokens]).then(aresps=>{      const resprates=aresps[0];      const resptokens=aresps[1]
       accounteth=configweb3.createaccount() // web3.createaccount()
@@ -58,7 +57,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
     if(respuser){respreqinvalid(res,messages.MSG_ID_DUP,82532);return false}
     db.users.create({username:username,pw:pw,sitename:sitename,active:1,pwhash:hasher(pw),createpath:'JOIN'}) //    db.operations.findOne({raw:true,where:{key_:'CURRENCIES'}}).then(respcurr=>{      const currencies=JSON.parse(respcurr['value_'])
     let accounteth,accountbtc
-    let _arespsrates = db.exchangerates.findAll({raw:true,where:{sitename:sitename}})
+    let _arespsrates = db.exchangerates.findAll({raw:true,where:{sitename:sitename,active:1}})
     let _arespstokens= db.tokens.findAll({raw:true,where:{nettype:nettype}})
     Promise.all([_arespsrates,_arespstokens]).then(aresps=>{      const resprates=aresps[0];      const resptokens=aresps[1]
       accounteth=configweb3.createaccount() // web3.createaccount()
@@ -94,7 +93,7 @@ router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body; con
   if(username && pw){} else {respreqinvalid(res,'ARGMISSING',68961);return false}
   db.users.findOne({raw:true,where:{... req.body,active:1}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,'INVALID',76323);return false}
-    const aexrates=await db.exchangerates.findAll({raw:true,where:{nettype:nettype,sitename:sitename}})
+    const aexrates=await db.exchangerates.findAll({raw:true,where:{nettype:nettype,sitename:sitename,active:1}})
     const atokens=aexrates.map(e=>{return e['currency0']});console.log(atokens)
     const token=generateRandomStr(32)
     respok(res,null,null,{token:token, atokens:atokens});callhook({name:username,path:'login'})

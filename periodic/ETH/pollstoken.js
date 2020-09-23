@@ -1,3 +1,4 @@
+
 const axios=require('axios'),moment=require('moment')
 let {web3,netkind,nettype,getapikey}=require('../../configs/ETH/configweb3') // 
 const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/api`
@@ -8,11 +9,11 @@ const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
 const configs=require('../../configs/configs'); const {queuenamesj}=configs
 const PERIOD_DIST_POLLS=60*10*1000,CURRENCYKIND='TOKEN',CURRENCYTYPE='ETH', DECIMALS_DEF=18, DELTA_T_SHORT=60*1.5*1000
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
-let jaddresses={},jaddresstokens={},jsymboltokens={}
+let jaddresses={},jaddresstokens={},jsymboltokens={},jhandlers={}
 const setpoller=jdata=>{const {username,address}=jdata
   const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
-  setTimeout(()=>{    pollblocks({address:address,username:username})
-    setInterval(()=>{ pollblocks({address:address,username:username})
+  setTimeout(()=>{    if(false){pollblocks({address:address,username:username})}
+    jhandlers[address.toLowerCase()]= setInterval(()=>{ pollblocks({address:address,username:username})
     }, PERIOD_DIST_POLLS)
   } ,deltat )
 }
@@ -20,7 +21,7 @@ const init=()=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address
     db.balance.findOne({raw:true,where:{address:address,netkind:netkind}}).then(resp=>{      if(resp){} else {return false}
       jaddresses[address.toLowerCase()]=resp['username'];const deltat=getRandomInt(7*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'Token',gettimestr())
-      setTimeout(()=>{    pollblocks({address:address})
+      setTimeout(()=>{    if(false){pollblocks({address:address})}
         setInterval(()=>{ pollblocks({address:address})
         }, PERIOD_DIST_POLLS)
       } , deltat)
@@ -112,10 +113,16 @@ channel.then(ch=>{
   ch.consume( qname , (msg)=> {
     const str=msg.content.toString();                       
     console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
-    const packet=JSON.parse(str) 
-    if(packet['flag']=='ADD'){}  else {return false} //console.log('INCAMT')
-    jaddresses[packet['address'].toLowerCase()]=packet['username'] // jaddr esses[packet['username']]=packet['address']
-    setpoller({username:packet['username'], address:packet['address']})
+    const packet=JSON.parse(str) ; const addresslower=packet['address'].toLowerCase()
+    if(packet['flag']=='ADD'){
+      jaddresses[addresslower]=packet['username'] // jaddr esses[packet['username']]=packet['address']
+      setpoller({username:packet['username'], address:packet['address']})  
+    }  
+    else if(packet['flag']=='DELETE'){
+      delete jaddresses[addresslower]
+      clearInterval(jhandlers[addresslower])
+    }
+    else {return false} //console.log('INCAMT')
   })
 })  
 } , 3700)
