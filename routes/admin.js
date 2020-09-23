@@ -79,12 +79,19 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   if(tokenname && tokenname.length>=MIN_TOKENNAME_LEN){jdata['currency0']=tokenname}  else {respreqinvalid(res,MSG_TOKENNAME_INVALID);return false}
   let decimals
   if(decimals=MAP_COINS_DECIMALS[tokenname]){jdata['address']=null;jdata['denominatorexp']=decimals}
-  else {
-    if(contractaddress){
-      if( validateethaddress(contractaddress)){jdata['address']=contractaddress;    decimals=await getdecimals(contractaddress) } 
-      else {respreqinvalid(res,MSG_ADDRESS_INVALID);return false}
-    };    if(decimals){jdata['denominatorexp']=decimals}
-  }
+  else if(contractaddress){
+			if( validateethaddress(contractaddress)){    decimals=await getdecimals(contractaddress)
+				if(Number.isInteger(parseInt(decimals))){jdata['address']=contractaddress}
+				else {respreqinvalid(res,MSG_ADDRESS_INVALID,74582);return false}
+			} 
+      else {respreqinvalid(res,MSG_ADDRESS_INVALID,38464);return false}
+	}    
+	else {
+
+	}
+	
+	if(decimals){jdata['denominatorexp']=decimals}
+  
   let jconvrates={C:Crate,S:Srate,K:Krate} // [C,S,K]
   Object.keys(jconvrates).forEach(key=>{const val=jconvrates[key]; if(val){} else {return false}; let rate=val
     if(rate){rate=parseInt(rate);if(rate>=MIN_CSKCONVRATE && rate<=MAX_CSKCONVRATE){jdata[key]=val} else {respreqinvalid(res,MSG_CONVRATE_INVALID,40154);return false}}
@@ -97,7 +104,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   if(collectoraddress ){    if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}    else {}  }
   try{db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}).then(resp=>{
       if(resp){resp.update({active:1, ... jdata});respok(res,'Updated')}
-      else {      db.exchangerates.create(    {... jdata}  ).then(resp=>{;})    }  
+      else {      db.exchangerates.create(    {... jdata}  ).then(resp=>{;})    }
     })
     db.tokens.findOne({where:{name:tokenname,nettype:nettype}}).then(resp=>{     const jdtkn={      name:tokenname      , denominatorexp:decimals      , sitename:sitename
         , netkind:netkind      , nettype:nettype      , address:contractaddress      , canwithdraw:canwithdraw
