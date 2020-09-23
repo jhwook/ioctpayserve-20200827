@@ -9,7 +9,7 @@ const clientredis=redis.createClient();const cliredisa=require('async-redis').cr
 const messages=require('../configs/messages'); const SITENAME_DEF='IOTC',RANDOM_PW_LEN=10;const MSG_ID_DUP_LOCAL='ID in use'
 const configs=require('../configs/configs'); const {queuenamesj}=configs
 const {enqueuedataj}=require('../reqqueue/enqueuer')
-router.post('/create',async(req,res)=>{let {username,sitename}=req.body
+router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.log(req.body)
   if(username && sitename){} else {respreqinvalid(res,'ARG-MISSING',40761);return false} //  if(MAP_SITENAME[sitename]){} else {respreqinvalid(res,'ARG-MISSING',40762); ifsitename=SITENAME_DEF}
   sitename=sitename.toUpperCase()
   if(await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})){} else {respreqinvalid(res,'SITENAME-INVALID',64749);return false}
@@ -52,7 +52,8 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body
 })
 
 router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename){} else {sitename=SITENAME_DEF}
-  if(username && pw && sitename){} else {respreqinvalid(res,'ARGMISSING',40761);return false}
+	if(username && pw && sitename){} else {respreqinvalid(res,'ARGMISSING',40761);return false}
+	sitename=sitename.toUpperCase()
   db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{
     if(respuser){respreqinvalid(res,messages.MSG_ID_DUP,82532);return false}
     db.users.create({username:username,pw:pw,sitename:sitename,active:1,pwhash:hasher(pw),createpath:'JOIN'}) //    db.operations.findOne({raw:true,where:{key_:'CURRENCIES'}}).then(respcurr=>{      const currencies=JSON.parse(respcurr['value_'])

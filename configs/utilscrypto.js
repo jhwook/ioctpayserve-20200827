@@ -1,5 +1,5 @@
-const configbtc=require('../BTC/configbtc')
-const configweb3=require('../ETH/configweb3')
+const configbtc=require('./BTC/configbtc')
+const configweb3=require('./ETH/configweb3')
 const createaccount=currency=>{
   switch(currency){
     case 'ETH':return configweb3.createaccount()

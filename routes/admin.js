@@ -13,7 +13,7 @@ const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
 const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다'
 const MSG_CONVRATE_INVALID='변환율이 유효하지 않습니다',MSG_FIXEDPRICE_INVALID='고정가격이 유효하지 않습니다',MSG_TOKEN_NOTREGISTERED='등록되지 않은 토큰입니다',MSG_SITETOKEN_NOTFOUND='등록되지 않은 사이트/토큰입니다'
-const MSG_DELETED='삭제되었습니다'
+const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다'
 const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
@@ -26,7 +26,21 @@ const getaddrtype4que=currency=>{  let addrkind=MAP_CURRENCY_ADDRKIND[currency]
   if(addrkind){} else {addrkind='ADDR-TOKEN'}
   return addrkind
 }
-router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body
+router.post('/sitenameholder/delete',async(req,res)=>{const {sitename}=req.body;console.log(req.body)
+  await db.sitenameholder.update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  await db.users.update({active:0},{where:{sitename:sitename}})
+  await db.balance.update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  await db.exchangerates.update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  db.balance.findAll({raw:true,where:{sitename:sitename}}).then(aresps=>{
+    aresps.forEach(respbal=>{
+      db.blockbalance.findOne({where:{address:respbal.address}} ).then(respblock=>{        if(respblock){respblock.update({active:0})}      })
+      let addrkind=getaddrtype4que(respbal.currency)
+      enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })
+    })
+  })
+  respok(res,MSG_DELETED,19774);return false
+}) //
+router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;console.log(req.body)
   await db.sitenameholder.update({active:0},{where:{sitename:sitename,nettype:nettype}})
   await db.users.update({active:0},{where:{sitename:sitename}})
   await db.balance.update({active:0},{where:{sitename:sitename,nettype:nettype}})
@@ -80,18 +94,19 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   let decimals
   if(decimals=MAP_COINS_DECIMALS[tokenname]){jdata['address']=null;jdata['denominatorexp']=decimals}
   else if(contractaddress){
-			if( validateethaddress(contractaddress)){    decimals=await getdecimals(contractaddress)
-				if(Number.isInteger(parseInt(decimals))){jdata['address']=contractaddress}
-				else {respreqinvalid(res,MSG_ADDRESS_INVALID,74582);return false}
-			} 
-      else {respreqinvalid(res,MSG_ADDRESS_INVALID,38464);return false}
-	}    
-	else {
-
+		if( validateethaddress(contractaddress)){    decimals=await getdecimals(contractaddress)
+			if(Number.isInteger(parseInt(decimals))){jdata['address']=contractaddress}
+			else {respreqinvalid(res,MSG_ADDRESS_INVALID,74582);return false}
+		} 
+		else {respreqinvalid(res,MSG_ADDRESS_INVALID,38464);return false}
 	}
-	
+	else {
+		const resptkn=await db.tokens.findOne({raw:true,where:{name:tokenname}})
+		if(resptkn && resptkn['address'] && resptkn['denominatorexp']){contractaddress=resptkn['address'];decimals=resptkn['decimals']}
+		else {respreqinvalid(res,MSG_VALIDTOKEN_NOTFOUND,59107);return false}
+	}	
 	if(decimals){jdata['denominatorexp']=decimals}
-  
+	  
   let jconvrates={C:Crate,S:Srate,K:Krate} // [C,S,K]
   Object.keys(jconvrates).forEach(key=>{const val=jconvrates[key]; if(val){} else {return false}; let rate=val
     if(rate){rate=parseInt(rate);if(rate>=MIN_CSKCONVRATE && rate<=MAX_CSKCONVRATE){jdata[key]=val} else {respreqinvalid(res,MSG_CONVRATE_INVALID,40154);return false}}
@@ -118,38 +133,36 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
     }) //  db.sitenameholder.des troy()
     db.users.findAll({raw:true,where:{sitename:sitename}}).then(async arespsusers=>{
       if(arespsusers){} else {return false}
-      arespsusers.forEach(async user=>{
-        let respbal=await db.balance.findOne({where:{sitename:sitename,username:user['username'],currnecy:tokenname}})
-        let acct
+      arespsusers.forEach(async user=>{const username=user['username']
+        let respbal=await db.balance.findOne({where:{sitename:sitename,username:username,currnecy:tokenname}})
+        let acct,address
         if(respbal){respbal.update({active:1})}
         else {
           let jdbalcmn={            username:username            ,currency:tokenname            ,netkind:netkind
             ,nettype:nettype            ,sitename:sitename            , amount:0          , amountfloat:0,amountstr:0
           }
           if(contractaddress){
-            db.balance.findOne({raw:true,where:{username:user['username'],sitename:sitename,nettype:nettype,currency:'ETH'}}).then(respbaleth=>{
-              if(respbaleth){
-                db.balance.create({... jdbalcmn
+            db.balance.findOne({raw:true,where:{username:username,sitename:sitename,nettype:nettype,currency:'ETH'}}).then(async respbaleth=>{
+              if(respbaleth){address=respbaleth['address']
+                await db.balance.create({... jdbalcmn
                   ,denominatorexp:decimals
-                  ,address:respbaleth['address']
+                  ,address:address
                   ,privatekey:respbaleth['privatekey']
                   ,group_:'ETH'
                 })
-              } else {acct=createaccount('ETH')
+              } else {acct=createaccount('ETH');address=acct['address']
                 db.balance.create({... jdbalcmn,denominatorexp:MAP_COINS_DECIMALS['ETH'],address:acct['address'],privatekey:acct['privatekey'],_group:'ETH'})
                 db.balance.create({... jdbalcmn,denominatorexp:decimals,address:acct['address'],privatekey:acct['privatekey'],_group:'ETH'})
               }
             })
           } else {  
-            if(MAP_COINS_DECIMALS[tokenname]){
-              acct=createaccount(tokenname)
-              db.balance.create({... jdbalcmn                ,denominatorexp:MAP_COINS_DECIMALS[tokenname]                ,address:acct['address']
-                ,privatekey:acct['privatekey']                ,_group:tokenname
+            if(MAP_COINS_DECIMALS[tokenname]){              acct=createaccount(tokenname);address=acct['address']
+              await db.balance.create({... jdbalcmn                ,denominatorexp:MAP_COINS_DECIMALS[tokenname]                ,address:acct['address'] ,privatekey:acct['privatekey']                ,_group:tokenname
               })
             }
           }
         }
-        
+        enqueuedataj(queuenamesj[getaddrtype4que(tokenname)], {flag:'ADD', username:username,address:address })
       })
     })
     respok(res,'Created')
@@ -158,18 +171,21 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   }
 })
 const MINSITENAMELEN=3 // 4
-router.post('/sitenameholder',(req,res)=>{const {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(sitename)
+router.post('/sitenameholder',(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(req.body)
   sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'})
   db.sitenameholder.findOne({where:{sitename:sitename}}).then(resp=>{
     if(resp){
       if(resp.dataValues['active']) {respreqinvalid(res,MSG_DATA_DUP,43550);return false}
       else {resp.update({... req.body, active:1});respok(res);return false}      
     }
-    if(urladdress){urladdress=urladdress.substr(0,MAX_URLADDRESS_LEN)}
+//    if(urladdress){urladdress=urladdress.substr(0,MAX_URLADDRESS_LEN)}
     db.sitenameholder.create({sitename:sitename,urladdress:urladdress,nettype:nettype}).then(resp=>{
       respok(res);return false
     })
   })
+})
+router.get('/ping',(req,res)=>{
+	res.status(200).send({status:'OK',message:'ping'});return false
 })
 module.exports = router
 
