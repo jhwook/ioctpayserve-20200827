@@ -1,6 +1,6 @@
 
-const {web3}=require('../../../configs/ETH/configweb3')
-const {minAbi4tx}=require('../tokens/abis')  
+const {web3}=require('./configweb3') // ('../../../configs/ETH/configweb3')
+const {minAbi4tx}=require('./tokens/abis')  
 
 const getdecimals= tokenaddress=>{  const  contract=new web3.eth.Contract(minAbi4tx,tokenaddress) // let contract = web3.eth.contract(minAbi4tx).at(tokenaddress)
   return new Promise((resolve,reject)=>{

@@ -19,7 +19,7 @@ const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRI
 const {getdecimals}=require('../configs/ETH/utilstoken') // ../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
 const MAP_COINS_DECIMALS={BTC:8,ETH:18}
 const B_ENABLE_QUE=false// const {if(B_ENABLE_QUE){enqueuedataj}=require('../reqqueue/enqueuer');
-const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages');
+const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages')
 const { token } = require('morgan');
 const MAP_CURRENCY_ADDRKIND={BTC:'ADDR-BTC',ETH:'ADDR-ETH'}
 const getaddrtype4que=currency=>{  let addrkind=MAP_CURRENCY_ADDRKIND[currency]
@@ -76,9 +76,9 @@ router.get('/sitenameholder',(req,res)=>{callhook({verb:'get',user:'admin',path:
 router.post('/sitetoken/delete',async(req,res)=>{let {sitename,tokenname}=req.body;console.log(req.body)
   if(sitename && tokenname){} else {respreqinvalid(res,MSG_PLEASE_INPUT_DATA,79806);return false}
   await db.balance.update({active:0},{where:{sitename:sitename,currency:tokenname,nettype:nettype}})
-  await db.balance.findAll({raw:true,where:{sitename:sitename,currency:tokenname,nettype:nettype}}).then(aresps=>{
-    aresps.forEach(respbal=>{
-      db.blockbalance.findOne({where:{address:respbal.address}}).then(respblock=>{if(respbal){respbal.update({active:0})}      })
+  await db.balance.findAll({where:{sitename:sitename,currency:tokenname,nettype:nettype}}).then(aresps=>{
+    aresps.forEach(respbalraw=>{const respbal=respbalraw.dataValues
+      db.blockbalance.findOne({where:{address:respbal.address}}).then(respblock=>{if(respbalraw){respbalraw.update({active:0})}      })
       let addrkind=getaddrtype4que(respbal.currency) 
       if(B_ENABLE_QUE){enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })}
     })
@@ -135,7 +135,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   jdata['canwithdraw']=canwithdraw;jdata['nettype']=nettype
   if(collectoraddress ){    if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}    else {}  }
   try{db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}).then(resp=>{
-      if(resp){resp.update({active:1, ... jdata});respok(res,'Updated')}
+      if(resp){resp.update({active:1, ... jdata})} // ;respok(res,'Updated')
       else {      db.exchangerates.create(    {... jdata}  ).then(resp=>{;})    }
     })
     db.tokens.findOne({where:{name:tokenname,nettype:nettype}}).then(resp=>{     const jdtkn={      name:tokenname      , denominatorexp:decimals      , sitename:sitename
@@ -151,28 +151,24 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
     db.users.findAll({raw:true,where:{sitename:sitename}}).then(async arespsusers=>{
       if(arespsusers){} else {return false}
       arespsusers.forEach(async user=>{const username=user['username']
-        let respbal=await db.balance.findOne({where:{sitename:sitename,username:username,currnecy:tokenname}})
+        let respbal=await db.balance.findOne({where:{sitename:sitename,username:username,currency:tokenname}})
         let acct,address
-        if(respbal){respbal.update({active:1})}
+				if(respbal){respbal.update({active:1}) //					if(MAP_COINS_DECIMALS[tokenname]){}					else {respbal.update({active:1,blocknumberrx:1})}
+				}
         else {
-          let jdbalcmn={            username:username            ,currency:tokenname            ,netkind:netkind
-            ,nettype:nettype            ,sitename:sitename            , amount:0          , amountfloat:0,amountstr:0
+          let jdbalcmn={            username:username            ,currency:tokenname            ,netkind:netkind            ,nettype:nettype            ,sitename:sitename            , amount:0          , amountfloat:0,amountstr:0
           }
           if(contractaddress){
             db.balance.findOne({raw:true,where:{username:username,sitename:sitename,nettype:nettype,currency:'ETH'}}).then(async respbaleth=>{
               if(respbaleth){address=respbaleth['address']
-                await db.balance.create({... jdbalcmn
-                  ,denominatorexp:decimals
-                  ,address:address
-                  ,privatekey:respbaleth['privatekey']
-                  ,group_:'ETH',active:1
+                await db.balance.create({... jdbalcmn                  ,denominatorexp:decimals                  ,address:address                  ,privatekey:respbaleth['privatekey']                  ,group_:'ETH',active:1
                 })
               } else {acct=createaccount('ETH');address=acct['address']
                 db.balance.create({... jdbalcmn,denominatorexp:MAP_COINS_DECIMALS['ETH'],address:acct['address'],privatekey:acct['privatekey'],_group:'ETH',active:1})
                 db.balance.create({... jdbalcmn,denominatorexp:decimals,address:acct['address'],privatekey:acct['privatekey'],_group:'ETH',active:1})
               }
             })
-          } else {  
+          } else {
             if(MAP_COINS_DECIMALS[tokenname]){              acct=createaccount(tokenname);address=acct['address']
               await db.balance.create({... jdbalcmn                ,denominatorexp:MAP_COINS_DECIMALS[tokenname]                ,address:acct['address'] ,privatekey:acct['privatekey']                ,_group:tokenname,active:1
               })
@@ -187,8 +183,17 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
     respreqinvalid(res,null,12888) // raw:true,
   }
 })
-router.get('/ping',(req,res)=>{
-	res.status(200).send({status:'OK',message:'ping'});return false
+router.get('/ping',(req,res)=>{	res.status(200).send({status:'OK',message:'ping'});return false
+})
+router.get('/stats',(req,res)=>{let aproms=[];const attls=['users','balance','blockbalance','tokens','exchangerates']
+	aproms.push( db.users.count({}))
+	aproms.push( db.balance.count({}))
+	aproms.push( db.blockbalance.count({}))
+	aproms.push( db.tokens.count({}))
+	aproms.push(db.exchangerates.count({}))
+	Promise.all(aproms).then(aresps=>{		let jdata={titles:attls,values:aresps} ;console.log(aresps) //		let jdata=_.zipObject([ [... attls],[... aresps]]);console.log(jdata)		
+		respok(res,null,null,jdata );return false
+	})
 })
 module.exports = router
 
