@@ -40,26 +40,11 @@ router.post('/sitenameholder/delete',async(req,res)=>{const {sitename}=req.body;
   })
   respok(res,MSG_DELETED,19774);return false
 }) //
-router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;console.log(req.body)
-  await db.sitenameholder.update({active:0},{where:{sitename:sitename,nettype:nettype}})
-  await db.users.update({active:0},{where:{sitename:sitename}})
-  await db.balance.update({active:0},{where:{sitename:sitename,nettype:nettype}})
-  await db.exchangerates.update({active:0},{where:{sitename:sitename,nettype:nettype}})
-  db.balance.findAll({raw:true,where:{sitename:sitename}}).then(aresps=>{
-    aresps.forEach(respbal=>{
-      db.blockbalance.findOne({where:{address:respbal.address}} ).then(respblock=>{        if(respblock){respblock.update({active:0})}      })
-      let addrkind=getaddrtype4que(respbal.currency)
-      enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })
-    })
-  })
-  respok(res,MSG_DELETED,19774);return false
-//  .then(resp=>{    respok(res,MSG_DELETED,19774);return false  }) //  db.sitenameholder.destroy({where:{sitename:sitename}}).then(resp=>{    respok(res,MSG_DELETED,19774);return false  })
-}) //
 router.get('/sitenameholder',(req,res)=>{callhook({verb:'get',user:'admin',path:'sitenameholder'})
   db.sitenameholder.findAll({raw:true,where:{active:1}}).then(resp=>{    res.status(200).send({status:'OK',sitenameholders:resp});return false
   })
 })
-router.delete('/sitetoken',async(req,res)=>{let {sitename,tokenname}=req.body;console.log(req.body)
+router.post('/sitetoken/delete',async(req,res)=>{let {sitename,tokenname}=req.body;console.log(req.body)
   if(sitename && tokenname){} else {respreqinvalid(res,MSG_PLEASE_INPUT_DATA,79806);return false}
   await db.balance.update({active:0},{where:{sitename:sitename,currency:tokenname,nettype:nettype}})
   await db.balance.findAll({raw:true,where:{sitename:sitename,currency:tokenname,nettype:nettype}}).then(aresps=>{
@@ -114,8 +99,11 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   fixedprice=parseFloat(fixedprice)
   if(fixedprice){    if( fixedprice>=MIN_FIXEDPRICE && fixedprice<=MAX_FIXEDPRICE){ jdata['fixedprice']=fixedprice}    else {respreqinvalid(res,MSG_FIXEDPRICE_INVALID);return false}
   }
+  else {respreqinvalid(res,`${MSG_PLEASE_INPUT_DATA} (고정값)`);return false}
   isvariableprice=parseInt(isvariableprice);canwithdraw=parseInt(canwithdraw)
-  jdata['priceisfixed']=1-isvariableprice; jdata['canwithdraw']=canwithdraw;jdata['nettype']=nettype
+  if(false){jdata['priceisfixed']=1-isvariableprice}
+  if(true ){jdata['priceisfixed']=1}
+  jdata['canwithdraw']=canwithdraw;jdata['nettype']=nettype
   if(collectoraddress ){    if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}    else {}  }
   try{db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}).then(resp=>{
       if(resp){resp.update({active:1, ... jdata});respok(res,'Updated')}
@@ -189,3 +177,34 @@ router.get('/ping',(req,res)=>{
 })
 module.exports = router
 
+router.delete('/sitetoken',async(req,res)=>{let {sitename,tokenname}=req.body;console.log(req.body)
+  if(sitename && tokenname){} else {respreqinvalid(res,MSG_PLEASE_INPUT_DATA,79806);return false}
+  await db.balance.update({active:0},{where:{sitename:sitename,currency:tokenname,nettype:nettype}})
+  await db.balance.findAll({raw:true,where:{sitename:sitename,currency:tokenname,nettype:nettype}}).then(aresps=>{
+    aresps.forEach(respbal=>{
+      db.blockbalance.findOne({where:{address:respbal.address}}).then(respblock=>{if(respbal){respbal.update({active:0})}      })
+      let addrkind=getaddrtype4que(respbal.currency) 
+      enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })
+    })
+  })
+  db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}).then(resp=>{
+    if(resp){} else {respreqinvalid(res,MSG_SITETOKEN_NOTFOUND);return false}
+    resp.update({active:0})    // resp.des troy()
+    respok(res,MSG_DELETED,29532);return false
+  })
+})
+router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;console.log(req.body)
+  await db.sitenameholder.update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  await db.users.update({active:0},{where:{sitename:sitename}})
+  await db.balance.update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  await db.exchangerates.update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  db.balance.findAll({raw:true,where:{sitename:sitename}}).then(aresps=>{
+    aresps.forEach(respbal=>{
+      db.blockbalance.findOne({where:{address:respbal.address}} ).then(respblock=>{        if(respblock){respblock.update({active:0})}      })
+      let addrkind=getaddrtype4que(respbal.currency)
+      enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })
+    })
+  })
+  respok(res,MSG_DELETED,19774);return false
+//  .then(resp=>{    respok(res,MSG_DELETED,19774);return false  }) //  db.sitenameholder.destroy({where:{sitename:sitename}}).then(resp=>{    respok(res,MSG_DELETED,19774);return false  })
+}) //
