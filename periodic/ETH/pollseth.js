@@ -5,7 +5,7 @@ const API_TXS=`https://${netkind=='ropsten'?'api-ropsten':'api'}.etherscan.io/ap
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
 const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
-const configs=require('../../configs/configs');const { delete } = require('request')
+const configs=require('../../configs/configs') // ;const { delete } = require('request')
  const {queuenamesj}=configs
 const ENDBLOCKDUMMY4QUERY=50000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH',CURRENCYDECIMALS=18, DELTA_T_SHORT=60*1.5*1000

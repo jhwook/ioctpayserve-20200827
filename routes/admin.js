@@ -18,7 +18,7 @@ const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
 const MAP_COINS_DECIMALS={BTC:8,ETH:18}
-const {enqueuedataj}=require('../reqqueue/enqueuer');
+const B_ENABLE_QUE=false// const {if(B_ENABLE_QUE){enqueuedataj}=require('../reqqueue/enqueuer');
 const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages');
 const { token } = require('morgan');
 const MAP_CURRENCY_ADDRKIND={BTC:'ADDR-BTC',ETH:'ADDR-ETH'}
@@ -35,7 +35,7 @@ router.post('/sitenameholder/delete',async(req,res)=>{const {sitename}=req.body;
     aresps.forEach(respbal=>{
       db.blockbalance.findOne({where:{address:respbal.address}} ).then(respblock=>{        if(respblock){respblock.update({active:0})}      })
       let addrkind=getaddrtype4que(respbal.currency)
-      enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })
+      if(B_ENABLE_QUE){enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })}
     })
   })
   respok(res,MSG_DELETED,19774);return false
@@ -65,7 +65,7 @@ router.post('/sitetoken/delete',async(req,res)=>{let {sitename,tokenname}=req.bo
     aresps.forEach(respbal=>{
       db.blockbalance.findOne({where:{address:respbal.address}}).then(respblock=>{if(respbal){respbal.update({active:0})}      })
       let addrkind=getaddrtype4que(respbal.currency) 
-      enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })
+      if(B_ENABLE_QUE){enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })}
     })
   })
   db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}).then(resp=>{
@@ -164,7 +164,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
             }
           }
         }
-        enqueuedataj(queuenamesj[getaddrtype4que(tokenname)], {flag:'ADD', username:username,address:address })
+        if(B_ENABLE_QUE){enqueuedataj(queuenamesj[getaddrtype4que(tokenname)], {flag:'ADD', username:username,address:address })}
       })
     })
     respok(res,MSG_REGISTER_DONE);return false
@@ -184,7 +184,7 @@ router.delete('/sitetoken',async(req,res)=>{let {sitename,tokenname}=req.body;co
     aresps.forEach(respbal=>{
       db.blockbalance.findOne({where:{address:respbal.address}}).then(respblock=>{if(respbal){respbal.update({active:0})}      })
       let addrkind=getaddrtype4que(respbal.currency) 
-      enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })
+      if(B_ENABLE_QUE){enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })}
     })
   })
   db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}).then(resp=>{
@@ -202,7 +202,7 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
     aresps.forEach(respbal=>{
       db.blockbalance.findOne({where:{address:respbal.address}} ).then(respblock=>{        if(respblock){respblock.update({active:0})}      })
       let addrkind=getaddrtype4que(respbal.currency)
-      enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })
+      if(B_ENABLE_QUE){enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })}
     })
   })
   respok(res,MSG_DELETED,19774);return false
