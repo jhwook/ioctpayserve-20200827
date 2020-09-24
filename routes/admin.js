@@ -13,7 +13,7 @@ const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
 const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다'
 const MSG_CONVRATE_INVALID='변환율이 유효하지 않습니다',MSG_FIXEDPRICE_INVALID='고정가격이 유효하지 않습니다',MSG_TOKEN_NOTREGISTERED='등록되지 않은 토큰입니다',MSG_SITETOKEN_NOTFOUND='등록되지 않은 사이트/토큰입니다'
-const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다'
+const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다'
 const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
@@ -40,6 +40,20 @@ router.post('/sitenameholder/delete',async(req,res)=>{const {sitename}=req.body;
   })
   respok(res,MSG_DELETED,19774);return false
 }) //
+const MINSITENAMELEN=3 // 4
+router.post('/sitenameholder',(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(req.body)
+  sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'})
+  db.sitenameholder.findOne({where:{sitename:sitename}}).then(resp=>{
+    if(resp){
+      if(resp.dataValues['active']) {respreqinvalid(res,MSG_DATA_DUP,43550);return false}
+      else {resp.update({... req.body, active:1});respok(res);return false}      
+    }
+//    if(urladdress){urladdress=urladdress.substr(0,MAX_URLADDRESS_LEN)}
+    db.sitenameholder.create({sitename:sitename,urladdress:urladdress,nettype:nettype}).then(resp=>{
+      respok(res);return false
+    })
+  })
+})
 router.get('/sitenameholder',(req,res)=>{callhook({verb:'get',user:'admin',path:'sitenameholder'})
   db.sitenameholder.findAll({raw:true,where:{active:1}}).then(resp=>{    res.status(200).send({status:'OK',sitenameholders:resp});return false
   })
@@ -136,16 +150,16 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
                   ,denominatorexp:decimals
                   ,address:address
                   ,privatekey:respbaleth['privatekey']
-                  ,group_:'ETH'
+                  ,group_:'ETH',active:1
                 })
               } else {acct=createaccount('ETH');address=acct['address']
-                db.balance.create({... jdbalcmn,denominatorexp:MAP_COINS_DECIMALS['ETH'],address:acct['address'],privatekey:acct['privatekey'],_group:'ETH'})
-                db.balance.create({... jdbalcmn,denominatorexp:decimals,address:acct['address'],privatekey:acct['privatekey'],_group:'ETH'})
+                db.balance.create({... jdbalcmn,denominatorexp:MAP_COINS_DECIMALS['ETH'],address:acct['address'],privatekey:acct['privatekey'],_group:'ETH',active:1})
+                db.balance.create({... jdbalcmn,denominatorexp:decimals,address:acct['address'],privatekey:acct['privatekey'],_group:'ETH',active:1})
               }
             })
           } else {  
             if(MAP_COINS_DECIMALS[tokenname]){              acct=createaccount(tokenname);address=acct['address']
-              await db.balance.create({... jdbalcmn                ,denominatorexp:MAP_COINS_DECIMALS[tokenname]                ,address:acct['address'] ,privatekey:acct['privatekey']                ,_group:tokenname
+              await db.balance.create({... jdbalcmn                ,denominatorexp:MAP_COINS_DECIMALS[tokenname]                ,address:acct['address'] ,privatekey:acct['privatekey']                ,_group:tokenname,active:1
               })
             }
           }
@@ -153,24 +167,10 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
         enqueuedataj(queuenamesj[getaddrtype4que(tokenname)], {flag:'ADD', username:username,address:address })
       })
     })
-    respok(res,'Created')
+    respok(res,MSG_REGISTER_DONE);return false
   } catch(err){
     respreqinvalid(res,null,12888) // raw:true,
   }
-})
-const MINSITENAMELEN=3 // 4
-router.post('/sitenameholder',(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(req.body)
-  sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'})
-  db.sitenameholder.findOne({where:{sitename:sitename}}).then(resp=>{
-    if(resp){
-      if(resp.dataValues['active']) {respreqinvalid(res,MSG_DATA_DUP,43550);return false}
-      else {resp.update({... req.body, active:1});respok(res);return false}      
-    }
-//    if(urladdress){urladdress=urladdress.substr(0,MAX_URLADDRESS_LEN)}
-    db.sitenameholder.create({sitename:sitename,urladdress:urladdress,nettype:nettype}).then(resp=>{
-      respok(res);return false
-    })
-  })
 })
 router.get('/ping',(req,res)=>{
 	res.status(200).send({status:'OK',message:'ping'});return false

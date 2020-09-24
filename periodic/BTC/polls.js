@@ -19,7 +19,7 @@ const setpoller=jdata=>{const {username,address}=jdata
   } ,deltat )
 }
 const init=()=>{
-  db.balance.findAll({raw:true,where:{currency:CURRENCYLOCAL,netkind:netkind}}).then(aresps=>{
+  db.balance.findAll({raw:true,where:{currency:CURRENCYLOCAL,netkind:netkind,active:1}}).then(aresps=>{
     aresps.forEach(acct=>{
       const address=acct['address']
       jaddresses[address]=acct['username'];const deltat=getRandomInt(9.5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'), 'BTC',gettimestr())

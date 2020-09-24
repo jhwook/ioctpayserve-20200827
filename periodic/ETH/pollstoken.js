@@ -19,7 +19,7 @@ const setpoller=jdata=>{const {username,address}=jdata
 }
 const init=()=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address
-    db.balance.findOne({raw:true,where:{address:address,netkind:netkind}}).then(resp=>{      if(resp){} else {return false}
+    db.balance.findOne({raw:true,where:{address:address,netkind:netkind,active:1}}).then(resp=>{      if(resp){} else {return false}
       jaddresses[address.toLowerCase()]=resp['username'];const deltat=getRandomInt(7*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'Token',gettimestr())
       setTimeout(()=>{    if(false){pollblocks({address:address})}
         setInterval(()=>{ pollblocks({address:address})

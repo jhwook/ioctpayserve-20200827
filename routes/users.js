@@ -39,7 +39,7 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.
           , privatekey:account['privateKey']
           , group_:jdata['group_']
           , sitename:sitename
-          , amount:0          , amountfloat:0,amountstr:0
+          , amount:0          , amountfloat:0,amountstr:0,active:1
         })
       })
       respok(res,null,null)
@@ -79,7 +79,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
           , privatekey:account['privateKey']
           , group_:jdata['group_']
           , sitename:sitename
-          , amount:0          , amountfloat:0,amountstr:0
+          , amount:0          , amountfloat:0,amountstr:0,active:1
         })
       })
       respok(res,null,null)
