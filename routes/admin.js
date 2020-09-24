@@ -16,7 +16,7 @@ const MSG_CONVRATE_INVALID='변환율이 유효하지 않습니다',MSG_FIXEDPRI
 const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다'
 const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
-const {getdecimals}=require('../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
+const {getdecimals}=require('../configs/ETH/utilstoken') // ../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
 const MAP_COINS_DECIMALS={BTC:8,ETH:18}
 const B_ENABLE_QUE=false// const {if(B_ENABLE_QUE){enqueuedataj}=require('../reqqueue/enqueuer');
 const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages');
@@ -27,6 +27,21 @@ const getaddrtype4que=currency=>{  let addrkind=MAP_CURRENCY_ADDRKIND[currency]
   return addrkind
 }
 router.post('/sitenameholder/delete',async(req,res)=>{const {sitename}=req.body;console.log(req.body)
+  await db.sitenameholder.destroy({where:{sitename:sitename,nettype:nettype}}) // update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  await db.users.destroy({where:{sitename:sitename}}) // update({active:0},{where:{sitename:sitename}})
+  await db.balance.destroy({sitename:sitename,nettype:nettype}) // update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  await db.exchangerates.destroy({where:{sitename:sitename,nettype:nettype}}) // update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  db.balance.findAll({raw:true,where:{sitename:sitename}}).then(aresps=>{
+    aresps.forEach(respbal=>{
+			db.blockbalance.findOne({where:{address:respbal.address}} ).then(respblock=>{        if(respblock){respblock.destroy()} // update({active:0})}
+			})
+      let addrkind=getaddrtype4que(respbal.currency)
+      if(B_ENABLE_QUE){enqueuedataj(queuenamesj[addrkind], {flag:'DELETE', username:respbal.username,address:respbal.address })}
+    })
+  })
+  respok(res,MSG_DELETED,19774);return false
+}) //
+router.post('/sitenameholder/delete/via/update',async(req,res)=>{const {sitename}=req.body;console.log(req.body)
   await db.sitenameholder.update({active:0},{where:{sitename:sitename,nettype:nettype}})
   await db.users.update({active:0},{where:{sitename:sitename}})
   await db.balance.update({active:0},{where:{sitename:sitename,nettype:nettype}})

@@ -34,7 +34,7 @@ const createchannel=async queuename=>{let channel
 		channel=channel0
 		try{channel.assertQueue(queuename, {  durable: false        })}
 		catch(err){console.log(err)}
-		const msg = JSON.stringify({flag:'TEST',message:'Checking connection'})
+		const msg = JSON.stringify({flag:'TEST',message:'Check ing connection'})
 		if(true){channel.sendToQueue(queuename, Buffer.from(msg))}
 		console.log("[x] sent %s", msg);
 		return channel
