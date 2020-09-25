@@ -3,7 +3,7 @@ const express = require('express');
 var router = express.Router();
 const db=require('../models')
 const utils = require('../utils');
-const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook} = require('../utils')
+const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
@@ -100,6 +100,18 @@ router.get('/sitetoken',(req,res)=>{let {sitename,tokenname}=req.query;  callhoo
     })
   }
 }) //
+router.put('/sitetoken',(req,res)=>{console.log(req.body)
+	let {sitename,tokenname,collectoraddress,Crate,Srate,Krate,fixedprice,canwithdraw}=req.body; 
+	if(sitename && tokenname){} else {respreqinvalid(res,MSG_PLEASE_INPUT_DATA,15104);return false};	let jdata={}
+	if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}
+	if(validaterate(Crate)){jdata['C']=parseInt(Crate)}
+	if(validaterate(Srate)){jdata['S']=parseInt(Srate)}
+	if(validaterate(Krate)){jdata['K']=parseInt(Krate)}
+	if(validateprice(fixedprice)){jdata['fixedprice']=parseInt(fixedprice)}
+	if(Number.isInteger(parseInt(canwithdraw))){jdata['canwithdraw']=parseInt(canwithdraw)}
+	db.exchangerates.update({... jdata},{where:{sitename:sitename,tokenname:tokenname}})
+	respok(res);return false
+})
 router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddress,Crate,Srate,Krate,collectoraddress,fixedprice,isvariableprice,canwithdraw}=req.body; let jdata={}; console.log(req.body)
   callhook({verb:'post',user:'admin',path:'sitetoken'})
   sitename=sitename.toUpperCase(),tokenname=tokenname.toUpperCase()
