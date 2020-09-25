@@ -109,7 +109,7 @@ router.put('/sitetoken',(req,res)=>{console.log(req.body)
 	if(validaterate(Krate)){jdata['K']=parseInt(Krate)}
 	if(validateprice(fixedprice)){jdata['fixedprice']=parseInt(fixedprice)}
 	if(Number.isInteger(parseInt(canwithdraw))){jdata['canwithdraw']=parseInt(canwithdraw)}
-	db.exchangerates.update({... jdata},{where:{sitename:sitename,tokenname:tokenname}})
+	db.exchangerates.update({... jdata},{where:{sitename:sitename,currency0:tokenname}})
 	respok(res);return false
 })
 router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddress,Crate,Srate,Krate,collectoraddress,fixedprice,isvariableprice,canwithdraw}=req.body; let jdata={}; console.log(req.body)

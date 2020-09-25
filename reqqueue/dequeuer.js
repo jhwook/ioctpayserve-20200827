@@ -7,11 +7,12 @@ module.exports = async qname=> {
   await channel.assertQueue(qname, {            durable: false		}) // await channel.sendToQueue(queueName, Buffer.from(testMessage))
   return channel
 }
+/*
 const test=()=>{
-  channel=require('./reqqueue/dequeuer')('ADDR-TOKEN') //  ch.consume( 'ADDR-TOKEN' , function(msg) {			const str=msg.content.toString();			console.log(" [x] Received %s",str)})
-  channel.then(ch=>{ch.consume( 'ADDR-TOKEN' , function(msg) {                  const str=msg.content.toString();                       console.log(" [x] Received %s",str)})})
+  channel=require('./reqqueue/deq ueuer')('ADDR-TOKEN') //  ch.con sume( 'ADDR-TOKEN' , function(msg) {			const str=msg.content.toString();			console.log(" [x] Rece ived %s",str)})
+  channel.then(ch=>{ch.consume( 'ADDR-TOKEN' , function(msg) {                  const str=msg.content.toString();                       console.log(" [x] Recei ved %s",str)})})
 
-}
+}*/
 // ;(async ()=>{
   // await channel.close()
   // await connection.close()

@@ -10,8 +10,8 @@ const getqueue=qname=>{
 			if (error1) {            throw error1;		}
 			channel.assertQueue(qname, {            durable: false		})
 			console.log(" [*] awaiting in %s", qname);
-			dequeuedata=channel.consume
-			channel.consume(queuename, function(msg) {			const str=msg.content.toString();			console.log(" [x] Received %s",str)
+			dequeuedata=channel.con sume
+			channel.cons ume(queuename, function(msg) {			const str=msg.content.toString();			console.log(" [x] Rece ived %s",str)
 				const packet=JSON.parse(str) // ;console.log(typeof packet,packet,packet.flag,packet.userid,packet['flag'],packet['userid'])
 				if(packet['flag']=='BALANCE'){} //console.log('INCAMT')
 				else {return false} // console.log('XX INCAMT');
@@ -22,7 +22,7 @@ const getqueue=qname=>{
 	})
 	})	
 }
-ch.consume('ADD-TOKEN',msg=>{str=msg.content.toString();console.log(str)})
+ch.cons ume('ADD-TOKEN',msg=>{str=msg.content.toString();console.log(str)})
 doprocess=str=>{console.log(str)}
 module.exports={dequeuedata,channel}
 

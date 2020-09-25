@@ -1,13 +1,15 @@
 
 const axios=require('axios')
-const messages=require('../configs/messages')
-const URLS_SSO_SERVE={
-  IOTC:   'http://www.iotcpay.com/sso_api.php'
-, SDC:    'http://www.sdcpay.co.kr/sso_api.php'
-, SDCPAY: 'http://www.sdcpay.co.kr/sso_api.php'
-, CARRYON:'http://www.carryonpay.com/sso_api.php'
+const messages=require('../configs/messages');let PROTOCOL_SSO='https'
+let URLS_SSO_SERVE={
+  IOTC:   `${PROTOCOL_SSO}://www.iotcpay.com/sso_api.php`
+, SDC:    `${PROTOCOL_SSO}://www.sdcpay.co.kr/sso_api.php`
+, SDCPAY: `${PROTOCOL_SSO}://www.sdcpay.co.kr/sso_api.php`
+, CARRYON:`${PROTOCOL_SSO}://www.carryonpay.com/sso_api.php`
+, KWIFI:  `${PROTOCOL_SSO}://www.kwifi.co.kr/sso_api.php`
 }
-const {MAP_SITENAME}=require('../configs/configs')
+const {MAP_SITENAME}=require('../configs/configs');
+const db = require('../models');
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}
 const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
   return new Promise((resolve,reject)=>{
@@ -47,6 +49,8 @@ const validatekeyorterminatewithargs=(res,sitename,token)=>{sitename=MAP_SITENAM
   })
 }
 module.exports={validatekey,validatekeyorterminate}
+const PERIOD_POLL_SITENAMEHOLDER=65*1000
+// setInterval(()=>{  db.site},PERIOD_POLL_SITENAMEHOLDER)
   // ?sitecode=iotc&hashcode=3a1a2d5f3fea5b062366aad93b7461e1'
 /*
   http://www.iotcpay.com/sso_api.php?site_ code=iotc&hash_ code=3a1a2d5f3fea5b062366aad93b7461e1

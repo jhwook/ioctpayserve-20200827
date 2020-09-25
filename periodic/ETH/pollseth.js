@@ -99,7 +99,7 @@ module.exports={pollblocks}
 
 setTimeout(()=>{
   const qname=queuenamesj['ADDR-ETH']
-const channel=require('../../reqqueue/dequeuer')(qname) //  ch.consume( 'ADDR-TOKEN' , function(msg) {			const str=msg.content.toString();			console.log(" [x] Received %s",str)})
+const channel=require('../../reqqueue/dequeuer')(qname) //  ch.co nsume( 'ADDR-TOKEN' , function(msg) {			const str=msg.content.toString();			console.log(" [x] Rece ived %s",str)})
 channel.then(ch=>{
   ch.consume( qname , (msg)=> {
     const str=msg.content.toString();                       

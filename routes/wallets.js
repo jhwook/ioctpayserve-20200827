@@ -101,7 +101,7 @@ if(false){	db.ba_lance.findOne({raw:true,where:{... req.query}}).then(async resp
 router.get('/balances', async (req, res, next)=> {  let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false}
   db.balance.findAll({raw:true,where:{username:username,nettype:nettype,active:1}}).then(aresps=>{let a2send=[];console.log(aresps)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
-    res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) ,e['address'] ]})})
+    res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) ,e['address'],e['canwithdraw'] ]})})
 //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	})
 //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })

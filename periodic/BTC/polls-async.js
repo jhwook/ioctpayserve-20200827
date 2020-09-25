@@ -98,11 +98,11 @@ module.exports={pollblocks}
   
 setTimeout(()=>{
 const qname=queuenamesj['ADDR-BTC']
-const channel=require('../../reqqueue/dequeuer')(qname) 
+const channel=require('../../reqqueue/dequ euer')(qname) 
 channel.then(ch=>{
-  ch.consume( qname , (msg)=> {
+  ch.cons ume( qname , (msg)=> {
     const str=msg.content.toString();                       
-    console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
+    console.log(` [x] Rece ived %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
     const packet=JSON.parse(str) 
     if(packet['flag']=='ADD'){}  else {return false} 
     jaddresses[packet['username']]=packet['address']
