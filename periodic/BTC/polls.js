@@ -8,7 +8,7 @@ const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
 const configs=require('../../configs/configs') // ;const { delete } = require('request');
  const {queuenamesj}=configs
 const ENDBLOCKDUMMY4QUERY=5000000
-const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='BTC',CURRENCYKIND='BTC',CURRENCYTYPE='BTC',CURRENCYDECIMALS=8, DELTA_T_SHORT=60*1.5*1000 // ,NETKIND=netkind // 'testnet'
+const PERIOD_DIST_POLLS=60*20*1000, CURRENCYLOCAL='BTC',CURRENCYKIND='BTC',CURRENCYTYPE='BTC',CURRENCYDECIMALS=8, DELTA_T_SHORT=60*1.5*1000 // ,NETKIND=netkind // 'testnet'
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS
 let jaddresses={},jhandlers={}
 const setpoller=jdata=>{const {username,address}=jdata

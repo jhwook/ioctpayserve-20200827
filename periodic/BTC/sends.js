@@ -1,14 +1,14 @@
 
 const axios=require('axios')
 const db=require('../../models');
-const { convethtowei } = require('../../utils');
+const { convethtowei,incdecbalance_reflfee } = require('../../utils');
 const { netkind, nettype } = require('../../configs/BTC/configbtc');
 const { TIMESTRFORMAT } = require('../../configs/configs');
 const URL_BTCD='http://182.162.21.240:36087/users'
 const API_CREATE_TX=`${URL_BTCD}/createrawtransaction`
 const API_GENERIC=`${URL_BTCD}/genericcall`;const CURRENCYLOCAL='BTC',DECIMALS=8
-const sends=async (jdata,tabletouse)=>{const {address,amt2sendfloat,rxaddr,privatekey,username}=jdata; let amtreqd=amt2sendfloat,amount=amt2sendfloat; let fee;
-  let respfee=await db.operations.findOne({raw:true,where:{key_:'SENDFEE',subkey_:'BTC'}});console.log(respfee)
+const sends=async (jdata,tabletouse)=>{const {address,amt2sendfloat,rxaddr,privatekey,username}=jdata; let amtreqd=amt2sendfloat,amount=amt2sendfloat; let fee
+  try{  let respfee=await db.operations.findOne({raw:true,where:{key_:'SENDFEE',subkey_:'BTC'}});console.log(respfee)
   if(respfee){} else {console.log('sendfee not found');return null};  fee=parseFloat(respfee['value_']);
   axios.get(`${URL_BTCD}/listunspent`,{params:{address:address}}).then(async resputxo=>{
     if(resputxo.data.status=='OK'){ //      console.log(resputxo.data.message)
@@ -35,7 +35,6 @@ const sends=async (jdata,tabletouse)=>{const {address,amt2sendfloat,rxaddr,priva
       let jrespsend=JSON.parse(respsend.data.message);if(jrespsend['error']){console.log(jrespsend['error']);return false}
       console.log(jrespsend['result'])
       let amt2sendwei=convethtowei(amt2sendfloat,DECIMALS)
-      
       db[tabletouse].create({
         username:username
         , currency:CURRENCYLOCAL
@@ -57,8 +56,23 @@ const sends=async (jdata,tabletouse)=>{const {address,amt2sendfloat,rxaddr,priva
         , txtime:moment().format(TIMESTRFORMAT)
         , amountfloatstr:amount
       })
-    }
-  })
+      incdecbalance_reflfee({... jdata,currency:CURRENCYLOCAL,amountdelta:amt2sendwei},null,null)
+      return 1
+    } 
+    })
+  }catch(err){
+    db.txtaskstodo.create({
+      username:username
+      , currency:CURRENCYLOCAL
+      , amount:amt2sendwei
+      , fromaddress:address
+      , toaddress:rxaddr
+      , blocknumber:null
+      , hash:null
+      , netkind:netkind
+      , failreason:err.toString()
+    });return false
+  }
 }
 module.exports={  sends
 }
@@ -75,7 +89,7 @@ const getrawtxreqstr=async jdatain=>{  let {autxo,rxaddr,amtreqd,sumutxo,fee,sen
   autxo.forEach(utxo=>{    jdata.params[0].push ({txid:utxo.txid,vout:utxo.vout})  }) //  let fee=await db.operations.findOne({raw:true,where:{key_:'SENDFEE',subkey_:'BTC'}});  if(fee){} else {console.log('sendfee not found');return null};  fee=parseFloat(fee)
   let arxs=[]
   arxs[0]={};arxs[0][rxaddr]=amtreqd.toString()
-  sumutxo-=fee ;sumutxo-=amtreqd  
+  sumutxo-=fee ;sumutxo-=amtreqd
   arxs[1]={};arxs[1][senderaddress]=parseFloat(sumutxo.toFixed(8)) // .toString() // arxs[1][senderwallet['address']]=sumutxo.toString()
   jdata['params'][1]=arxs
   return JSON.stringify(jdata,null,0)
