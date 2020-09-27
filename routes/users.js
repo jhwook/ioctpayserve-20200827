@@ -39,6 +39,7 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.
           , privatekey:account['privateKey']
           , group_:jdata['group_']
           , sitename:sitename
+          ,canwithdraw:ratedata['canwithdraw']
           , amount:0          , amountfloat:0,amountstr:0,active:1
         })
       })
@@ -79,6 +80,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
           , privatekey:account['privateKey']
           , group_:jdata['group_']
           , sitename:sitename
+          ,canwithdraw:ratedata['canwithdraw']
           , amount:0          , amountfloat:0,amountstr:0,active:1
         })
       })

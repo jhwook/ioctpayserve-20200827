@@ -2,9 +2,11 @@
 const request=require('request')
 // var dataString = `{"jsonrpc":"1.0","id":"curltext","method":"getblock","params":["${10000  }"]}`
   var dataString = `{"jsonrpc":"1.0","id":"curltext","method":"listunspent","params":[1, 1000000, ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"],true,{"minimalamount":0.00001}]}`
-const headers = {  "content-type": "text/plain;", 'charset':'iso-8859-1'}
+// const headers = {  "content-type": "text/plain;"}
+  //const headers = {  "content-type": "text/plain;", 'charset':'ascii'}
+  // const headers = {  "content-type": "text/plain;", 'charset':'iso-8859-1'}
 // const headers = {  "content-type": "text/plain;", 'charset':'utf-8'}
-// const headers = {  "content-type": "text/plain;", 'charset':'utf-8'}
+const headers = {  "content-type": "text/plain;", 'charset':'utf-8'}
 const USER='root',PASSWORD='b8P9hiHAAD'
   var options = {
     url: `http://${USER}:${PASSWORD}@182.162.21.240:18332/`,    

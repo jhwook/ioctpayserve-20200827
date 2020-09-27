@@ -28,7 +28,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
         const jdata=jtokens[ratedata['currency0']]; if (jdata){} else {console.log(`Data missing-${ratedata['currency0']}`);return false}
         if(jdata['group_']=='ETH')      { account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
         else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }
-        db.balance.create({
+        db.balan_ce.create({
           username:username
           , currency:jdata['name']
           , netkind:netkind

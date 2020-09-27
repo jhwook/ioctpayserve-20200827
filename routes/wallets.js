@@ -8,8 +8,7 @@ const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRa
 const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth}=require('../periodic/ETH/sendseth')
-const {sendstoken}=require('../periodic/ETH/sendstoken')
-// const {sendseth,sendstoken}=require('../periodic/ETH/sends')
+const {sendstoken}=require('../periodic/ETH/sendstoken') // const {se nds eth,sendstoken}=require('../periodic/ETH/s ends')
 const utils = require('../utils');
 const { netkind,nettype } = require('../configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
@@ -41,12 +40,28 @@ router.post('/withdraw',async  (req,res)=>{  let username; try{username=await ge
 //    respok(res);return false
     const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,nettype:nettype}});
     if(tokendata){} else {return false} const decimals=tokendata['denominatorexp']
-    sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency})
+    sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency},'transactions')
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});
     callhook({name:username,path:'withdraw'});    return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
 }) //
+const HEADER_LOG_STOP_TX='stop admin tx:'
+const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=jdata // ; amount0=parseFloat(amount0)
+  db.operations.findOne({raw:true,where:{key_:'MIN_BALANCE_TO_INVOKE_TX_ON_CHANGE',subkey_:currency0}}).then(async respoper=>{
+    if(respoper && respoper['value_']){      let amtthresh=parseFloat(respoper['value_'])
+      db.exchangerates.findOne({raw:true,where:{sitename:sitename,currency0:currency0,nettype:nettype}}).then(async respexrate=>{let collectoraddress,decimals
+        if(respexrate && respexrate['collectoraddress']){collectoraddress=respexrate['collectoraddress']} else {console.log(`${HEADER_LOG_STOP_TX} collector undefined`);return false}
+        if(respexrate && respexrate['denominatorexp']  ){decimals=respexrate['denominatorexp']}           else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
+        const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,nettype:nettype}}); let amtlocked
+        if(respbal && respbal['amountlocked'] && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
+        else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
+        sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:convethtowei(amtlocked,decimals),currency:currency0},'txsinternal')
+      })
+    } else {console.log(`${HEADER_LOG_STOP_TX} MIN_INVOKE_AMT undefined,34893`);return false
+    }
+  })
+}
 router.post('/exchange',async (req,res)=>{  let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let {currency0, amount0,sitename}=req.body;console.log(req.body)
   if(currency0 && amount0){} else {respreqinvalid(res,'ARG-MISSING',79654);return false}
@@ -59,7 +74,8 @@ router.post('/exchange',async (req,res)=>{  let username; try{username=await get
       let respbaldata=respbal.dataValues
       const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] )
       if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
-      doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp);                return false
+      doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp);        sendstoadminonexchange(req.body,username)
+        return false
       }).catch(err=>{respreqinvalid(res,err.toString(),62015);return false})
     })
   })
@@ -115,11 +131,11 @@ router.get('/userpref',async (req,res)=>{ let username; try{username=await getus
   })
 }) //
 module.exports = router
-const sends=jdata=>{  const {currency}=jdata
+const sends=(jdata,tabletouse)=>{  const {currency}=jdata
   switch(currency){
-    case 'ETH':sendseth(jdata);break
-    case 'BTC':sendsbtc(jdata);break
-    default :sendstoken(jdata);break
+    case 'ETH':sendseth(jdata,tabletouse);break
+    case 'BTC':sendsbtc(jdata,tabletouse);break
+    default :sendstoken(jdata,tabletouse);break
   }
   return false
 }
@@ -130,7 +146,7 @@ const sends=jdata=>{  const {currency}=jdata
     db.bal ance.find_One({where:{currency:currency0}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       if(respbal['amount']-respbal['amountlocked']>=parseInt(amount0)){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',33212);return false}
-      doexchange(username,req.body).then(resp=>{        respok(res,null,38800);return false
+      doexc hange(username,req.body).then(resp=>{        respok(res,null,38800);return false
       }).catch(err=>{respreqinvalid(res,err.toString(),62016);return false})      
     })
   })

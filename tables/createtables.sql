@@ -1,6 +1,14 @@
 
-ALTER TABLE `exchangerates` ADD UNIQUE `unique_sitetoken`(`sitename`, `currency0`, `nettype`);
+alter table `tokens` add unique `uniquetokenname` (`name`,'nettype');
 
+ALTER TABLE `operations` ADD UNIQUE `uniqueoperations`(`key_`, `subkey_` );
+
+ALTER TABLE `exchangerates` ADD UNIQUE `uniqueexchangerates`(`currency0`, `sitename`, `nettype`);
+ALTER TABLE `balance` ADD UNIQUE `uniquebalance`(`username`, `currency`, `sitename`,`nettype`);
+alter table `users` add unique `uniqueusername` (`username`);
+alter table `sitename` add unique `uniquesitename` (`sitename`,'nettype');
+
+ALTER TABLE `exchangerates` ADD UNIQUE `unique_sitetoken`(`sitename`, `currency0`, `nettype`);
 
 CREATE USER 'iotcpay'@'localhost' IDENTIFIED BY 'rY3f0qKSN6';
 

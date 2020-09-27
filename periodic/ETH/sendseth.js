@@ -2,15 +2,15 @@
 const {web3,netkind,nettype}=require('../../configs/ETH/configweb3')
 const db=require('../../models')
 const utils=require('../../utils'); const {gettimestr,convtohex,incdecbalance,incdecbalance_reflfee, getbalance,convweitoeth}=utils
-const {TIMESTRFORMAT}=require('../../configs/configs')
+const {TIMESTRFORMAT,MAP_TABLESTOUSE_DEFINED}=require('../../configs/configs')
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
 let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN; const CURRENCYLOCAL='ETH'
 const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
 let jcontracts={}
-// const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1,DECIMALS=18
+// const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1,DECIMALS=18 //const MAP_TABLESTOUSE_DEFINED={transactions:1,txsinternal:1}
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**18 }
-const sendseth=jdata=>{return new Promise((resolve,reject)=>{
+const sendseth=(jdata,tabletouse)=>{return new Promise((resolve,reject)=>{if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'} // reject({status:'ERR',message:'TABLE INVALID'});return false}
   let {username,rxaddr,amt2sendfloat,amt2sendwei}= jdata;console.log(jdata, '@15620')
   db.balance.findOne({raw:true,where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}}).then(respacct=>{
     if(respacct){} else {console.log('acct not found');reject({status:'ERR',message:'Acct not found'});return false}
@@ -40,7 +40,7 @@ const sendseth=jdata=>{return new Promise((resolve,reject)=>{
         ,resptx['gasUsed'],resptx['gas'],resptx['gasPrice'],_ethamt)
         const gaslimitbid=resptx['gas']?resptx['gas']:GAS_LIMIT_ETH, gaslimitoffer=resptx['gasUsed']?resptx['gasUsed']:GAS_LIMIT_ETH,gasprice=resptx['gasPrice']?resptx['gasPrice']:GAS_PRICE_ETH
         const fee=gaslimitoffer*gasprice // resptx.gasUsed *GAS_PRICE_ETH // parseInt(resptx.gas)*parseInt(resptx.gasPrice)
-        db.transactions.create({
+        db[tabletouse].create({ // db.transactions.create({
           username:username
           , currency:CURRENCYLOCAL
           , fromamount:amt2sendwei

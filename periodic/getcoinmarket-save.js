@@ -7,8 +7,10 @@ const redis=require('redis');const cliredis=redis.createClient();const clientred
 const getTicker=()=>{
 	axios.get( API_COINMARKET_TICKER,axiosConfig )
 	.then(resp=>{ let jprices={} // console.log(resp.data)			
-		resp.data.data.forEach(ticker=>{ const price=ticker.quote.USD.price;				jprices[ticker['symbol']]=price
-			cliredis.hset(KEYNAME_MARKETPRICES , ticker['symbol'] , price )
+		resp.data.data.forEach(ticker=>{ const price=ticker.quote.USD.price;			
+			jprices[ticker['symbol']]=price
+			
+			if(ticker['symbol']=='USDT'){			cliredis.hset(KEYNAME_MARKETPRICES , ticker['symbol'] , price )			}			else {}
 		});			console.log( jprices ,moment())
 		db.marketprices.create({ ... jprices, units:'USD'})
 		if(jprices['USDT']){} else {jprices['USDT']=1}
@@ -34,9 +36,9 @@ module.exports={getTicker}
 			const jdata={BTC:btcprice,ETH:ethprice,XRP:xrpprice}
 			console.log(btcprice,ethprice,xrpprice,moment())
 db.marketprices.create({... jdata,units:'USD'})	 // if(false){db.marketprices.bulkCreate([	 {currency:'BTC',price:btcprice,units:'USD'},  {currency:'ETH',price:ethprice,units:'USD'},  {currency:'XRP',price:xrpprice,units:'USD'}]);		}
-			cliredis.hset(KEYNAME_MARKETPRICES,'BTC',btcprice)
-cliredis.hset(KEYNAME_MARKETPRICES,'ETH',ethprice)
-cliredis.hset(KEYNAME_MARKETPRICES,'XRP',xrpprice)
+			clire dis.hset(KEYNAME_MARKETPRICES,'BTC',btcprice)
+cl iredis.hset(KEYNAME_MARKETPRICES,'ETH',ethprice)
+clir edis.hset(KEYNAME_MARKETPRICES,'XRP',xrpprice)
 			client.hset ( NAMESPACE_REDIS,configjs.KEYNAME_BTC_TICKER,btcprice )
 			client.hset ( NAMESPACE_REDIS,configjs.KEYNAME_ETH_TICKER,ethUsdTicker )
 			client.hset ( NAMESPACE_REDIS,configjs.KEYNAME_XRP_TICKER,xrpUsdTicker )

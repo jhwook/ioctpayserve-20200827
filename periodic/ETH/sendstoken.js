@@ -2,7 +2,7 @@
 const {web3,netkind,nettype}=require('../../configs/ETH/configweb3')
 const db=require('../../models')
 const utils=require('../../utils'); const {gettimestr,convtohex,incdecbalance,incdecbalance_reflfee, getbalance,convweitoeth}=utils
-const {TIMESTRFORMAT}=require('../../configs/configs')
+const {TIMESTRFORMAT,MAP_TABLESTOUSE_DEFINED}=require('../../configs/configs')
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
 let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN; const CURRENCYETH='ETH'
@@ -10,7 +10,7 @@ const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
 let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
-const sendstoken=jdata=>{return new Promise(async (resolve,reject)=>{
+const sendstoken=(jdata,tabletouse)=>{return new Promise(async (resolve,reject)=>{ if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
   let {username,rxaddr,amt2sendfloat,amt2sendwei,currency}= jdata  // db.balance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
   getbalance({username:username,currency:'ETH'},'float').then(async respbal=>{
     const gasfeefloat=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'float')
@@ -36,7 +36,7 @@ const sendstoken=jdata=>{return new Promise(async (resolve,reject)=>{
             if(resptx){} else {return false}
             const gaslimitbid=resptx['gas']?resptx['gas']:GAS_LIMIT_TOKEN, gaslimitoffer=resptx['gasUsed']?resptx['gasUsed']:GAS_LIMIT_TOKEN,gasprice=resptx['gasPrice']?resptx['gasPrice']:GAS_PRICE_TOKEN
             const fee=gaslimitoffer*gasprice // parseInt(resptx.gasUsed)*parseInt(resptx.gasPrice?resptx.gasPrice: GAS_PRICE_TOKEN );console.log('fee',fee)
-            db.transactions.create({
+            db[tabletouse].create({ // db.transactions.create({
               username:username
               , currency:currency
               , fromamount:amt2sendwei

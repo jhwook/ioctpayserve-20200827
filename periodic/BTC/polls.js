@@ -5,7 +5,7 @@ const API_TXS=nettype=='testnet'? `https://testnet.blockchain.info/rawaddr` : 'h
 const db=require('../../models')
 const {getRandomInt,isequalinlowercases,convweitoeth,gettimestr}=require('../../utils')
 const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
-const configs=require('../../configs/configs');const { delete } = require('request');
+const configs=require('../../configs/configs') // ;const { delete } = require('request');
  const {queuenamesj}=configs
 const ENDBLOCKDUMMY4QUERY=5000000
 const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='BTC',CURRENCYKIND='BTC',CURRENCYTYPE='BTC',CURRENCYDECIMALS=8, DELTA_T_SHORT=60*1.5*1000 // ,NETKIND=netkind // 'testnet'

@@ -137,7 +137,7 @@ const getfixedtokenprices=rettype=>{
     }).catch(err=>{reject(err.toString())})
   })
 }
-const doexchangeXX=(username,jdata)=>{
+const doexc_hangeXX=(username,jdata)=>{
   return new Promise((resolve,reject)=>{    const {currency0,currency1, amount0,amount1,username}=jdata
     let _respbal0=db.balance.find_One({where:{currency:currency0,username:username}})
     let _respbal1=db.balance.find_One({where:{currency:currency1,username:username}})

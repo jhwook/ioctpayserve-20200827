@@ -12,7 +12,7 @@ amqp.connect('amqp://localhost', function(error0, connection) {    if (error0) {
 		catch(err){console.log(err)}
 		const msg = JSON.stringify({flag:'TEST',message:'Checking connection'})
 		if(true){channel.sendToQueue(queuename, Buffer.from(msg))}
-		console.log("[x] sent %s", msg);
+		console.log("[x] se nt %s", msg);
 	})
 //	setTimeout(function() {		connection.close();		process.exit(0);	}, 500);
 })

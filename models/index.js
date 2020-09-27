@@ -10,9 +10,8 @@ const config = require( '../configs/dbconfig.json')[env];// ./apiServe // __dirn
 const db = {};
 
 let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
+//if (config.use_env_variable) {  sequelize = new Sequelize(process.env[config.use_env_variable], config);} else
+if(true) {
 	sequelize = new Sequelize(config.database, config.username, config.password, {... config
 		, dialect: 'mariadb',		dialectOptions: {			timezone: 'Etc/GMT-9'		},		define: {			timestamps: false		}	}
 //	,	define: {timestamps: false}

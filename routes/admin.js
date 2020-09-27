@@ -101,15 +101,17 @@ router.get('/sitetoken',(req,res)=>{let {sitename,tokenname}=req.query;  callhoo
   }
 }) //
 router.put('/sitetoken',(req,res)=>{console.log(req.body)
-	let {sitename,tokenname,collectoraddress,Crate,Srate,Krate,fixedprice,canwithdraw}=req.body; 
+	let {sitename,tokenname,collectoraddress,Crate,Srate,Krate,fixedprice,canwithdraw}=req.body; let canwithdrawp
 	if(sitename && tokenname){} else {respreqinvalid(res,MSG_PLEASE_INPUT_DATA,15104);return false};	let jdata={}
 	if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}
 	if(validaterate(Crate)){jdata['C']=parseInt(Crate)}
 	if(validaterate(Srate)){jdata['S']=parseInt(Srate)}
 	if(validaterate(Krate)){jdata['K']=parseInt(Krate)}
 	if(validateprice(fixedprice)){jdata['fixedprice']=parseInt(fixedprice)}
-	if(Number.isInteger(parseInt(canwithdraw))){jdata['canwithdraw']=parseInt(canwithdraw)}
-	db.exchangerates.update({... jdata},{where:{sitename:sitename,currency0:tokenname}})
+  if(Number.isInteger(parseInt(canwithdraw))){canwithdrawp=parseInt(canwithdraw);jdata['canwithdraw']=canwithdrawp
+    db.balance.update({canwithdraw:canwithdrawp},{where:{sitename:sitename,tokenname:tokenname,nettype:nettype}})
+  }
+  db.exchangerates.update({... jdata},{where:{sitename:sitename,currency0:tokenname}}) // db.balance.findAll({where:{sitename:sitename,tokenname:tokenname,nettype:nettype}}).then(resp=>{     })
 	respok(res);return false
 })
 router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddress,Crate,Srate,Krate,collectoraddress,fixedprice,isvariableprice,canwithdraw}=req.body; let jdata={}; console.log(req.body)
@@ -144,17 +146,19 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   isvariableprice=parseInt(isvariableprice);canwithdraw=parseInt(canwithdraw)
   if(false){jdata['priceisfixed']=1-isvariableprice}
   if(true ){jdata['priceisfixed']=1}
-  jdata['canwithdraw']=canwithdraw;jdata['nettype']=nettype
+  if(Number.isInteger(canwithdraw)){jdata['canwithdraw']=canwithdraw};jdata['nettype']=nettype
   if(collectoraddress ){    if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}    else {}  }
-  try{db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}).then(resp=>{
-      if(resp){resp.update({active:1, ... jdata})} // ;respok(res,'Updated')
-      else {      db.exchangerates.create(    {... jdata}  ).then(resp=>{;})    }
-    })
+  try{
+    let resprate=await db.exchangerates.findOne({where:{sitename:sitename,currency0:tokenname,nettype:nettype}}) // .then(resp=>{
+    if(resprate){resprate.update({active:1, ... jdata})} // ;respok(res,'Updated')
+    else { resprate=await     db.exchangerates.create(    {... jdata}  )} // .then(resp=>{;})    } // })
+    const canwithdraw=resprate.dataValues['canwithdraw']
     db.tokens.findOne({where:{name:tokenname,nettype:nettype}}).then(resp=>{     const jdtkn={      name:tokenname      , denominatorexp:decimals      , sitename:sitename
         , netkind:netkind      , nettype:nettype      , address:contractaddress      , canwithdraw:canwithdraw
       }
       if(resp){resp.update({active:1,... jdtkn} );return false} 
-      else {db.tokens.create(jdtkn)}    // raw:true,
+      else {try{db.tokens.create(jdtkn); db.operations.create({key_:'MIN_BALANCE_TO_INVOKE_TX_ON_CHANGE',subkey_:tokenname,value_:1000})} catch(err){console.log(err)}
+      }    // raw:true,
     })
     db.sitenameholder.findOne({where:{sitename:sitename,nettype:nettype}}).then(resp=>{    const jdsite={        sitename:sitename, nettype:nettype      }
       if(resp){resp.update({active:1,... jdsite});return false} 
@@ -168,12 +172,12 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
 				if(respbal){respbal.update({active:1}) //					if(MAP_COINS_DECIMALS[tokenname]){}					else {respbal.update({active:1,blocknumberrx:1})}
 				}
         else {
-          let jdbalcmn={            username:username            ,currency:tokenname            ,netkind:netkind            ,nettype:nettype            ,sitename:sitename            , amount:0          , amountfloat:0,amountstr:0
-          }
+          let jdbalcmn={ username:username ,currency:tokenname ,netkind:netkind ,nettype:nettype ,sitename:sitename , amount:0 , amountfloat:0,amountstr:0
+          ,canwithdraw:canwithdraw}
           if(contractaddress){
             db.balance.findOne({raw:true,where:{username:username,sitename:sitename,nettype:nettype,currency:'ETH'}}).then(async respbaleth=>{
               if(respbaleth){address=respbaleth['address']
-                await db.balance.create({... jdbalcmn                  ,denominatorexp:decimals                  ,address:address                  ,privatekey:respbaleth['privatekey']                  ,group_:'ETH',active:1
+                await db.balance.create({... jdbalcmn ,denominatorexp:decimals ,address:address ,privatekey:respbaleth['privatekey'] ,group_:'ETH',active:1
                 })
               } else {acct=createaccount('ETH');address=acct['address']
                 db.balance.create({... jdbalcmn,denominatorexp:MAP_COINS_DECIMALS['ETH'],address:acct['address'],privatekey:acct['privatekey'],_group:'ETH',active:1})
@@ -182,7 +186,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
             })
           } else {
             if(MAP_COINS_DECIMALS[tokenname]){              acct=createaccount(tokenname);address=acct['address']
-              await db.balance.create({... jdbalcmn                ,denominatorexp:MAP_COINS_DECIMALS[tokenname]                ,address:acct['address'] ,privatekey:acct['privatekey']                ,_group:tokenname,active:1
+              await db.balance.create({... jdbalcmn ,denominatorexp:MAP_COINS_DECIMALS[tokenname] ,address:acct['address'] ,privatekey:acct['privatekey'] ,_group:tokenname,active:1
               })
             }
           }
