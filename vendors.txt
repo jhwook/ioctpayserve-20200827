@@ -1,0 +1,26 @@
+
+* BTC 입금조회
+벤더: https://blockchain.info
+비용: 무료
+10초당 최대 1회로 API 접근제한
+
+* BTC 출금
+벤더: 자체 구축 노드
+필요저장용량: 현재 <400GB
+출금수수료: 네트워크 트래픽 따라 가변적
+현재 0.0006 BTC 로 설정
+https://www.buybitcoinworldwide.com/fee-calculator/ 참조
+
+* ETH 입금조회
+벤더: https://api.etherscan.io
+비용: 무료
+1초당 최대 5회로 API 접근제한
+
+* ETH 출금
+벤더: https://mainnet.infura.io
+비용: 무료
+출금수수료: 네트워크 트래픽 따라 가변적
+현재 0.009 ETH 로 설정
+
+* BTC,ETH 시세: Bithumb 기준 
+1분당 각 1회 조회

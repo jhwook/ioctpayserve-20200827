@@ -2,6 +2,7 @@
 const axios=require('axios')
 const db=require('../../models')
 const URL_BTCD='http://182.162.21.240:36087/users'
+const API_CREATE_TX=`${URL_BTCD}/createrawtransaction`
 const sends=async jdata=>{const {address,amount,rxaddr}=jdata; let amtreqd=amount; let fee
   let respfee=await db.operations.findOne({raw:true,where:{key_:'SENDFEE',subkey_:'BTC'}});console.log(respfee)
   if(respfee){} else {console.log('sendfee not found');return null};  fee=parseFloat(respfee['value_']);
@@ -16,7 +17,10 @@ const sends=async jdata=>{const {address,amount,rxaddr}=jdata; let amtreqd=amoun
       if(sum+fee>=amtreqd){} else {console.log('ERR-BALANCE_NOT-ENOUGH');return false}
       const txreqstr=await getrawtxreqstr({senderaddress:address,fee:fee,rxaddr:rxaddr,amtreqd:amtreqd,sumutxo:sum, autxo:[... atxs.slice(0,i01+1)]}); // +fee
       console.log(txreqstr)
-      
+      const respcr=await axios.post(API_CREATE_TX,{datastr:txreqstr}) //      console.log(respcr.data)
+      let jresp=JSON.parse(respcr.data.message);if(jresp['error']){console.log(jresp['error']);return false}
+      const rawtxreqstr=jresp['result']
+      axios.post
     }
   })
 // http://182.162.21.240:36087/users/listunspent?address=mkTddhC91V3FSePXS1L31BKTLbaMRstnpt

@@ -23,7 +23,7 @@ const init=()=>{
     aresps.forEach(acct=>{
       const address=acct['address']
       jaddresses[address]=acct['username'];const deltat=getRandomInt(9.5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'), 'BTC',gettimestr())
-      setTimeout(()=>{    pollblocks({address:address})
+      setTimeout(()=>{    if(false){pollblocks({address:address})}
         setInterval(()=>{ pollblocks({address:address})
         }, PERIOD_DIST_POLLS)
       }, deltat)
