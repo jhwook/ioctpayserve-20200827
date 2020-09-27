@@ -15,7 +15,7 @@ const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
   return new Promise((resolve,reject)=>{
     if (sitename){} else {console.log('invalid sitename',sitename);reject(null);return false}
     if(URLS_SSO_SERVE[sitename]){} else {console.log('invalid sitename',sitename);reject(null);return false} //   axios.get(`${URLS_SSO_SERVE[sitename]}?s ite_code=${sitename.toLowerCase()}&has h_code=${token}`).then(resp=>{console.log(resp.data)
-    axios.get( URLS_SSO_SERVE[sitename] , {params:{sitecode:sitename.toLowerCase(),hashcode:token}}).then(resp=>{console.log(resp.data)
+    axios.get( URLS_SSO_SERVE[sitename] , {params:{sitecode:sitename.toLowerCase(),hashcode:token}}).then(resp=>{console.log(resp.data.user_code,resp.data.site_code,resp.data.result)
       if(resp.data.result){      resolve(resp.data.user_code);return false
       } else {reject(null); return false}
     })
