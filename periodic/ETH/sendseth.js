@@ -52,7 +52,7 @@ const sendseth=(jdata,tabletouse)=>{return new Promise((resolve,reject)=>{if(MAP
           , hash:resptx['transactionHash']
           , amountbefore:  balance
           , amountafter:  parseInt(balance)-amt2sendwei-fee
-          , kind:'WITHDRAW'
+          , kind:tabletouse=='transactions'?'WITHDRAW':'SALESCOLLECT'
           , netkind:netkind,nettype:nettype
           , gaslimitbid:gaslimitbid
           , gaslimitoffer:gaslimitoffer
