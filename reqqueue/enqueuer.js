@@ -6,7 +6,7 @@ amqp.connect('amqp://localhost', function(error0, connection) {    if (error0) {
 	queuenames.forEach(qname=>{
 		connection.createChannel(function(error1, channel) {        if (error1) { throw error1;        } //		channel=channel0
 //		queuenames.forEach(qname=>{
-		try{channel.assertQueue(qname, {  durable: false        })}
+		try{channel.assertQueue(qname, {  durable: false,autoAck:true        })}
 		catch(err){console.log(err)}
 		jqnamechs[qname]=channel
 		const msg = JSON.stringify({flag:'TEST',message:'Checking connection',qname:qname})

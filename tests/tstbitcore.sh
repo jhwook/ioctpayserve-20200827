@@ -1,4 +1,12 @@
 
+http://182.162.21.240:36087/users/listunspent?address=mkTddhC91V3FSePXS1L31BKTLbaMRstnpt
+
+sudo ufw allow from any to any port 18332 proto udp
+
+curl --data-binary "{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"listunspent\", \"params\": [1, 1000000, [\"mkTddhC91V3FSePXS1L31BKTLbaMRstnpt\"],true,{\"minimalamount\":0.00001}] }" -H 'content-type: text/plain;' http://root:b8P9hiHAAD@182.162.21.240:18332/
+
+curl --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": [1, 1000000, ["mkTddhC91V3FSePXS1L31BKTLbaMRstnpt"],true,{"minimalamount":0.00001}] }' -H 'content-type: text/plain;' http://root:b8P9hiHAAD@182.162.21.240:18332/
+
 let data = new FormData()
 data.append("jsonrpc", "1.0")
 data.append("id", "curltest")

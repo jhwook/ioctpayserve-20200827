@@ -4,7 +4,7 @@ const connection = new Connection('amqp://localhost')
 module.exports = async qname=> {
   await connection.init()
   const channel = await connection.createChannel() // or createConfirmChannel
-  await channel.assertQueue(qname, {            durable: false		}) // await channel.sendToQueue(queueName, Buffer.from(testMessage))
+  await channel.assertQueue(qname, {            durable: false,autoAck:true		}) // await channel.sendToQueue(queueName, Buffer.from(testMessage))
   return channel
 }
 /*

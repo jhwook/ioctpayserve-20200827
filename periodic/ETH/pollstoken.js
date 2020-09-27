@@ -111,7 +111,7 @@ const qname=queuenamesj['ADDR-TOKEN']
 const channel=require('../../reqqueue/dequeuer')(qname)
 channel.then(ch=>{
   ch.consume( qname , (msg)=> {
-    const str=msg.content.toString();                       
+    const str=msg.content.toString(); ch.ack(msg)
     console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
     const packet=JSON.parse(str) ; const addresslower=packet['address'].toLowerCase()
     if(packet['flag']=='ADD'){
@@ -123,6 +123,6 @@ channel.then(ch=>{
       clearInterval(jhandlers[addresslower])
     }
     else {return false} //console.log('INCAMT')
-  })
+  },{noAck:false})
 })  
 } , 3700)

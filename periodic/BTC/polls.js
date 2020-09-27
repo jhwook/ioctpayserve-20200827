@@ -107,7 +107,7 @@ const qname=queuenamesj['ADDR-BTC']
 const channel=require('../../reqqueue/dequeuer')(qname) 
 channel.then(ch=>{
   ch.consume( qname , (msg)=> {
-    const str=msg.content.toString();
+    const str=msg.content.toString(); ch.ack(msg)
     console.log(` [x] Received %s@${qname}@${moment().format(TIMESTRFORMATMILI)}`,str)
     const packet=JSON.parse(str) ; const address=packet['address']
     if(packet['flag']=='ADD'){
@@ -119,7 +119,7 @@ channel.then(ch=>{
       clearInterval(jhandlers[address])
     }
     else {return false} 
-  })
+  },{noAck:false})
 })
   
 }, 1700)

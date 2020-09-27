@@ -18,7 +18,7 @@ const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../configs/ETH/utilstoken') // ../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
 const MAP_COINS_DECIMALS={BTC:8,ETH:18}
-const B_ENABLE_QUE=false// const {if(B_ENABLE_QUE){enqueuedataj}=require('../reqqueue/enqueuer');
+const B_ENABLE_QUE=true; const {enqueuedataj}=require('../reqqueue/enqueuer');
 const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages')
 const { token } = require('morgan');
 const MAP_CURRENCY_ADDRKIND={BTC:'ADDR-BTC',ETH:'ADDR-ETH'}
