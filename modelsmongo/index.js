@@ -13,4 +13,4 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 const {balance}=require('./balance')
 db.balance=balance
-module.exports={dbl}
+module.exports={db}
