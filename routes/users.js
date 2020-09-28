@@ -23,12 +23,13 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.
     Promise.all([_arespsrates,_arespstokens]).then(aresps=>{      const resprates=aresps[0];      const resptokens=aresps[1]
       accounteth=configweb3.createaccount() // web3.createaccount()
       accountbtc=configbtc.createaccount() ;  let account=null,netkind // acct.publicAddress , acct.privateWif      
-      console.log(accountbtc,accounteth) // ;return false
+			console.log('CREATED',username,sitename,accountbtc,accounteth) // ;return false
       const jtokens=_.fromPairs(_.map(resptokens, e => [e.name, e ]))
       resprates.forEach(ratedata=>{ let netkind,nettype
         const jdata=jtokens[ratedata['currency0']]; if (jdata){} else {console.log(`Data missing-${ratedata['currency0']}`);return false}
         if(jdata['group_']=='ETH')      { account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
-        else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }
+				else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }
+				else 														{ account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
         db.balance.create({
           username:username
           , currency:jdata['name']
@@ -64,12 +65,13 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
     Promise.all([_arespsrates,_arespstokens]).then(aresps=>{      const resprates=aresps[0];      const resptokens=aresps[1]
       accounteth=configweb3.createaccount() // web3.createaccount()
       accountbtc=configbtc.createaccount() ;  let account=null,netkind // acct.publicAddress , acct.privateWif      
-      console.log(accountbtc,accounteth) // ;return false
+      console.log('CREATED',username,sitename,accountbtc,accounteth) // ;return false
       const jtokens=_.fromPairs(_.map(resptokens, e => [e.name, e ]))
       resprates.forEach(ratedata=>{ let netkind,nettype
         const jdata=jtokens[ratedata['currency0']]; if (jdata){} else {console.log(`Data missing-${ratedata['currency0']}`);return false}
         if(jdata['group_']=='ETH')      { account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
-        else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }
+				else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }
+				else 														{ account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
         db.balance.create({
           username:username
           , currency:jdata['name']

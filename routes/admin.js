@@ -28,7 +28,7 @@ const getaddrtype4que=currency=>{  let addrkind=MAP_CURRENCY_ADDRKIND[currency]
 router.post('/sitenameholder/delete',async(req,res)=>{const {sitename}=req.body;console.log(req.body)
   await db.sitenameholder.destroy({where:{sitename:sitename,nettype:nettype}}) // update({active:0},{where:{sitename:sitename,nettype:nettype}})
   await db.users.destroy({where:{sitename:sitename}}) // update({active:0},{where:{sitename:sitename}})
-  await db.balance.destroy({sitename:sitename,nettype:nettype}) // update({active:0},{where:{sitename:sitename,nettype:nettype}})
+  await db.balance.destroy({where:{sitename:sitename,nettype:nettype}}) // update({active:0},{where:{sitename:sitename,nettype:nettype}})
   await db.exchangerates.destroy({where:{sitename:sitename,nettype:nettype}}) // update({active:0},{where:{sitename:sitename,nettype:nettype}})
   db.balance.findAll({raw:true,where:{sitename:sitename}}).then(aresps=>{
     aresps.forEach(respbal=>{
@@ -241,5 +241,5 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
     })
   })
   respok(res,MSG_DELETED,19774);return false
-//  .then(resp=>{    respok(res,MSG_DELETED,19774);return false  }) //  db.sitenameholder.destroy({where:{sitename:sitename}}).then(resp=>{    respok(res,MSG_DELETED,19774);return false  })
+//  .then(resp=>{    respok(res,MSG_DELETED,19774);return false  }) //  db.sitenameholder.des troy({where:{sitename:sitename}}).then(resp=>{    respok(res,MSG_DELETED,19774);return false  })
 }) //

@@ -27,11 +27,11 @@ const init=()=>{ // .toLower,Case()
       } , deltat)
     })
   }
-}
+}; setTimeout(_=>{console.log(jaddresses)},10*1000)
 const pollblocks=async jdata=>{  const {address,}=jdata
 db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencykind:CURRENCYKIND,currencytype:CURRENCYTYPE}}).then(async respbb=>{let startblock=1
-  if(respbb){startblock=respbb['blocknumber']+1} else {}
-  console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),respbb['username'], '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
+	if(respbb){startblock=respbb['blocknumber']+1} else {};	let username=respbb && respbb['username']?respbb['username']:null
+  console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),username, '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
   const query={startblock:startblock    ,endblock:ENDBLOCKDUMMY4QUERY    ,address:address
     ,module:'account'
     ,action:'tokentx' // txlist
