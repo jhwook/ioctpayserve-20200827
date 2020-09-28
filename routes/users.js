@@ -10,7 +10,7 @@ const messages=require('../configs/messages'); const SITENAME_DEF='IOTC',RANDOM_
 const configs=require('../configs/configs'); const {queuenamesj}=configs
 const {enqueuedataj}=require('../reqqueue/enqueuer')
 router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.log(req.body)
-  if(username && sitename){} else {respreqinvalid(res,'ARG-MISSING',40761);return false} //  if(MAP_SITENAME[sitename]){} else {respreqinvalid(res,'ARG-MISSING',40762); ifsitename=SITENAME_DEF}
+  if(username && sitename){} else {respreqinvalid(res,'ARG-MISSING',40761);return false} //  if(MA P_SITENAME[sitename]){} else {respreqinvalid(res,'ARG-MISSING',40762); ifsitename=SITENAME_DEF}
   sitename=sitename.toUpperCase()
   if(await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})){} else {respreqinvalid(res,'SITENAME-INVALID',64749);return false}
   const pw=generateRandomStr(RANDOM_PW_LEN)

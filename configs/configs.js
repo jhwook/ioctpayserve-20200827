@@ -6,8 +6,8 @@ const queuenamesj={
   ,'ADDR-BTC':'ADDR-BTC'
   ,'AMOUNT':'AMOUNT'
 }
-const MAP_SITENAME={  IOTC:   'IOTC', SDC:    'SDCPAY', SDCPAY: 'SDCPAY', CARRYON:'CARRYON'}
-// const MAP_SITENAME={  IOTC:   'IOTC', SDC:    'SDC', SDCPAY: 'SDC', CARRYON:'CARRYON'}
+const MAP_SITENAME={  IOTC:   'IOTC', SDC:    'SDCPAY', SDCPAY: 'SDCPAY', CARRYON:'CARRYON',KWIFI:'KWIFI'}
+// const MAP_SI TENAME={  IOTC:   'IOTC', SDC:    'SDC', SDCPAY: 'SDC', CARRYON:'CARRYON'}
 const MAP_TABLESTOUSE_DEFINED={transactions:1,txsinternal:1}
 module.exports={
   KEYNAME_MARKETPRICES:'PRICES'

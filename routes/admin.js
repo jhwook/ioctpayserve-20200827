@@ -108,7 +108,7 @@ router.put('/sitetoken',(req,res)=>{console.log(req.body)
 	if(validaterate(Krate)){jdata['K']=parseInt(Krate)}
 	if(validateprice(fixedprice)){jdata['fixedprice']=parseInt(fixedprice)}
   if(Number.isInteger(parseInt(canwithdraw))){canwithdrawp=parseInt(canwithdraw);jdata['canwithdraw']=canwithdrawp
-    db.balance.update({canwithdraw:canwithdrawp},{where:{sitename:sitename,tokenname:tokenname,nettype:nettype}})
+    db.balance.update({canwithdraw:canwithdrawp},{where:{sitename:sitename,currency:tokenname,nettype:nettype}}) // tokenname
   }
   db.exchangerates.update({... jdata},{where:{sitename:sitename,currency0:tokenname}}) // db.balance.findAll({where:{sitename:sitename,tokenname:tokenname,nettype:nettype}}).then(resp=>{     })
 	respok(res);return false
