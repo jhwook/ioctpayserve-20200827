@@ -29,9 +29,9 @@ const init=()=>{ // .toLower,Case()
   }
 }
 const pollblocks=async jdata=>{  const {address,}=jdata
-db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURRENCYKIND,currencytype:CURRENCYTYPE}}).then(async respbb=>{let startblock=1
+db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencykind:CURRENCYKIND,currencytype:CURRENCYTYPE}}).then(async respbb=>{let startblock=1
   if(respbb){startblock=respbb['blocknumber']+1} else {}
-  console.log(startblock,ENDBLOCKDUMMY4QUERY,address, '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
+  console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),respbb['username'], '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
   const query={startblock:startblock    ,endblock:ENDBLOCKDUMMY4QUERY    ,address:address
     ,module:'account'
     ,action:'tokentx' // txlist
@@ -48,7 +48,7 @@ db.blockbalance.findOne({where:{address:address,direction:'IN',currencykind:CURR
       if(txdata.isError=='1'){continue} else {}
       let tokendata=null
       if(tokendata=jaddresstokens[txdata['contractAddress'].toLowerCase()]){} else {continue}; let symbol=tokendata['name']
-      const curbn=parseInt(txdata.blockNumber) //      console.log(  ,curbn)
+      const curbn=parseInt(txdata.blockNumber) //      con sole.log(  ,curbn)
       if(startblock<curbn){ } else {continue}
       if(maxblocknumber<curbn){maxblocknumber=curbn,txdataatmax=txdata}
       const resptx=await db.transactions.findOne({raw:true,where:{hash:txdata['hash'],currency:symbol}});      if(resptx){continue} else {}
@@ -122,7 +122,7 @@ channel.then(ch=>{
       delete jaddresses[addresslower]
       clearInterval(jhandlers[addresslower])
     }
-    else {return false} //console.log('INCAMT')
+    else {return false} //cons ole.log('INCAMT')
   },{noAck:false})
 })  
 } , 3700)
