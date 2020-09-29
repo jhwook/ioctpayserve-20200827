@@ -155,8 +155,9 @@ const hasher=str=>{  return sha1(md5(md5(sha1('abcde'))))
 const callhook=jdata=>{  const str=JSON.stringify(jdata)
   axios.get(`https://api.telegram.org/bot1180516500:AAGIpukJ0SpR4yDoHbkbFmzduQXDj-K4NHY/sendMessage?chat_id=895459587&text=${str}`)
 }
+const conva2j=(array,key)=>{	return _.fromPairs(_.map(array,i=>[i[key], i])) }
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,gettimestr,convtohex
   ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorterminate
-  , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice
+  , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice,conva2j
 }

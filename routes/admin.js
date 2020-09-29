@@ -8,7 +8,7 @@ const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netk
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
 const messages=require('../configs/messages'); const SITENAME_DEF='IOTC'
-const configs=require('../configs/configs'); const {queuenamesj}=configs;const MAX_URLADDRESS_LEN=100
+const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF}=configs;const MAX_URLADDRESS_LEN=100
 const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
 const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다'
@@ -55,17 +55,25 @@ router.post('/sitenameholder/delete/via/update',async(req,res)=>{const {sitename
   respok(res,MSG_DELETED,19774);return false
 }) //
 const MINSITENAMELEN=3 // 4
+const EXCHGDATA_DEF=	{nettype:'mainnet',priceisfixed:0,canwithdraw:1,units:'KRW',valid:1,C:50,S:50,K:10}
+const	EXCHGDATA_DEF02={nettype:'mainnet',priceisfixed:0,canwithdraw:1,units:'USD',valid:1,C:50,S:50,K:10}
 router.post('/sitenameholder',(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(req.body)
   sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'})
   db.sitenameholder.findOne({where:{sitename:sitename}}).then(resp=>{
     if(resp){
       if(resp.dataValues['active']) {respreqinvalid(res,MSG_DATA_DUP,43550);return false}
-      else {resp.update({... req.body, active:1});respok(res);return false}      
-    }
-//    if(urladdress){urladdress=urladdress.substr(0,MAX_URLADDRESS_LEN)}
-    db.sitenameholder.create({sitename:sitename,urladdress:urladdress,nettype:nettype}).then(resp=>{
-      respok(res);return false
-    })
+      else {resp.update({... req.body, active:1});respok(res);return false}
+    } //    if(urladdress){urladdress=urladdress.substr(0,MAX_URLADDRESS_LEN)}
+    db.sitenameholder.create({sitename:sitename,urladdress:urladdress,nettype:nettype}).then(resp=>{      
+		})
+		Object.keys(JTOKENSTODO_DEF).forEach(tknname=>{
+			switch (tknname){
+				case 'BTC': db.exchangerates.create({currency0:tknname,sitename:sitename, ... EXCHGDATA_DEF});break
+				case 'ETH': db.exchangerates.create({currency0:tknname,sitename:sitename, ... EXCHGDATA_DEF});break
+				case 'USDT':db.exchangerates.create({currency0:tknname,sitename:sitename, ... EXCHGDATA_DEF02});break
+			}
+		})
+		respok(res);return false
   })
 })
 router.get('/sitenameholder',(req,res)=>{callhook({verb:'get',user:'admin',path:'sitenameholder'})
@@ -144,7 +152,8 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   else {respreqinvalid(res,`${MSG_PLEASE_INPUT_DATA} (고정값)`);return false}
   isvariableprice=parseInt(isvariableprice);canwithdraw=parseInt(canwithdraw)
   if(false){jdata['priceisfixed']=1-isvariableprice}
-  if(true ){jdata['priceisfixed']=1}
+	if(true ){jdata['priceisfixed']=1}
+	jdata['units']='KRW'
   if(Number.isInteger(canwithdraw)){jdata['canwithdraw']=canwithdraw};jdata['nettype']=nettype
   if(collectoraddress ){    if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}    else {}  }
   try{

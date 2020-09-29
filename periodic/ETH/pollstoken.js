@@ -30,8 +30,8 @@ const init=()=>{ // .toLower,Case()
 }; setTimeout(_=>{console.log(jaddresses)},10*1000)
 const pollblocks=async jdata=>{  const {address,}=jdata
 db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencykind:CURRENCYKIND,currencytype:CURRENCYTYPE}}).then(async respbb=>{let startblock=1
-	if(respbb){startblock=respbb['blocknumber']+1} else {};	let username=respbb && respbb['username']?respbb['username']:null
-  console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),username, '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
+	if(respbb){startblock=respbb['blocknumber']+1} else {};	let username=jaddresses[address.toLowerCase()] || '' // let username=respbb && respbb['username']?respbb['username']:null
+  console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u1F380',username,'\u1F380', '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
   const query={startblock:startblock    ,endblock:ENDBLOCKDUMMY4QUERY    ,address:address
     ,module:'account'
     ,action:'tokentx' // txlist

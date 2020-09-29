@@ -2,12 +2,12 @@ var express = require('express');
 var router = express.Router();
 const db=require('../models')
 const utils = require('../utils');
-const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,callhook} = require('../utils')
+const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,callhook,conva2j} =utils
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
 const messages=require('../configs/messages'); const SITENAME_DEF='IOTC',RANDOM_PW_LEN=10;const MSG_ID_DUP_LOCAL='ID in use'
-const configs=require('../configs/configs'); const {queuenamesj}=configs
+const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF}=configs
 const {enqueuedataj}=require('../reqqueue/enqueuer')
 router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.log(req.body)
   if(username && sitename){} else {respreqinvalid(res,'ARG-MISSING',40761);return false} //  if(MA P_SITENAME[sitename]){} else {respreqinvalid(res,'ARG-MISSING',40762); ifsitename=SITENAME_DEF}
@@ -19,18 +19,18 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.
     db.users.create({username:username,pw:pw,sitename:sitename,active:1,pwhash:hasher(pw),createpath:'CREATE'}) //    db.operations.findOne({raw:true,where:{key_:'CURRENCIES'}}).then(respcurr=>{      const currencies=JSON.parse(respcurr['value_'])
     let accounteth,accountbtc
     let _arespsrates = db.exchangerates.findAll({raw:true,where:{sitename:sitename,nettype:nettype,active:1}})
-    let _arespstokens= db.tokens.findAll({raw:true,where:{nettype:nettype,nettype:nettype}})
+		let _arespstokens= db.tokens.findAll({raw:true,where:{nettype:nettype,nettype:nettype}}) // let jtknstodo={... JTOKENSTODO_DEF}
     Promise.all([_arespsrates,_arespstokens]).then(aresps=>{      const resprates=aresps[0];      const resptokens=aresps[1]
       accounteth=configweb3.createaccount() // web3.createaccount()
       accountbtc=configbtc.createaccount() ;  let account=null,netkind // acct.publicAddress , acct.privateWif      
 			console.log('CREATED',username,sitename,accountbtc,accounteth) // ;return false
-      const jtokens=_.fromPairs(_.map(resptokens, e => [e.name, e ]))
+			const jtokens=_.fromPairs(_.map(resptokens, e => [e.name, e ])) //			let atmpresps=[] //			const jrates=conva2j(resprates,'currency0');			Object.keys(JTOKENSTODO_DEF).forEach(tknname=>{				if(jrates[tknname]){}				else {}			})			
       resprates.forEach(ratedata=>{ let netkind,nettype
         const jdata=jtokens[ratedata['currency0']]; if (jdata){} else {console.log(`Data missing-${ratedata['currency0']}`);return false}
         if(jdata['group_']=='ETH')      { account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
 				else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }
 				else 														{ account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
-        db.balance.create({
+        db.balance.create({ // let tmpresp=
           username:username
           , currency:jdata['name']
           , netkind:netkind
@@ -42,7 +42,7 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.
           , sitename:sitename
           ,canwithdraw:ratedata['canwithdraw']
           , amount:0          , amountfloat:0,amountstr:0,active:1
-        })
+        }) // ;atmpresps.push(tmpresp)
       })
       respok(res,null,null)
       enqueuedataj(queuenamesj['ADDR-TOKEN'], {flag:'ADD', username:username,address:accounteth['address'] })
