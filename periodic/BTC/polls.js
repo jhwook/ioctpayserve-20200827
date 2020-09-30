@@ -22,7 +22,7 @@ const init=()=>{
   db.balance.findAll({raw:true,where:{currency:CURRENCYLOCAL,netkind:netkind,active:1}}).then(aresps=>{
     aresps.forEach(acct=>{
       const address=acct['address']
-      jaddresses[address]=acct['username'];const deltat=getRandomInt(9.5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'), 'BTC',gettimestr())
+      jaddresses[address]=acct['username'];const deltat=getRandomInt(9.5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'), 'BTC',address.substr(0,10),acct['username']) // ,gettimestr()
       setTimeout(()=>{    if(false){pollblocks({address:address})}
         setInterval(()=>{ pollblocks({address:address})
         }, PERIOD_DIST_POLLS)
@@ -34,7 +34,7 @@ const init=()=>{
 const pollblocks=async jdata=>{const {address,}=jdata
   db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYTYPE,netkind:netkind}}).then(async respbb=>{let startblock=0
     if(respbb){ startblock=respbb['blocknumber']+1} else {}; let username=jaddresses[address.toLowerCase()] || '' // respbb && respbb['username']?respbb['username']:null
-    console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u1F380',username,'\u1F380', '\u26F5','','@pollbtc',moment().format(TIMESTRFORMATMILI))
+    console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u2699',username,'\u2699', '\u26F5','','@pollbtc',moment().format(TIMESTRFORMATMILI))
 //    const query={after:startblock    }
     try{console.log('blockchain.info/')
     axios.get(`${API_TXS}/${address}`,{params:{}}).then(async resp=>{ // console.log(resp.data)

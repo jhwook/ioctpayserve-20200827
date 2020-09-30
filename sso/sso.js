@@ -1,15 +1,17 @@
 
 const axios=require('axios')
-const messages=require('../configs/messages');let PROTOCOL_SSO='https'
+const messages=require('../configs/messages');let PROTOCOL_SSOS='https',PROTOCOL_SSO='http'
+const db=require('../models')
 let URLS_SSO_SERVE={
-  IOTC:   `${PROTOCOL_SSO}://www.iotcpay.com/sso_api.php`
-, SDC:    `${PROTOCOL_SSO}://www.sdcpay.co.kr/sso_api.php`
-, SDCPAY: `${PROTOCOL_SSO}://www.sdcpay.co.kr/sso_api.php`
-, CARRYON:`${PROTOCOL_SSO}://www.carryonpay.com/sso_api.php`
+  IOTC:   `${PROTOCOL_SSOS}://www.iotcpay.com/sso_api.php`
+, SDC:    `${PROTOCOL_SSOS}://www.sdcpay.co.kr/sso_api.php`
+, SDCPAY: `${PROTOCOL_SSOS}://www.sdcpay.co.kr/sso_api.php`
+, CARRYON:`${PROTOCOL_SSOS}://www.carryonpay.com/sso_api.php`
 , KWIFI:  `${PROTOCOL_SSO}://www.kwifi.co.kr/sso_api.php`
+, WWIFI:  `${PROTOCOL_SSO}://www.w-wifi.kr/sso_api.php`
+
 }
 const {MAP_SITENAME}=require('../configs/configs');
-const db = require('../models');
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}
 const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
   return new Promise((resolve,reject)=>{
@@ -21,13 +23,37 @@ const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
     })
   })
 }
-const validatekeyorterminate=(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token
+const DUMMYHASH='4e41d505d9cda48e0e503ff1d3c59fd5'
+const validateurlsso=async (sitename,urladdress)=>{urladdress=`${urladdress}/sso_api.php`
+  try{
+    const respsso=await axios.get(urladdress,{params:{sitecode:sitename.toLowerCase(),hashcode:DUMMYHASH}})
+    if(respsso && respsso.data['result']){return 1}
+    else {return 0}
+  } catch(err){    return 0  }
+} //
+const validatekeyorterminate=async(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token
 //  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
-  return new Promise((resolve,reject)=>{    if(sitename && hashcode){} else {//respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
+  return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {    resolve(null);return false} // respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
+	  console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
+    if (sitename){} else {console.log('invalid sitename',sitename); resolve(null);return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
+    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})
+    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress']
+    urladdress=`${urladdress}/sso_api.php`
+    try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(resp.data) // token
+      if(resp.data.result){      resolve(resp.data.user_code);return false
+      } else {        resolve(null); return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
+    })
+  } catch(err){console.log(err);resolve(null);return false}  
+  })
+}
+const validatekeyorterminate_usesfixedurl=async(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token
+//  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
+  return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {//respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
     resolve(null);return false} // token
-    sitename=MAP_SITENAME[sitename]
+	console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
     if (sitename){} else {console.log('invalid sitename',sitename); //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
       resolve(null);return false}
+
     let URLSSO=URLS_SSO_SERVE[sitename];console.log(`${URLSSO}?sitecode=${sitename.toLowerCase()}&hashcode=${hashcode}`)
     if(URLSSO){} else {console.log('invalid sitename',sitename) //;respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73203);
       resolve(null);return false} //   axios.get(`${URLS_SSO_SERVE[sitename]}?sitecode=${sitename.toLowerCase()}&has h_code=${token}`).then(resp=>{console.log(resp.data)
@@ -48,7 +74,7 @@ const validatekeyorterminatewithargs=(res,sitename,token)=>{sitename=MAP_SITENAM
     })  
   })
 }
-module.exports={validatekey,validatekeyorterminate}
+module.exports={validatekey,validatekeyorterminate,validateurlsso}
 const PERIOD_POLL_SITENAMEHOLDER=65*1000
 // setInterval(()=>{  db.site},PERIOD_POLL_SITENAMEHOLDER)
   // ?sitecode=iotc&hashcode=3a1a2d5f3fea5b062366aad93b7461e1'

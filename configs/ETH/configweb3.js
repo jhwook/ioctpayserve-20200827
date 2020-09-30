@@ -10,10 +10,12 @@ const infuraurl=jinfuraurl[NETCLASS]  //
 const netkind=jnetkind[NETCLASS],nettype=jnettype[NETCLASS] // 'testnet' //  'ropsten'
 // const infuraurl=infuraurlmain // infuraurlropsten // 
 let web3 = new Web3(new Web3.providers.HttpProvider(infuraurl))
-const db=require('../../models')
-db.balance.findAll({raw:true,where:{currency:'ETH',netkind:netkind}}).then(aresps=>{
+const db=require('../../models'); let jprvks={}
+db.balance.findAll({raw:true,where:{group_:'ETH',netkind:netkind}}).then(aresps=>{ // currency:'ETH'
   aresps.forEach(e=>{    const prvk=e['privatekey']; if(prvk && prvk.length>=64){} else {return false}
-    try{web3.eth.accounts.wallet.add(prvk)} catch(err){console.log(err)}
+    const prvklower=prvk.toLowerCase()
+    if(jprvks[prvklower]){return false} else {}
+    try{web3.eth.accounts.wallet.add(prvk);jprvks[prvklower]=1} catch(err){console.log(err)}
   })
 })
 const createaccount=()=>{return web3.eth.accounts.create()}

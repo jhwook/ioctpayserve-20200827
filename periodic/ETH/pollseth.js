@@ -18,10 +18,10 @@ const setpoller=jdata=>{const {username,address}=jdata
     }, PERIOD_DIST_POLLS)
   } ,deltat )
 }
-const init=()=>{ // .toLower,Case()
+const init=_=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address // ;console.log(address,'ETH')
     db.balance.findOne({raw:true,where:{address:address,netkind:netkind,currency:CURRENCYLOCAL,active:1 }}).then(resp=>{      if(resp){} else {return false} ; const username=resp['username']// console.log(resp);
-      jaddresses[address.toLowerCase()]=username;const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
+      jaddresses[address.toLowerCase()]=username;const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',address.substr(0,10),resp['username']) // ,gettimestr()
       setTimeout(()=>{    if(false){pollblocks({address:address,username:username})}
         setInterval(()=>{ pollblocks({address:address,username:username})
         }, PERIOD_DIST_POLLS)
@@ -32,7 +32,7 @@ const init=()=>{ // .toLower,Case()
 const pollblocks=async jdata=>{  const {address,}=jdata
   db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYLOCAL,netkind:netkind}}).then(async respbb=>{let startblock=1
     if(respbb){startblock=respbb['blocknumber']+1} else {}; let username=jaddresses[address.toLowerCase()] || '' // let username=respbb && respbb['username']?respbb['username']:null
-    console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u1F380',username,'\u1F380', '\u2618','@polleth',moment().format(TIMESTRFORMATMILI))
+    console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u2699',username,'\u2699', '\u2618','@polleth',moment().format(TIMESTRFORMATMILI))
     const query={startblock:startblock,endblock:ENDBLOCKDUMMY4QUERY,address:address
       ,module:'account'
       ,action:'txlist'

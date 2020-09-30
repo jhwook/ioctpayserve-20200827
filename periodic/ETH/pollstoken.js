@@ -20,18 +20,18 @@ const setpoller=jdata=>{const {username,address}=jdata
 const init=()=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address
     db.balance.findOne({raw:true,where:{address:address,netkind:netkind,active:1}}).then(resp=>{      if(resp){} else {return false}
-      jaddresses[address.toLowerCase()]=resp['username'];const deltat=getRandomInt(7*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'Token',gettimestr())
+      jaddresses[address.toLowerCase()]=resp['username'];const deltat=getRandomInt(7*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'Token',address.substr(0,10),resp['username']) // ,gettimestr()
       setTimeout(()=>{    if(false){pollblocks({address:address})}
         setInterval(()=>{ pollblocks({address:address})
         }, PERIOD_DIST_POLLS)
       } , deltat)
     })
   }
-}; setTimeout(_=>{console.log(jaddresses)},10*1000)
+}; setTimeout(_=>{console.log(jaddresses,Object.keys(jaddresses).length)},10*1000)
 const pollblocks=async jdata=>{  const {address,}=jdata
 db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencykind:CURRENCYKIND,currencytype:CURRENCYTYPE}}).then(async respbb=>{let startblock=1
 	if(respbb){startblock=respbb['blocknumber']+1} else {};	let username=jaddresses[address.toLowerCase()] || '' // let username=respbb && respbb['username']?respbb['username']:null
-  console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u1F380',username,'\u1F380', '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
+  console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u2699',username,'\u2699', '\u26BD','@polltoken',moment().format(TIMESTRFORMATMILI))
   const query={startblock:startblock    ,endblock:ENDBLOCKDUMMY4QUERY    ,address:address
     ,module:'account'
     ,action:'tokentx' // txlist
