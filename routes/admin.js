@@ -17,7 +17,7 @@ const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토
 const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../configs/ETH/utilstoken') // ../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
-const MAP_COINS_DECIMALS={BTC:8,ETH:18}
+const MAP_COINS_DECIMALS={BTC:8,ETH:18,USDT:6},DECIMALS_DEF=0
 const B_ENABLE_QUE=true; const {enqueuedataj}=require('../reqqueue/enqueuer');
 const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages') // const { token } = require('morgan')
 const MAP_CURRENCY_ADDRKIND={BTC:'ADDR-BTC',ETH:'ADDR-ETH'}
@@ -132,7 +132,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
   if(sitename && sitename.length>=MIN_SITENAME_LEN){jdata['sitename']=sitename}     else {respreqinvalid(res,MSG_SITENAME_INVALID);return false}
   if(tokenname && tokenname.length>=MIN_TOKENNAME_LEN){jdata['currency0']=tokenname}  else {respreqinvalid(res,MSG_TOKENNAME_INVALID);return false}
   let decimals
-  if(decimals=MAP_COINS_DECIMALS[tokenname]){jdata['address']=null;jdata['denominatorexp']=decimals}
+  if(MAP_COINS_DECIMALS[tokenname]){decimals=MAP_COINS_DECIMALS[tokenname];jdata['address']=null;jdata['denominatorexp']=decimals}
   else if(contractaddress){
 		if( validateethaddress(contractaddress)){    decimals=await getdecimals(contractaddress)
 			if(Number.isInteger(parseInt(decimals))){jdata['address']=contractaddress}
@@ -146,7 +146,7 @@ router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddr
 		else {respreqinvalid(res,MSG_VALIDTOKEN_NOTFOUND,59107);return false}
 	}	
 	if(decimals){jdata['denominatorexp']=decimals}
-	  
+	else {decimals=DECIMALS_DEF}
   let jconvrates={C:Crate,S:Srate,K:Krate} // [C,S,K]
   Object.keys(jconvrates).forEach(key=>{const val=jconvrates[key]; if(val){} else {return false}; let rate=val
     if(rate){rate=parseInt(rate);if(rate>=MIN_CSKCONVRATE && rate<=MAX_CSKCONVRATE){jdata[key]=val} else {respreqinvalid(res,MSG_CONVRATE_INVALID,40154);return false}}

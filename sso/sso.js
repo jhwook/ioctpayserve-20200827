@@ -31,7 +31,7 @@ const validateurlsso=async (sitename,urladdress)=>{urladdress=`${urladdress}/sso
     else {return 0}
   } catch(err){    return 0  }
 } //
-const validatekeyorterminate=async(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token
+const validatekeyorterminate_param=async(req,res)=>{let {sitename,hashcode}=req.query; sitename=sitename.toUpperCase()// res,req token
 //  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
   return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {    resolve(null);return false} // respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
 	  console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
@@ -46,8 +46,21 @@ const validatekeyorterminate=async(req,res)=>{let {sitename,hashcode}=req.header
   } catch(err){console.log(err);resolve(null);return false}  
   })
 }
-const validatekeyintouserorterminate=async(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token
-//  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
+const validatekeyorterminate=async(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token //  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
+  return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {    resolve(null);return false} // respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
+	  console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
+    if (sitename){} else {console.log('invalid sitename',sitename); resolve(null);return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
+    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})
+    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress']
+    urladdress=`${urladdress}/sso_api.php`
+    try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(resp.data) // token
+      if(resp.data.result){      resolve({username:resp.data.user_code,sitename:resp.data.site_code.toUpperCase()});return false
+      } else {        resolve(null); return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
+    })
+  } catch(err){console.log(err);resolve(null);return false}  
+  })
+}
+const validatekeyintouserorterminate=async(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token//  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
   return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {    resolve(null);return false} // respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
 	  console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
     if (sitename){} else {console.log('invalid sitename',sitename); resolve(null);return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
@@ -89,7 +102,7 @@ const validatekeyorterminatewithargs=(res,sitename,token)=>{sitename=MAP_SITENAM
     })  
   })
 }
-module.exports={validatekey,validatekeyorterminate,validateurlsso}
+module.exports={validatekey,validatekeyorterminate,validateurlsso,validatekeyorterminate_param}
 const PERIOD_POLL_SITENAMEHOLDER=65*1000
 // setInterval(()=>{  db.site},PERIOD_POLL_SITENAMEHOLDER)
   // ?sitecode=iotc&hashcode=3a1a2d5f3fea5b062366aad93b7461e1'

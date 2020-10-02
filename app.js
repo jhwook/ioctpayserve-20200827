@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var usersrouter = require('./routes/users')
 const adminrouter=require('./routes/admin')
 const walletsrouter=require('./routes/wallets')
+const apirouter=require('./routes/api')
 var app = express();
 const {requestIp}=require('request-ip')
 // view engine setup
@@ -25,6 +26,7 @@ app.use('/', indexRouter)
 app.use('/wallets',walletsrouter)
 app.use('/users', usersrouter);
 app.use('/admin', adminrouter)
+app.use('/api',apirouter)
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

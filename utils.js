@@ -16,7 +16,7 @@ const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return 
 const convweitoeth=(numint,decimals)=>  {const exp=decimals?decimals:18; return parseInt(numint)/10**exp}
 const convtohex=(intdec)=>{return `0x${intdec.toString(16)}`}
 const isequalinlowercases=(str0,str1)=>{return str0.toLowerCase()==str1.toLowerCase()}
-const MIN_ETH_ADDRESS_LEN=40; const MIN_RATE=0,MAX_RATE=200
+const MIN_ETH_ADDRESS_LEN=40; const MIN_RATE=0,MAX_RATE=200,DENOMINATOREXP_POINTS=0
 const validaterate=val=>{val=parseInt(val);if(Number.isInteger(val) && val>=MIN_RATE && val<=MAX_RATE){return true} else {return false}}
 const MIN_PRICE=0,MAX_PRICE=10**8
 const validateprice=val=>{val=parseInt(val);if(Number.isInteger(val) && val>MIN_PRICE && val<=MAX_PRICE){return true} else {return false} }
@@ -118,7 +118,7 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
       respbal.update({amountlocked:amtlockedtoupd})
       let extodata={}; 
       Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log(amount0,price , resprates[pointkind],amttoinc)
-        extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,netkind:netkind,sitename:sitename}
+        extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,netkind:netkind,sitename:sitename,denominatorexp:DENOMINATOREXP_POINTS}
         db.balance.findOne({where:{... jdataq }}).then(resp=>{
           if(resp){          const respdata=resp.dataValues          ;          resp.update({amount:respdata['amount']+amttoinc })          } 
           else {            db.balance.create({amount:amttoinc, nettype:nettype, ... jdataq })          }
