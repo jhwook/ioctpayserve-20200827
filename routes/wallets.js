@@ -20,8 +20,10 @@ router.get('/marketprice',async (req,res)=>{const {currency}=req.query
     })
   }).catch(err=>{respreqinvalid(res)}) //  res.status(200).send({status:'OK',marketprice:12345});return false
 })
-router.get('/transactions',async (req,res)=>{ let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  db.transactions.findAll({raw:true,where:{username:username,nettype:nettype}}).then(aresps=>{
+router.get('/transactions',async (req,res)=>{ // let username; try{username=await getusero rterminate(req,res);if(username){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  let {username,sitename}=jdata
+  db.transactions.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename}}).then(aresps=>{
     res.status(200).send({status:'OK'    , txs:aresps  }) //  res.status(200).send({status:'OK'    , txs:[      {from:'3N5jVaj3qTbiCuBF22ZNBK43ENEgw6J6P5',to:'',fromamount:'',toamount:'',fromcur:'BTC',tocur:'BTC',direction:'in',createdat:'2020-08-08 22:55:26'}      ]  })
     callhook({name:username,path:'TX'})
   })  
@@ -32,10 +34,12 @@ router.get('/exchangerates',async (req,res)=>{const {currency0,sitename}=req.que
   }).catch(err=>{    respreqinvalid(res,err.toString(),30379);return false
   })
 })
-router.post('/withdraw',async  (req,res)=>{  let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false}
+router.post('/withdraw',async  (req,res)=>{  // let username; try{username=await getusero rterminate(req,res);if(username){} else {return false}} catch(err){return false}
+  let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  let {username,sitename}=jdata
   const {amount,address,pw,currency}=req.body; console.log(req.body)
   if(amount && address && pw && username && currency){} else {respreqinvalid(res,messages.MSG_PLEASE_INPUT_DATA,67648);return false}
-  db.users.findOne({raw:true,where:{username:username,withdrawpw:pw}}).then(async resp=>{
+  db.users.findOne({raw:true,where:{username:username,withdrawpw:pw,sitename:sitename}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,messages.MSG_ID_OR_PW_INVALID,59497);return false}  //
 //    respok(res);return false
     const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,nettype:nettype}});
@@ -52,7 +56,9 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
     if(respoper && respoper['value_']){      let amtthresh=parseFloat(respoper['value_'])
       db.exchangerates.findOne({raw:true,where:{sitename:sitename,currency0:currency0,nettype:nettype}}).then(async respexrate=>{let collectoraddress,decimals
         if(respexrate && respexrate['collectoraddress']){collectoraddress=respexrate['collectoraddress']} else {console.log(`${HEADER_LOG_STOP_TX} collector undefined`);return false}
-        if(respexrate && respexrate['denominatorexp']  ){decimals=respexrate['denominatorexp']}           else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
+//        if(respexrate && respexrate['denominatorexp']  ){decimals=respexrate['denominatorexp']}           else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
+        const resptkn=await db.tokens.findOne({raw:true,where:{name:currency0,nettype:'mainnet'}})
+        if (resptkn && resptkn['denominatorexp']){decimals=respexrate['denominatorexp']} else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
         const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,nettype:nettype}}); let amtlocked
         if(respbal && respbal['amountlocked'] && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
         else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
@@ -62,9 +68,11 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
     }
   })
 }
-router.post('/exchange',async (req,res)=>{  let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false}
-  let {currency0, amount0,sitename}=req.body;console.log(req.body)
-  if(currency0 && amount0){} else {respreqinvalid(res,'ARG-MISSING',79654);return false}
+router.post('/exchange',async (req,res)=>{  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
+  let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  let {username,sitename}=jdata
+  let {currency0, amount0}=req.body;console.log('exchange',req.body) // ,sitename
+  if(currency0 && amount0 && sitename){} else {respreqinvalid(res,'ARG-MISSING',79654);return false};sitename=sitename.toUpperCase()
   amount0=parseFloat(amount0);  console.log(amount0)
   callhook({name:username,path:'exchange'})
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename,active:1}}).then(resprates=>{
@@ -72,7 +80,7 @@ router.post('/exchange',async (req,res)=>{  let username; try{username=await get
     db.balance.findOne({where:{currency:currency0,username:username,nettype:nettype,active:1}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       let respbaldata=respbal.dataValues
-      const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] )
+      const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'])
       if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
       doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp);        sendstoadminonexchange(req.body,username)
         return false
@@ -80,8 +88,10 @@ router.post('/exchange',async (req,res)=>{  let username; try{username=await get
     })
   })
 }) //
-router.get('/balance',async (req,res)=>{  let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false}
-  const {currency,sitename}=req.query; console.log(req.query)
+router.get('/balance',async (req,res)=>{  // let username; try{username=await getuserorte rminate(req,res);if(username){} else {return false}} catch(err){return false}
+  let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  let {username,sitename}=jdata
+  const {currency}=req.query; console.log(req.query) // ,sitename
   if(username && currency && sitename){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
   let _balance=utils.getbalance({username:username,currency:currency},'float')
   let _resprate = await db.exchangerates.findOne({raw:true,where:{currency0:currency,sitename:sitename,active:1}}) // .then(respate=>{let price
@@ -99,32 +109,21 @@ router.get('/balance',async (req,res)=>{  let username; try{username=await getus
     respok(res,null,null,{amountstr:balance.toString(), price:price})
   }) //  })
 })
-router.get('/balance_mixed',async (req,res)=>{  let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false} 
-  const {currency}=req.query; console.log(req.query)
-  if(username && currency){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
-  utils.getbalance({username:username,currency:currency},'float').then(async respbal=>{
-    let _pricesstr= cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')
-    let _fixedpricesj=utils.getfixedtokenprices() // db.balanc e.findOne({raw:true,where:{... req.query}}).then(resp=>{    })
-    Promise.all([_pricesstr,_fixedpricesj]).then(aresps=>{
-      const [pricesstr,fixedpricesj]=aresps
-      const jdata={... JSON.parse(pricesstr), ... fixedpricesj}
-      respok(res,null,null,{amountstr:respbal.toString(), prices:JSON.stringify(jdata)})
-    })
-  })
-if(false){	db.ba_lance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
-	})}  //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
-})
-router.get('/balances', async (req, res, next)=> {  let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false}
-  db.balance.findAll({raw:true,where:{username:username,nettype:nettype,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
+router.get('/balances', async (req, res, next)=> {  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
+  let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  let {username,sitename}=jdata
+  db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
     res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) ,e['address'],e['canwithdraw'] ]})})
 //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	})
 //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 });
-router.get('/userpref',async (req,res)=>{ let username; try{username=await getuserorterminate(req,res);if(username){} else {return false}} catch(err){return false}
+router.get('/userpref',async (req,res)=>{ //let username; try{username=await getusero rterminate(req,res);if(username){} else {return false}} catch(err){return false}
+  let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  let {username,sitename}=jdata
   if(username){} else {respreqinvalid(res,'ARGMISSING',50892);return false}  
-  let _user=db.users.findOne({raw:true,where:{username:username}})
+  let _user=db.users.findOne({raw:true,where:{username:username,sitename:sitename}})
   let _forexrate=cliredisa.hget(KEYNAME_MARKETPRICES,'KRWUSD')
   Promise.all([_user,_forexrate]).then(aresps=>{    let [user,forexrate]=aresps;    delete user['withdrawpw']
     respok(res,null,null,{ ... user, KRWUSD:forexrate});return false
@@ -153,3 +152,20 @@ const sends=(jdata,tabletouse)=>{  const {currency}=jdata
   res.status(200).send({status:'OK'});return false
 })
 */
+router.get('/balance_mixed',async (req,res)=>{  // let username; try{username=await getuseror terminate(req,res);if(username){} else {return false}} catch(err){return false} 
+  let jdata; try{jdata=await getusero_rterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
+  let {username,sitename}=jdata
+  const {currency}=req.query; console.log(req.query)
+  if(username && currency){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
+  utils.getbalance({username:username,currency:currency},'float').then(async respbal=>{
+    let _pricesstr= cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')
+    let _fixedpricesj=utils.getfixedtokenprices() // db.balanc e.findOne({raw:true,where:{... req.query}}).then(resp=>{    })
+    Promise.all([_pricesstr,_fixedpricesj]).then(aresps=>{
+      const [pricesstr,fixedpricesj]=aresps
+      const jdata={... JSON.parse(pricesstr), ... fixedpricesj}
+      respok(res,null,null,{amountstr:respbal.toString(), prices:JSON.stringify(jdata)})
+    })
+  })
+if(false){	db.ba_lance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
+	})}  //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
+})

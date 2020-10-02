@@ -27,15 +27,28 @@ const delsession=(req)=>{const token=req.headers.token
     if(resp){resp.update({active:0})} else {return false}
   })
 }
-const getuserorterminate=async (req,res)=>{  let username=null // ;req.headers.sitename=req.body.sitename; req.headers.hashcode=req.body.hashcode
-  try {username=await validatekeyorterminate(req,res)
-    if(username){return username}
-    else {      username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73200);return null} }
+const getuserorterminate=async (req,res)=>{  let jdata,username=null // ;req.headers.sitename=req.body.sitename; req.headers.hashcode=req.body.hashcode
+  try {jdata=await validatekeyorterminate(req,res)
+    if(jdata){return jdata}
+    else {      jdata=await getusernamefromsession(req); if(jdata){return jdata} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73200);return null} }
   }
-  catch(err){   username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73210);return null}
+  catch(err){   jdata=await getusernamefromsession(req); if(jdata){return jdata} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73210);return null}
   }
 } //
-const getusernamefromsession=async req=>{  // console.log('headers',req.headers)
+const getuseronlyorterminate=async (req,res)=>{  let username=null // ;req.headers.sitename=req.body.sitename; req.headers.hashcode=req.body.hashcode
+  try {username=await validatekeyorterminate(req,res)
+    if(username){return username}
+    else {      username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73220);return null} }
+  }
+  catch(err){   username=await getusernamefromsession(req); if(username){return username} else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73230);return null}
+  }
+} //
+const getusernamefromsession=async req=>{ // console.log('headers',req.headers)
+  if(req.headers.token){} else {return null}
+  const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}}) //;console.log('session',session)
+  if(session){ return {username:session['username'],sitename:session['sitename']}} else {return null}
+}
+const getusernameonlyfromsession=async req=>{  // console.log('headers',req.headers)
   if(req.headers.token){} else {return null}
   const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}}) //;console.log('session',session)
   if(session){ return session['username']} else {return null}
@@ -82,11 +95,11 @@ function generateRandomStr (length) {
 }
 const getip=(req)=>{	return req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.headers['x-real-ip']}
 const doexchange=async (username,jdata,respbal,resprates)=>{
-  return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata)
+  return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata);let sitename=jdata['sitename'].toUpperCase()
     let respbaldata=respbal.dataValues;let price=null
-    const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] ) //    const amount0wei=convethtowei(amount0)    
+    const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] ) // const amount0wei=convethtowei(amount0)    
     if(resprates.priceisfixed && resprates.priceisfixed==1){price=resprates['fixedprice']}
-    else {      price=await cliredisa.hget(KEYNAME_MARKETPRICES,currency0)    }
+    else {      price=await cliredisa.hget(KEYNAME_MARKETPRICES,currency0) }
     if(price){price=parseFloat(price)}
     else {
       let respvarprice=await db.variableprices.findOne({currency:currency0})
@@ -105,7 +118,7 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
       respbal.update({amountlocked:amtlockedtoupd})
       let extodata={}; 
       Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log(amount0,price , resprates[pointkind],amttoinc)
-        extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,netkind:netkind}
+        extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,netkind:netkind,sitename:sitename}
         db.balance.findOne({where:{... jdataq }}).then(resp=>{
           if(resp){          const respdata=resp.dataValues          ;          resp.update({amount:respdata['amount']+amttoinc })          } 
           else {            db.balance.create({amount:amttoinc, nettype:nettype, ... jdataq })          }

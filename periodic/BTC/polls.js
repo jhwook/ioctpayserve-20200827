@@ -34,7 +34,7 @@ const init=()=>{
 const pollblocks=async jdata=>{const {address,}=jdata
   db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencytype:CURRENCYTYPE,netkind:netkind}}).then(async respbb=>{let startblock=0
     if(respbb){ startblock=respbb['blocknumber']+1} else {}; let username=jaddresses[address.toLowerCase()] || '' // respbb && respbb['username']?respbb['username']:null
-    console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u2699',username,'\u2699', '\u26F5','','@pollbtc',moment().format(TIMESTRFORMATMILI))
+    console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u2699',username,'\u2699', '\u26F5','','@pollbtc',moment().format('HH:mm:ss.SSS')) // ,moment().format(TIMESTRFORMATMILI)
 //    const query={after:startblock    }
     try{console.log('blockchain.info/')
     axios.get(`${API_TXS}/${address}`,{params:{}}).then(async resp=>{ // console.log(resp.data)

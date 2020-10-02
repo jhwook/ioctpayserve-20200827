@@ -67,6 +67,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(3).UNSIGNED,
       allowNull: true,
     }
+    , sitename:{
+      type: DataTypes.STRING(20),
+      allowNull: true
+    }
   }, {
     tableName: 'sessionkeys'
   });

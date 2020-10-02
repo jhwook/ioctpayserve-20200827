@@ -94,7 +94,7 @@ router.post('/join',(req,res)=>{let {username,pw,sitename}=req.body; if(sitename
     })
   })
 })
-router.post('/login',async(req,res)=>{const {username,pw,sitename}=req.body; console.log(req.body)
+router.post('/login',async(req,res)=>{let {username,pw,sitename}=req.body; console.log(req.body); sitename=sitename.toUpperCase()
   if(username && pw){} else {respreqinvalid(res,'ARGMISSING',68961);return false}
   db.users.findOne({raw:true,where:{... req.body,active:1}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,'INVALID',76323);return false}
