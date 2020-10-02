@@ -11,8 +11,8 @@ let jcontracts={}
 // const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1,DECIMALS=18 //const MAP_TABLESTOUSE_DEFINED={transactions:1,txsinternal:1}
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**18 }
 const sendseth=(jdata,tabletouse)=>{return new Promise((resolve,reject)=>{if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'} // reject({status:'ERR',message:'TABLE INVALID'});return false}
-  let {username,rxaddr,amt2sendfloat,amt2sendwei}= jdata;console.log(jdata, '@15620')
-  db.balance.findOne({raw:true,where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}}).then(respacct=>{
+  let {username,rxaddr,amt2sendfloat,amt2sendwei,sitename}= jdata;console.log(jdata, '@15620')
+  db.balance.findOne({raw:true,where:{username:username,currency:CURRENCYLOCAL,netkind:netkind,sitename:sitename}}).then(respacct=>{
     if(respacct){} else {console.log('acct not found');reject({status:'ERR',message:'Acct not found'});return false}
     if(respacct['canwithdraw']){} else {console.log('Withdraw BANNED'); reject({status:'ERR',message:'Withdraw BANNED'});return false}
     let address=respacct['address']; if(address){} else {console.log('Address not found'); reject({status:'ERR',message:'Address not found'});return false}
@@ -24,7 +24,7 @@ const sendseth=(jdata,tabletouse)=>{return new Promise((resolve,reject)=>{if(MAP
       const gasfee=getgasfee(GAS_LIMIT_ETH,GAS_PRICE_ETH,'float')
       console.log(amt2sendfloat,gasfee,amteth)
       if(amt2sendfloat+gasfee<=amteth){} else {console.log('Balance not enough(77906)');reject({status:'ERR',message:'Balance not enough(77096)'});return false}
-      getbalance({username:username,currency:CURRENCYLOCAL},'float').then(balancecustom=>{
+      getbalance({username:username,currency:CURRENCYLOCAL,sitename:sitename},'float').then(balancecustom=>{
         console.log('balancecustom' ,balancecustom)
         if(amt2sendfloat+gasfee<=balancecustom){} else {console.log('Balance not enough(48286)'); reject({status:'ERR',message:'Balance not enough(48286)'});return false}
       const txData = {from:respacct['address']

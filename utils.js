@@ -75,8 +75,8 @@ const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}
     respbal.update(jdata2upd)
   })
 } // incdecbalance({username:'',curency:'',amountdelta:''})
-const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,}=jdata
-  db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype }}).then(resp=>{
+const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,sitename}=jdata
+  db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename }}).then(resp=>{
     if(resp){    const amtwei=resp['amount']-resp['amountlocked']
       resolve(bfloatwei && bfloatwei=='float'? amtwei/10**resp['denominatorexp']: amtwei )
     } else {reject('NOT-FOUND')}

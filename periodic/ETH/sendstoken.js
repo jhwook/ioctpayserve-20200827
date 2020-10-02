@@ -11,12 +11,12 @@ let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
 const sendstoken=(jdata,tabletouse)=>{return new Promise(async (resolve,reject)=>{ if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
-  let {username,rxaddr,amt2sendfloat,amt2sendwei,currency}= jdata  // db.balance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
-  getbalance({username:username,currency:'ETH'},'float').then(async respbal=>{
+  let {username,rxaddr,amt2sendfloat,amt2sendwei,currency,sitename}= jdata  // db.balance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
+  getbalance({username:username,currency:'ETH',sitename:sitename},'float').then(async respbal=>{
     const gasfeefloat=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'float')
     if(respbal>=gasfeefloat){} else {      reject({status:'ERR',message:'Eth balance not enough'});return false    }
 //    let baleth=await web3.eth.getBalance(address)//    if(baleth){} 	else {reject({status:'ERR',message:'Network not avail.'});return false}//    const gasfeeint=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'int')//    if(parseInt(baleth)>=gasfeeint ){} else {reject({status:'ERR',message:'Eth balance not enough',code:51399});return false    }
-    db.balance.findOne({raw:true,where:{username:username,currency:currency,netkind:netkind}}).then(async respacct=>{
+    db.balance.findOne({raw:true,where:{username:username,currency:currency,netkind:netkind,sitename:sitename}}).then(async respacct=>{
       if(respacct){} else {reject({status:'ERR'});return false}
       if(respacct['canwithdraw']){} else {reject({status:'ERR'});return false}
       const address=respacct['address']; if(address){} else {reject({status:'ERR',message:'Address not found'});return false}

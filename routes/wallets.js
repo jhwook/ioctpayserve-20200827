@@ -44,7 +44,7 @@ router.post('/withdraw',async  (req,res)=>{  // let username; try{username=await
 //    respok(res);return false
     const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,nettype:nettype}});
     if(tokendata){} else {return false} const decimals=tokendata['denominatorexp']
-    sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency},'transactions')
+    sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});
     callhook({name:username,path:'withdraw'});    return false
@@ -62,7 +62,7 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
         const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,nettype:nettype}}); let amtlocked
         if(respbal && respbal['amountlocked'] && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
         else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
-        sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:convethtowei(amtlocked,decimals),currency:currency0},'txsinternal')
+        sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:convethtowei(amtlocked,decimals),currency:currency0,sitename:sitename},'txsinternal')
       })
     } else {console.log(`${HEADER_LOG_STOP_TX} MIN_INVOKE_AMT undefined,34893`);return false
     }
@@ -93,7 +93,7 @@ router.get('/balance',async (req,res)=>{  // let username; try{username=await ge
   let {username,sitename}=jdata
   const {currency}=req.query; console.log(req.query) // ,sitename
   if(username && currency && sitename){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
-  let _balance=utils.getbalance({username:username,currency:currency},'float')
+  let _balance=utils.getbalance({username:username,currency:currency,sitename:sitename},'float')
   let _resprate = await db.exchangerates.findOne({raw:true,where:{currency0:currency,sitename:sitename,active:1}}) // .then(respate=>{let price
   let _forexrate= cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD)
   Promise.all([_balance,_resprate,_forexrate]).then(async aresps=>{
@@ -157,7 +157,7 @@ router.get('/balance_mixed',async (req,res)=>{  // let username; try{username=aw
   let {username,sitename}=jdata
   const {currency}=req.query; console.log(req.query)
   if(username && currency){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
-  utils.getbalance({username:username,currency:currency},'float').then(async respbal=>{
+  utils.getbal_ance({username:username,currency:currency},'float').then(async respbal=>{
     let _pricesstr= cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')
     let _fixedpricesj=utils.getfixedtokenprices() // db.balanc e.findOne({raw:true,where:{... req.query}}).then(resp=>{    })
     Promise.all([_pricesstr,_fixedpricesj]).then(aresps=>{
