@@ -1,4 +1,7 @@
 
+create user 'wallet'@'localhost' identified by 'rY3f0qKSN6';
+grant all privileges on *.* to 'wallet'@'localhost';
+
 alter table `tokens` add unique `uniquetokenname` (`name`,'nettype');
 
 ALTER TABLE `operations` ADD UNIQUE `uniqueoperations`(`key_`, `subkey_` );

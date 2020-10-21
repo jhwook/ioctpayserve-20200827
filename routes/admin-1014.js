@@ -2,68 +2,29 @@
 const express = require('express');
 var router = express.Router();
 const db=require('../models')
-const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth}=utils
+const utils = require('../utils');
 const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
 const messages=require('../configs/messages'); const SITENAME_DEF='IOTC'; const {validateurlsso}=require('../sso/sso')
-const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF,TIMEZONESTR}=configs;const MAX_URLADDRESS_LEN=100
+const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF}=configs;const MAX_URLADDRESS_LEN=100
 const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
-const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다',MSG_URL_INVALID='URL이 유효하지 않습니다'
+const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다'
 const MSG_CONVRATE_INVALID='변환율이 유효하지 않습니다',MSG_FIXEDPRICE_INVALID='고정가격이 유효하지 않습니다',MSG_TOKEN_NOTREGISTERED='등록되지 않은 토큰입니다',MSG_SITETOKEN_NOTFOUND='등록되지 않은 사이트/토큰입니다'
-const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다',MSG_DONE_STAKES='스테이킹 적용완료'
+const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다'
 const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../configs/ETH/utilstoken') // ../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
 const MAP_COINS_DECIMALS={BTC:8,ETH:18,USDT:6},DECIMALS_DEF=0
 const B_ENABLE_QUE=true; const {enqueuedataj}=require('../reqqueue/enqueuer');
-const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages'); // const { token } = require('morgan')
-const { route } = require('./users');
-const { TIMESTRFORMAT , A_POINTSKINDS } = require('../configs/configs') // const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STAKES}=require('../configs/configs')
+const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages') // const { token } = require('morgan')
 const MAP_CURRENCY_ADDRKIND={BTC:'ADDR-BTC',ETH:'ADDR-ETH'}
 const getaddrtype4que=currency=>{  let addrkind=MAP_CURRENCY_ADDRKIND[currency]
   if(addrkind){} else {addrkind='ADDR-TOKEN'}
   return addrkind
 }
-router.get('/transactions',(req,res)=>{
-  db.transactions.findAll({raw:true,}).then(aresps=>{    respok(res,null,null,{txs:aresps});return false
-  }).catch(err=>{    respreqinvalid(res,'INTERNAL-ERR',62002);return false
-  })
-})
-router.get('/balances/user', async (req,res,next)=> { // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
-  let jdata // ; let username,sitename
-//  try{jdata=await getuserorterminate(req,res) ; console.log(jdata) // getuserorgoon(req)// getuserorterminate(req,res)
-  //  if(jdata){                            username=jdata['username'],   sitename=jdata['sitename']}
-//    else if(await validateadminkey(req)){ username=req.query.username,  sitename=req.query.sitename}
-    // else {	respreqinvalid(res,null,15389);return false}
-//  } catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  const {username,sitename}=req.query
-  db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
-    aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
-    res.status(200).send({status:'OK',balances:aresps.map(e=>{return [
-      e['currency']
-      , convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
-      ,e['address']
-      ,e['canwithdraw']
-      ,e['stakesamount']
-      ,e['stakesstartdate']
-      ,e['stakesexpiry']
-      ,e['stakesduration']
-    ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
-	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
-})
-
-router.get('/balances',(req,res)=>{ const {sitename}=req.query
-  if(sitename){
-    db.balance.findAll({raw:true,where:{sitename:sitename,active:1}}).then(aresps=>{      respok(res,null,null,{balances:aresps});return false
-    })
-  } else {
-    db.balance.findAll({raw:true,where:{active:1}}).then(aresps=>{      respok(res,null,null,{balances:aresps});return false
-    })
-  }
-}) //
 router.post('/sitenameholder/delete',async(req,res)=>{const {sitename}=req.body;console.log(req.body)
   await db.sitenameholder.destroy({where:{sitename:sitename,nettype:nettype}}) // update({active:0},{where:{sitename:sitename,nettype:nettype}})
   await db.users.destroy({where:{sitename:sitename}}) // update({active:0},{where:{sitename:sitename}})
@@ -92,34 +53,11 @@ router.post('/sitenameholder/delete/via/update',async(req,res)=>{const {sitename
     })
   })
   respok(res,MSG_DELETED,19774);return false
-}) // const MINSITENAMELEN=3 // 4
+}) //
+const MINSITENAMELEN=3 // 4
 const EXCHGDATA_DEF=	{nettype:'mainnet',priceisfixed:0,canwithdraw:1,units:'KRW',valid:1,C:50,S:50,K:10}
 const	EXCHGDATA_DEF02={nettype:'mainnet',priceisfixed:0,canwithdraw:1,units:'USD',valid:1,C:50,S:50,K:10}
-router.post('/stakes',(req,res)=>{  let {username,currency,amount,startdate,duration,sitename}=req.body;amount=+amount ;duration=+duration
-  if(username && currency&& Number.isFinite(amount) && startdate && Number.isFinite(duration) && sitename){}  else {respreqinvalid(res,'ARG-MISSING',23392);return false}
-  if(amount>0){}    else {respreqinvalid(res,'ARG-INVALID',16517);return false}
-  if(duration>0){}  else {respreqinvalid(res,'ARG-INVALID',16518);return false}
-  if(moment()>=moment(startdate)){} else {respreqinvalid(res,'ARG-INVALID',16519);return false} // .tz('Asia/Seoul')
-  db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{
-    if(respuser){} else {respreqinvalid(res,'USER-NOT-FOUND',56698);return false}
-    db.balance.findOne({where:{username:username,sitename:sitename,currency:currency,nettype:nettype}}).then(respbal=>{
-      if(respbal){} else {respreqinvalid(res,'ACCT-NOT-FOUND',33728);return false};      let respbaldata=respbal.dataValues
-      respbal.update({ stakesamount:amount , stakesstartdate:startdate , stakesexpiry:moment().tz(TIMEZONESTR).add(duration,'days').format(TIMESTRFORMAT) , stakesduration:duration}).then(resp=>{
-        respok(res,MSG_DONE_STAKES,66047);return false
-      })
-    })
-  })
-})
-router.put('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(req.body)
-	sitename=sitename.toUpperCase()
-	db.sitenameholder.findOne({where:{sitename:sitename}}).then(async resp=>{
-		if(resp){} else {respreqinvalid(MSG_PLEASE_INPUT_SITENAME,47818	);return false}
-		if(urladdress){} else {db.sitenameholder.update({urladdress:null},{where:{sitename:sitename}}); respok(res,null,80573	);return false }
-		if(await validateurlsso(sitename,urladdress)){db.sitenameholder.update({urladdress:urladdress},{where:{sitename:sitename}});respok(res,`URL주소가 ${MSG_REGISTER_DONE}`,70108);return false}
-		else {respreqinvalid(res,MSG_URL_INVALID,16867);return false}
-	})
-})
-router.post('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14575);return false};  console.log(req.body)
+router.post('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(req.body)
   sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'}); let burlvalid=0,jdata={}
   db.sitenameholder.findOne({where:{sitename:sitename}}).then(async resp=>{
     if(urladdress){

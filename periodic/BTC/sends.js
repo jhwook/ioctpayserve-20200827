@@ -7,10 +7,10 @@ const { TIMESTRFORMAT } = require('../../configs/configs');
 const URL_BTCD='http://182.162.21.240:36087/users'
 const API_CREATE_TX=`${URL_BTCD}/createrawtransaction`
 const API_GENERIC=`${URL_BTCD}/genericcall`;const CURRENCYLOCAL='BTC',DECIMALS=8
-const sends=async (jdata,tabletouse)=>{const {amt2sendfloat,rxaddr,privatekey,username,sitename}=jdata; let amtreqd=amt2sendfloat,amount=amt2sendfloat; let fee,address
+const sends=async (jdata,tabletouse , modecollectorgeneral)=>{const {amt2sendfloat,rxaddr,privatekey,username,sitename}=jdata; let amtreqd=amt2sendfloat,amount=amt2sendfloat; let fee,address
   try{  let respfee=await db.operations.findOne({raw:true,where:{key_:'SENDFEE',subkey_:'BTC'}});console.log(respfee)
   if(respfee){} else {console.log('sendfee not found');return null};  fee=parseFloat(respfee['value_'])
-  let respacct=await db.balance.findOne({raw:true,where:{username:username,currency:CURRENCYLOCAL,nettype:nettype,sitename:sitename}})
+  let respacct=await db.balance.findOne({raw:true,where:{username:username,currency:CURRENCYLOCAL,nettype:nettype,sitename:sitename , active:1}})
   if(respacct){address=respacct['address']} else {console.log('acct not found');return null}
   axios.get(`${URL_BTCD}/listunspent`,{params:{address:address}}).then(async resputxo=>{
     if(resputxo.data.status=='OK'){ //      console.log(resputxo.data.message)
@@ -57,8 +57,12 @@ const sends=async (jdata,tabletouse)=>{const {amt2sendfloat,rxaddr,privatekey,us
         , fee:fee
         , txtime:moment().format(TIMESTRFORMAT)
         , amountfloatstr:amount
+        , sitename:jdata['sitename']
       })
       incdecbalance_reflfee({... jdata,currency:CURRENCYLOCAL,amountdelta:amt2sendwei},null,null)
+      if(modecollectorgeneral=='collector'){
+        setTimeout(_=>{ db.balance.findOne({where:{id:respacct['id']}}).then(resp=>{  resp.update({amountlocked:resp['amountlocked']-amt2sendwei})}),100})
+      }
       return 1
     } 
     })

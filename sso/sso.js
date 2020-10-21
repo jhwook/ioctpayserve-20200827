@@ -9,7 +9,6 @@ let URLS_SSO_SERVE={
 , CARRYON:`${PROTOCOL_SSOS}://www.carryonpay.com/sso_api.php`
 , KWIFI:  `${PROTOCOL_SSO}://www.kwifi.co.kr/sso_api.php`
 , WWIFI:  `${PROTOCOL_SSO}://www.w-wifi.kr/sso_api.php`
-
 }
 const {MAP_SITENAME}=require('../configs/configs');
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}
@@ -39,7 +38,7 @@ const validatekeyorterminate_param=async(req,res)=>{let {sitename,hashcode}=req.
     let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})
     if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress']
     urladdress=`${urladdress}/sso_api.php`
-    try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(resp.data) // token
+    try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0)) // token
       if(resp.data.result){      resolve({username:resp.data.user_code,sitename:resp.data.site_code.toUpperCase()});return false
       } else {        resolve(null); return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
     })
@@ -53,7 +52,7 @@ const validatekeyorterminate=async(req,res)=>{let {sitename,hashcode}=req.header
     let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})
     if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress']
     urladdress=`${urladdress}/sso_api.php`
-    try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(resp.data) // token
+    try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0) ) // token
       if(resp.data.result){      resolve({username:resp.data.user_code,sitename:resp.data.site_code.toUpperCase()});return false
       } else {        resolve(null); return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
     })

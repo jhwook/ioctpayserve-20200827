@@ -21,11 +21,22 @@ const validaterate=val=>{val=parseInt(val);if(Number.isInteger(val) && val>=MIN_
 const MIN_PRICE=0,MAX_PRICE=10**8
 const validateprice=val=>{val=parseInt(val);if(Number.isInteger(val) && val>MIN_PRICE && val<=MAX_PRICE){return true} else {return false} }
 const validateethaddress=str=>{return str && parseInt(str,16) && str.length>=MIN_ETH_ADDRESS_LEN}
-
+const validateadminkey=async req=>{const {adminkey}=req.headers; if(adminkey){} else {return null}
+  const resp=await db.operations.findOne({raw:true,where:{key_:'ADMINKEY',value_:adminkey}})
+  return resp
+}
 const delsession=(req)=>{const token=req.headers.token
   db.sessionkeys.findOne({where:{token:token}}).then(resp=>{
     if(resp){resp.update({active:0})} else {return false}
   })
+}
+const getuserorgoon=async req=>{let jdata,username=null 
+  try {jdata=await validatekeyorterminate(req,res)
+    if(jdata){return jdata}
+    else {      jdata=await getusernamefromsession(req); if(jdata){return jdata} else {return null} }
+  }
+  catch(err){   jdata=await getusernamefromsession(req); if(jdata){return jdata} else {return null}
+  }
 }
 const getuserorterminate=async (req,res)=>{  let jdata,username=null // ;req.headers.sitename=req.body.sitename; req.headers.hashcode=req.body.hashcode
   try {jdata=await validatekeyorterminate(req,res)
@@ -75,6 +86,13 @@ const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}
     respbal.update(jdata2upd)
   })
 } // incdecbalance({username:'',curency:'',amountdelta:''})
+const getbalanceandstakes=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,sitename}=jdata
+  db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename }}).then(resp=>{
+    if(resp){    let amtwei=resp['amount']-resp['amountlocked'];      amtwei= bfloatwei && bfloatwei=='float'? amtwei/10**resp['denominatorexp']: amtwei
+      resolve({amount:amtwei, stakesamount:resp['stakesamount'],stakesexpiry:resp['stakesexpiry'] })
+    } else {reject('NOT-FOUND')}
+  }).catch(err=>{reject(err.toString())})
+})} 
 const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,sitename}=jdata
   db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename }}).then(resp=>{
     if(resp){    const amtwei=resp['amount']-resp['amountlocked']
@@ -136,6 +154,7 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
         , nettype:nettype
         , description:JSON.stringify(extodata)
         , txtime:moment().format(TIMESTRFORMAT)
+        , sitename:jdata['sitename']
       })
 //    }).catch(err=>{reject(err.toString())})
     resolve(jdata)
@@ -170,7 +189,7 @@ const callhook=jdata=>{  const str=JSON.stringify(jdata)
 }
 const conva2j=(array,key)=>{	return _.fromPairs(_.map(array,i=>[i[key], i])) }
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
-  ,respwithdata,resperr,getbalance,gettimestr,convtohex
-  ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorterminate
-  , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice,conva2j
+  ,respwithdata,resperr,getbalance,getbalanceandstakes,gettimestr,convtohex
+  ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorgoon, getuserorterminate
+  , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice,conva2j,validateadminkey
 }

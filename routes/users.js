@@ -25,7 +25,7 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.
       accountbtc=configbtc.createaccount() ;  let account=null,netkind // acct.publicAddress , acct.privateWif      
 			console.log('CREATED',username,sitename,accountbtc,accounteth) // ;return false
 			const jtokens=_.fromPairs(_.map(resptokens, e => [e.name, e ])) //			let atmpresps=[] //			const jrates=conva2j(resprates,'currency0');			Object.keys(JTOKENSTODO_DEF).forEach(tknname=>{				if(jrates[tknname]){}				else {}			})			
-      resprates.forEach(ratedata=>{ let netkind,nettype
+      resprates.forEach(ratedata=>{ let netkind,nettype;console.log(JSON.stringify(ratedata,null,0).replace(/\"/g,''))
         const jdata=jtokens[ratedata['currency0']]; if (jdata){} else {console.log(`Data missing-${ratedata['currency0']}`);return false}
         if(jdata['group_']=='ETH')      { account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }
 				else if(jdata['group_']=='BTC') { account=accountbtc; netkind=configbtc.netkind,  nettype=configbtc.nettype }
@@ -40,7 +40,7 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.
           , privatekey:account['privateKey']
           , group_:jdata['group_']
           , sitename:sitename
-          ,canwithdraw:ratedata['canwithdraw']
+          , canwithdraw:ratedata['canwithdraw']
           , amount:0          , amountfloat:0,amountstr:0,active:1
         }) // ;atmpresps.push(tmpresp)
       })

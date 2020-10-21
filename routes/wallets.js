@@ -1,17 +1,18 @@
 var express = require('express');
 var router = express.Router();
-const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD}=require('../configs/configs')
+const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STAKES}=require('../configs/configs')
 const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
-,validatekey,getuserorterminate
+,validatekey,getuserorgoon, getuserorterminate,validateadminkey
 }=require('../utils')
 const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth}=require('../periodic/ETH/sendseth')
 const {sendstoken}=require('../periodic/ETH/sendstoken') // const {se nds eth,sendstoken}=require('../periodic/ETH/s ends')
-const utils = require('../utils');
+const utils = require('../utils') // ;const B_STAKES=1
 const { netkind,nettype } = require('../configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
+const convstakeamount2wei=(str,denominatorexp)=>convweitoeth(+str, denominatorexp)
 /* GET users listing. */
 router.get('/marketprice',async (req,res)=>{const {currency}=req.query
   db.marketprices.findAll({raw:true,attributes: [[db.sequelize.fn('max', db.sequelize.col('id')), 'maxid']]})
@@ -58,30 +59,38 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
         if(respexrate && respexrate['collectoraddress']){collectoraddress=respexrate['collectoraddress']} else {console.log(`${HEADER_LOG_STOP_TX} collector undefined`);return false}
 //        if(respexrate && respexrate['denominatorexp']  ){decimals=respexrate['denominatorexp']}           else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
         const resptkn=await db.tokens.findOne({raw:true,where:{name:currency0,nettype:'mainnet'}})
-        if (resptkn && resptkn['denominatorexp']){decimals=respexrate['denominatorexp']} else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
-        const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,nettype:nettype}}); let amtlocked
-        if(respbal && respbal['amountlocked'] && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
+        if (resptkn && resptkn['denominatorexp']){decimals=resptkn['denominatorexp']} else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
+        const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,currency:currency0, nettype:nettype}}); let amtlocked
+        console.log(respbal['amountlocked'],amtthresh)
+        if(respbal && Number.isFinite(respbal['amountlocked']) && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
         else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
-        sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:convethtowei(amtlocked,decimals),currency:currency0,sitename:sitename},'txsinternal')
+        sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:amtlocked,currency:currency0,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
       })
     } else {console.log(`${HEADER_LOG_STOP_TX} MIN_INVOKE_AMT undefined,34893`);return false
     }
   })
 }
-router.post('/exchange',async (req,res)=>{  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
+router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  let {username,sitename}=jdata
+  let {username,sitename}=jdata; req.body.sitename=sitename
   let {currency0, amount0}=req.body;console.log('exchange',req.body) // ,sitename
   if(currency0 && amount0 && sitename){} else {respreqinvalid(res,'ARG-MISSING',79654);return false};sitename=sitename.toUpperCase()
   amount0=parseFloat(amount0);  console.log(amount0)
   callhook({name:username,path:'exchange'})
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename,active:1}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
-    db.balance.findOne({where:{currency:currency0,username:username,nettype:nettype,active:1}}).then(respbal=>{
+    db.balance.findOne({where:{currency:currency0,sitename:sitename, username:username,nettype:nettype,active:1}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       let respbaldata=respbal.dataValues
       const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'])
-      if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){} else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
+      if(B_STAKES){        
+        if(respbaldata['amount']-respbaldata['amountlocked']- convstakeamount2wei(respbaldata['stakesamount'] , respbaldata['denominatorexp']) >=amount0wei){      }
+        else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30211);return false}
+      }
+      else {
+        if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){}             
+        else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
+      }
       doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp);        sendstoadminonexchange(req.body,username)
         return false
       }).catch(err=>{respreqinvalid(res,err.toString(),62015);return false})
@@ -93,28 +102,42 @@ router.get('/balance',async (req,res)=>{  // let username; try{username=await ge
   let {username,sitename}=jdata
   const {currency}=req.query; console.log(req.query) // ,sitename
   if(username && currency && sitename){} else {respreqinvalid(res,'ARGMISSING',64472);return false}
-  let _balance=utils.getbalance({username:username,currency:currency,sitename:sitename},'float')
+  let _balance=utils.getbalanceandstakes({username:username,currency:currency,sitename:sitename},'float')
   let _resprate = await db.exchangerates.findOne({raw:true,where:{currency0:currency,sitename:sitename,active:1}}) // .then(respate=>{let price
   let _forexrate= cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD)
   Promise.all([_balance,_resprate,_forexrate]).then(async aresps=>{
     const [balance,resprate,forexrate]=aresps; let price=null
-    if(resprate['priceisfixed']){      price={price:resprate['fixedprice'],units:resprate['units'],KRWUSD:forexrate}    } 
+    if(resprate['priceisfixed']){      price={price:resprate['fixedprice'],units:resprate['units'],KRWUSD:forexrate} }
     else {
       let _priceredis=cliredisa.hget(KEYNAME_MARKETPRICES,currency)
       let _unitsredis=cliredisa.hget(KEYNAME_UNITS,currency)
-      const aresps=await Promise.all([_priceredis,_unitsredis]) //.then(aresps=>{        
+      const aresps=await Promise.all([_priceredis,_unitsredis]) //.then(aresps=>{
       const [priceredis,unitsredis]=aresps
-      price={price:priceredis,units:unitsredis,KRWUSD:forexrate} //      })
+      price={price:priceredis,units:unitsredis,KRWUSD:forexrate} // })
     }
-    respok(res,null,null,{amountstr:balance.toString(), price:price})
+    respok(res,null,null,{amountstr:balance['amount'].toString(), price:price, stakes:{amount:balance['stakesamount'],expiry:balance['stakesexpiry']
+  }})
   }) //  })
 })
-router.get('/balances', async (req, res, next)=> {  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
-  let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  let {username,sitename}=jdata
+router.get('/balances', async (req,res,next)=> { // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
+  let jdata; let username,sitename  
+  try{jdata=await getuserorterminate(req,res) ; console.log(jdata) // getuserorgoon(req)// getuserorterminate(req,res)
+    if(jdata){                            username=jdata['username'],   sitename=jdata['sitename']}
+//    else if(await validateadminkey(req)){ username=req.query.username,  sitename=req.query.sitename}
+    else {	respreqinvalid(res,null,15389);return false}
+  } catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
   db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
-    res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) ,e['address'],e['canwithdraw'] ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
+    res.status(200).send({status:'OK',balances:aresps.map(e=>{return [
+      e['currency']
+      , convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
+      ,e['address']
+      ,e['canwithdraw']
+      ,e['stakesamount']
+      ,e['stakesstartdate']
+      ,e['stakesexpiry']
+      ,e['stakesduration']
+    ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 });
 router.get('/userpref',async (req,res)=>{ //let username; try{username=await getusero rterminate(req,res);if(username){} else {return false}} catch(err){return false}
@@ -128,15 +151,32 @@ router.get('/userpref',async (req,res)=>{ //let username; try{username=await get
   })
 }) //
 module.exports = router
-const sends=(jdata,tabletouse)=>{  const {currency}=jdata
-  switch(currency){
-    case 'ETH':sendseth(jdata,tabletouse);break
-    case 'BTC':sendsbtc(jdata,tabletouse);break
-    default :sendstoken(jdata,tabletouse);break
-  }
-  return false
+const sends=(jdata,tabletouse,modecollectorgeneral)=>{  const {username,currency,sitename,amt2sendwei}=jdata
+  db.balance.findOne({raw:true,where:{currency:currency, sitename:sitename,username:username,nettype:nettype,active:1}}).then(respbaldata=>{
+    if(modecollectorgeneral && modecollectorgeneral=='collector'){
+      if(respbaldata['amountlocked']>=amt2sendwei){}
+      else {console.log('BALANCE-NOT-ENOUGH',jdata,30212);return false} // res,
+    }
+    else {
+      if(B_STAKES){
+        if(respbaldata['amount']-respbaldata['amountlocked']-convstakeamount2wei(respbaldata['stakesamount'],respbaldata['denominatorexp']) >=amt2sendwei){ } 
+        else {  console.log('BALANCE-NOT-ENOUGH',jdata,30213);return false}
+      }
+      else {
+        if(respbaldata['amount']-respbaldata['amountlocked']>=amt2sendwei){}
+        else {console.log('BALANCE-NOT-ENOUGH',jdata,30214);return false} // res,
+      }
+    }
+    switch(currency){
+      case 'ETH':sendseth(jdata,tabletouse,modecollectorgeneral);break
+      case 'BTC':sendsbtc(jdata,tabletouse,modecollectorgeneral);break
+      default :sendstoken(jdata,tabletouse,modecollectorgeneral);break
+    }
+    return false    
+  })
 }
-/*router.post('/exchangeXX',async (req,res)=>{  const {currency0, amount0}=req.body
+//     sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
+/*router.post('/exc hangeXX',async (req,res)=>{  const {currency0, amount0}=req.body
   if(currency0 && amount0 ){} else {respreqinvalid(res,'ARG-MISSING',79655);return false} // && currency1 amount1 && && usernamecurrency1,,amount1,username
   db.excha ngerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}

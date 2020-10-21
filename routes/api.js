@@ -21,7 +21,6 @@ router.get('/balances', async (req, res, next)=> {  // let username; try{usernam
 router.get('/balances/array', async (req, res, next)=> {  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let jdata; try{jdata=await validatekeyorterminate_param(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
   let {username,sitename}=jdata
-
   db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
     res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) ,e['address'],e['canwithdraw'] ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})

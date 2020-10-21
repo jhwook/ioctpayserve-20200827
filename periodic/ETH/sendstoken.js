@@ -6,17 +6,18 @@ const {TIMESTRFORMAT,MAP_TABLESTOUSE_DEFINED}=require('../../configs/configs')
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
 let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN; const CURRENCYETH='ETH'
-const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
+const {minAbi4tx}=require('../../configs/ETH/tokens/abis');
+const { id } = require('ethers/lib/utils');
 let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
-const sendstoken=(jdata,tabletouse)=>{return new Promise(async (resolve,reject)=>{ if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
-  let {username,rxaddr,amt2sendfloat,amt2sendwei,currency,sitename}= jdata  // db.balance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
+const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(async (resolve,reject)=>{ if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
+  let {username,rxaddr,amt2sendfloat,amt2sendwei,currency,sitename}= jdata  // db.b alance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
   getbalance({username:username,currency:'ETH',sitename:sitename},'float').then(async respbal=>{
     const gasfeefloat=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'float')
     if(respbal>=gasfeefloat){} else {      reject({status:'ERR',message:'Eth balance not enough'});return false    }
 //    let baleth=await web3.eth.getBalance(address)//    if(baleth){} 	else {reject({status:'ERR',message:'Network not avail.'});return false}//    const gasfeeint=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'int')//    if(parseInt(baleth)>=gasfeeint ){} else {reject({status:'ERR',message:'Eth balance not enough',code:51399});return false    }
-    db.balance.findOne({raw:true,where:{username:username,currency:currency,netkind:netkind,sitename:sitename}}).then(async respacct=>{
+    db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename}}).then(async respacct=>{
       if(respacct){} else {reject({status:'ERR'});return false}
       if(respacct['canwithdraw']){} else {reject({status:'ERR'});return false}
       const address=respacct['address']; if(address){} else {reject({status:'ERR',message:'Address not found'});return false}
@@ -55,9 +56,13 @@ const sendstoken=(jdata,tabletouse)=>{return new Promise(async (resolve,reject)=
               , fee:fee
               , txtime:resptx['timeStamp']? moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT):moment().format(TIMESTRFORMAT)
               , amountfloatstr:convweitoeth(amt2sendwei,jtokens[currency].denominatorexp)
+              , sitename:jdata['sitename']
               })
               incdecbalance_reflfee({username:username,currency:CURRENCYETH,amountdelta:fee},resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN})
               incdecbalance({username:username,currency:currency,amountdelta:amt2sendwei,nettype:nettype},resptx) // ,resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN}
+              if(modecollectorgeneral=='collector'){
+                setTimeout(_=>{ db.balance.findOne({where:{id:respacct['id']}} ).then(resp=>{resp.update({amountlocked:resp['amountlocked']-amt2sendwei }) }) },100) 
+              }
               resolve(resptx)
           })
         })

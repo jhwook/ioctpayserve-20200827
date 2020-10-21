@@ -89,7 +89,27 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(15),
       allowNull: true
     }
-    }, {
+    , devactive:{
+      type: DataTypes.INTEGER(4),
+      allowNull: true
+    }
+    , stakesamount:{
+      type: DataTypes.DECIMAL,
+      allowNull: true
+    }
+    , stakesexpiry:{
+      type: DataTypes.STRING(30),
+      allowNull: true
+    }
+    , stakesstartdate:{
+      type: DataTypes.STRING(25),
+      allowNull: true
+    }
+    , stakesduration : {
+      type: DataTypes.INTEGER(10).UNSIGNED,
+      allowNull: true
+    }
+  }, {
     tableName: 'balance'
   });
 };

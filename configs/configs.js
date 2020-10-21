@@ -27,6 +27,8 @@ module.exports={
   , queuenamesj
   , MAP_SITENAME
 	, MAP_TABLESTOUSE_DEFINED
-	, JTOKENSTODO_DEF
+  , JTOKENSTODO_DEF
+  , B_STAKES:1
+  , TIMEZONESTR:'Asia/Seoul'
 }
 // a={BTC:1,ETH:1,USDT:1,IOTC:1,MOKA:1,GAIA:1}
