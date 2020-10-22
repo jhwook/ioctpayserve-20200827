@@ -3,7 +3,7 @@ var router = express.Router();
 const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STAKES}=require('../configs/configs')
 const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
-,validatekey,getuserorgoon, getuserorterminate,validateadminkey
+,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases
 }=require('../utils')
 const db=require('../models')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
@@ -61,6 +61,7 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
         const resptkn=await db.tokens.findOne({raw:true,where:{name:currency0,nettype:'mainnet'}})
         if (resptkn && resptkn['denominatorexp']){decimals=resptkn['denominatorexp']} else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
         const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,currency:currency0, nettype:nettype}}); let amtlocked
+        if(isequalinlowercases(respbal['address'] , collectoraddress) ) {console.log(`${HEADER_LOG_STOP_TX} same address`); return false}
         console.log(respbal['amountlocked'],amtthresh)
         if(respbal && Number.isFinite(respbal['amountlocked']) && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
         else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
