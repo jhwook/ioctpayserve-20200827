@@ -109,6 +109,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: true
     }
+    , stakesactive : {
+      type: DataTypes.INTEGER(4),
+      allowNull: true
+    }
   }, {
     tableName: 'balance'
   });

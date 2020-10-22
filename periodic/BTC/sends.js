@@ -1,7 +1,7 @@
 
 const axios=require('axios')
 const db=require('../../models');
-const { convethtowei,incdecbalance_reflfee } = require('../../utils');
+const { convethtowei,incdecbalance_reflfee ,convweitoeth} = require('../../utils');
 const { netkind, nettype } = require('../../configs/BTC/configbtc');
 const { TIMESTRFORMAT } = require('../../configs/configs');
 const URL_BTCD='http://182.162.21.240:36087/users'
@@ -55,6 +55,7 @@ const sends=async (jdata,tabletouse , modecollectorgeneral)=>{const {amt2sendflo
         , gaslimitoffer:fee
         , gasprice:null
         , fee:fee
+        , feestr:convweitoeth(fee,DECIMALS )
         , txtime:moment().format(TIMESTRFORMAT)
         , amountfloatstr:amount
         , sitename:jdata['sitename']

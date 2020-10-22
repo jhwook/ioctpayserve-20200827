@@ -89,7 +89,7 @@ const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}
 const getbalanceandstakes=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,sitename}=jdata
   db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename }}).then(resp=>{
     if(resp){    let amtwei=resp['amount']-resp['amountlocked'];      amtwei= bfloatwei && bfloatwei=='float'? amtwei/10**resp['denominatorexp']: amtwei
-      resolve({amount:amtwei, stakesamount:resp['stakesamount'],stakesexpiry:resp['stakesexpiry'] })
+      resolve({amount:amtwei, stakesamount:resp['stakesamount'],stakesexpiry:resp['stakesexpiry'],stakesactive:resp['stakesactive'] })
     } else {reject('NOT-FOUND')}
   }).catch(err=>{reject(err.toString())})
 })} 

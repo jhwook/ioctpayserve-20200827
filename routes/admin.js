@@ -21,7 +21,7 @@ const MAP_COINS_DECIMALS={BTC:8,ETH:18,USDT:6},DECIMALS_DEF=0
 const B_ENABLE_QUE=true; const {enqueuedataj}=require('../reqqueue/enqueuer');
 const { MSG_PLEASE_INPUT_DATA } = require('../configs/messages'); // const { token } = require('morgan')
 const { route } = require('./users');
-const { TIMESTRFORMAT , A_POINTSKINDS } = require('../configs/configs') // const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STAKES}=require('../configs/configs')
+const { TIMESTRFORMAT , A_POINTSKINDS } = require('../configs/configs') // const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STA KES}=require('../configs/configs')
 const MAP_CURRENCY_ADDRKIND={BTC:'ADDR-BTC',ETH:'ADDR-ETH'}
 const getaddrtype4que=currency=>{  let addrkind=MAP_CURRENCY_ADDRKIND[currency]
   if(addrkind){} else {addrkind='ADDR-TOKEN'}
@@ -51,6 +51,7 @@ router.get('/balances/user', async (req,res,next)=> { // let username; try{usern
       ,e['stakesstartdate']
       ,e['stakesexpiry']
       ,e['stakesduration']
+      ,e['stakesactive']
     ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 })

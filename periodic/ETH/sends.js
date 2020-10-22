@@ -47,6 +47,7 @@ const sendstoken=jdata=>{return new Promise((resolve,reject)=>{
               , gaslimitbid:resptx['gas'], gaslimitoffer:resptx['gasUsed']
               , gasprice:resptx['gasPrice']
               , fee:fee
+              , feestr:convweitoeth(fee,respacct['denominatorexp'] )
               ,txtime:moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT)
               })
           })

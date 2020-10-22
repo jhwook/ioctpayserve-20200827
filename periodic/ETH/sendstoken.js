@@ -54,6 +54,7 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
               , gaslimitbid:gaslimitbid, gaslimitoffer:gaslimitoffer
               , gasprice:gasprice
               , fee:fee
+              , feestr:convweitoeth(fee,respacct['denominatorexp'] )
               , txtime:resptx['timeStamp']? moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT):moment().format(TIMESTRFORMAT)
               , amountfloatstr:convweitoeth(amt2sendwei,jtokens[currency].denominatorexp)
               , sitename:jdata['sitename']

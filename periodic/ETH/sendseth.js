@@ -58,6 +58,7 @@ const sendseth=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise((r
           , gaslimitoffer:gaslimitoffer
           , gasprice:gasprice
           , fee:fee
+          , feestr:convweitoeth(fee,respacct['denominatorexp'] )
           , txtime:resptx['timeStamp']? moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT):moment().format(TIMESTRFORMAT)
           , amountfloatstr:_ethamt
           , sitename:jdata['sitename']

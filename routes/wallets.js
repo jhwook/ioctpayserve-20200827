@@ -83,7 +83,7 @@ router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // l
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       let respbaldata=respbal.dataValues
       const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'])
-      if(B_STAKES){        
+      if(B_STAKES && respbaldata['stakesactive']){
         if(respbaldata['amount']-respbaldata['amountlocked']- convstakeamount2wei(respbaldata['stakesamount'] , respbaldata['denominatorexp']) >=amount0wei){      }
         else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30211);return false}
       }
@@ -115,7 +115,7 @@ router.get('/balance',async (req,res)=>{  // let username; try{username=await ge
       const [priceredis,unitsredis]=aresps
       price={price:priceredis,units:unitsredis,KRWUSD:forexrate} // })
     }
-    respok(res,null,null,{amountstr:balance['amount'].toString(), price:price, stakes:{amount:balance['stakesamount'],expiry:balance['stakesexpiry']
+    respok(res,null,null,{amountstr:balance['amount'].toString(), price:price, stakes:{amount:balance['stakesamount'],expiry:balance['stakesexpiry'],active:balance['stakesactive']
   }})
   }) //  })
 })
@@ -137,6 +137,7 @@ router.get('/balances', async (req,res,next)=> { // let username; try{username=a
       ,e['stakesstartdate']
       ,e['stakesexpiry']
       ,e['stakesduration']
+      ,e['stakesactive']
     ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 });
@@ -158,7 +159,7 @@ const sends=(jdata,tabletouse,modecollectorgeneral)=>{  const {username,currency
       else {console.log('BALANCE-NOT-ENOUGH',jdata,30212);return false} // res,
     }
     else {
-      if(B_STAKES){
+      if(B_STAKES && respbaldata['stakesactive']){
         if(respbaldata['amount']-respbaldata['amountlocked']-convstakeamount2wei(respbaldata['stakesamount'],respbaldata['denominatorexp']) >=amt2sendwei){ } 
         else {  console.log('BALANCE-NOT-ENOUGH',jdata,30213);return false}
       }
