@@ -1,5 +1,5 @@
 var express = require('express');
-var router = express.Router();
+var router = express.Router();const moment=require('moment-timezone')
 const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STAKES}=require('../configs/configs')
 const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
@@ -208,4 +208,14 @@ router.get('/balance_mixed',async (req,res)=>{  // let username; try{username=aw
   })
 if(false){	db.ba_lance.findOne({raw:true,where:{... req.query}}).then(async resp=>{    const prices=await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL');		res.status(200).send({status:'OK',... resp,prices:prices});return false
 	})}  //res.status(200).send({status:'OK',amount:100000,exchangerate:12,address:'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH'});return false
+})
+require('node-cron').schedule('1 0 0 * * *',_=>{
+  db.balance.findAll({raw:true,where:{stakesactive:1}}).then(aresps=>{
+    aresps.some(e=>{      const expiry=e['stakesexpiry']
+      if(expiry){} else {return false}
+      if(moment().format('YYYY-MM-DD')>=expiry){
+        db.balance.update({stakesactive:0},{where:{id:e['id']}}).then(resp=>{console.log(`deactive stakes ${JSON.stringify(e,null,0)}`) })
+      }
+    })
+  })
 })
