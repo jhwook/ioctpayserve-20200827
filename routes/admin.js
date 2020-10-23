@@ -96,16 +96,17 @@ router.post('/sitenameholder/delete/via/update',async(req,res)=>{const {sitename
 }) // const MINSITENAMELEN=3 // 4
 const EXCHGDATA_DEF=	{nettype:'mainnet',priceisfixed:0,canwithdraw:1,units:'KRW',valid:1,C:50,S:50,K:10}
 const	EXCHGDATA_DEF02={nettype:'mainnet',priceisfixed:0,canwithdraw:1,units:'USD',valid:1,C:50,S:50,K:10}
-router.post('/stakes',(req,res)=>{  let {username,currency,amount,startdate,duration,sitename}=req.body;amount=+amount ;duration=+duration
-  if(username && currency&& Number.isFinite(amount) && startdate && Number.isFinite(duration) && sitename){}  else {respreqinvalid(res,'ARG-MISSING',23392);return false}
+router.post('/stakes',(req,res)=>{  let {username,active,currency,amount,startdate,duration,sitename}=req.body;amount=+amount ;duration=+duration;active=+active
+  if(Number.isFinite(active) && username && currency&& Number.isFinite(amount) && startdate && Number.isFinite(duration) && sitename){}  else {respreqinvalid(res,'ARG-MISSING',23392);return false}
+  if(active==1 || active==0){}    else {respreqinvalid(res,'ARG-INVALID',16516);return false}
   if(amount>0){}    else {respreqinvalid(res,'ARG-INVALID',16517);return false}
   if(duration>0){}  else {respreqinvalid(res,'ARG-INVALID',16518);return false}
-  if(moment()>=moment(startdate)){} else {respreqinvalid(res,'ARG-INVALID',16519);return false} // .tz('Asia/Seoul')
+  if(moment(startdate)){} else {respreqinvalid(res,'ARG-INVALID',16519);return false} // .tz('Asia/Seoul')
   db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{
     if(respuser){} else {respreqinvalid(res,'USER-NOT-FOUND',56698);return false}
     db.balance.findOne({where:{username:username,sitename:sitename,currency:currency,nettype:nettype}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'ACCT-NOT-FOUND',33728);return false};      let respbaldata=respbal.dataValues
-      respbal.update({ stakesamount:amount , stakesstartdate:startdate , stakesexpiry:moment().tz(TIMEZONESTR).add(duration,'days').format(TIMESTRFORMAT) , stakesduration:duration}).then(resp=>{
+      respbal.update({ stakesactive:active, stakesamount:amount , stakesstartdate:startdate , stakesexpiry:moment().tz(TIMEZONESTR).add(duration,'days').format(TIMESTRFORMAT) , stakesduration:duration}).then(resp=>{
         respok(res,MSG_DONE_STAKES,66047);return false
       })
     })
