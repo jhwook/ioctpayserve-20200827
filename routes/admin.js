@@ -13,7 +13,7 @@ const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
 const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다',MSG_URL_INVALID='URL이 유효하지 않습니다'
 const MSG_CONVRATE_INVALID='변환율이 유효하지 않습니다',MSG_FIXEDPRICE_INVALID='고정가격이 유효하지 않습니다',MSG_TOKEN_NOTREGISTERED='등록되지 않은 토큰입니다',MSG_SITETOKEN_NOTFOUND='등록되지 않은 사이트/토큰입니다'
-const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다',MSG_DONE_STAKES='스테이킹 적용완료'
+const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다',MSG_DONE_STAKES='스테이킹 반영완료'
 const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../configs/ETH/utilstoken') // ../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
