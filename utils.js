@@ -2,7 +2,7 @@ const db=require('./models');const axios=require('axios')
 const moment=require('moment');const {netkind,nettype}=require('./configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 const md5 = require('md5');const  sha1 = require('sha1')
-const {validatekey,validatekeyorterminate}=require('./sso/sso')
+const {validatekey,validatekeyorterminate,sendpoints}=require('./sso/sso')
 const {KEYNAME_MARKETPRICES,POINTSKINDS,KEYNAME_KRWUSD, TIMESTRFORMAT}=require('./configs/configs')
 const messages=require('./configs/messages')
 const MAP_KRWUSD_APPLIES={BTC:1,ETH:1,USDT:1}
@@ -134,12 +134,16 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
       const amtlockedtoupd=parseInt(respbaldata['amountlocked'])+parseInt(amount0wei)
       const amtbefore=respbaldata['amount']-respbaldata['amountlocked'],amountafter=amtbefore-parseInt(amount0wei)
       respbal.update({amountlocked:amtlockedtoupd})
-      let extodata={}; 
+      let extodata={}
       Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log(amount0,price , resprates[pointkind],amttoinc)
         extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,netkind:netkind,sitename:sitename,denominatorexp:DENOMINATOREXP_POINTS}
         db.balance.findOne({where:{... jdataq }}).then(resp=>{
-          if(resp){          const respdata=resp.dataValues          ;          resp.update({amount:respdata['amount']+amttoinc })          } 
-          else {            db.balance.create({amount:amttoinc, nettype:nettype, ... jdataq })          }
+          if(resp){const respdata=resp.dataValues          ;
+            resp.update({amount:respdata['amount']+amttoinc }).then(                resp=>{sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind })          })
+          }
+          else {
+            db.balance.create({amount:amttoinc, nettype:nettype, ... jdataq }).then(resp=>{sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind })          })
+          }           
         })
       })
       db.transactions.create({

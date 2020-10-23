@@ -2,15 +2,39 @@
 const axios=require('axios')
 const messages=require('../configs/messages');let PROTOCOL_SSOS='https',PROTOCOL_SSO='http'
 const db=require('../models')
-let URLS_SSO_SERVE={
-  IOTC:   `${PROTOCOL_SSOS}://www.iotcpay.com/sso_api.php`
-, SDC:    `${PROTOCOL_SSOS}://www.sdcpay.co.kr/sso_api.php`
-, SDCPAY: `${PROTOCOL_SSOS}://www.sdcpay.co.kr/sso_api.php`
-, CARRYON:`${PROTOCOL_SSOS}://www.carryonpay.com/sso_api.php`
-, KWIFI:  `${PROTOCOL_SSO}://www.kwifi.co.kr/sso_api.php`
-, WWIFI:  `${PROTOCOL_SSO}://www.w-wifi.kr/sso_api.php`
+const IPS_BASE={
+  IOTC:   `${PROTOCOL_SSOS}://www.iotcpay.com`,   SDC:    `${PROTOCOL_SSOS}://www.sdcpay.co.kr`
+, SDCPAY: `${PROTOCOL_SSOS}://www.sdcpay.co.kr`,  CARRYON:`${PROTOCOL_SSOS}://www.carryonpay.com`
+, KWIFI:  `${PROTOCOL_SSO}://www.kwifi.co.kr`,    WWIFI:  `${PROTOCOL_SSO}://www.w-wifi.kr`
 }
-const {MAP_SITENAME}=require('../configs/configs');
+let URLS_SSO_SERVE={
+  IOTC:   `${PROTOCOL_SSOS}://www.iotcpay.com/sso_api.php`  , SDC:    `${PROTOCOL_SSOS}://www.sdcpay.co.kr/sso_api.php`
+, SDCPAY: `${PROTOCOL_SSOS}://www.sdcpay.co.kr/sso_api.php` , CARRYON:`${PROTOCOL_SSOS}://www.carryonpay.com/sso_api.php`
+, KWIFI:  `${PROTOCOL_SSO}://www.kwifi.co.kr/sso_api.php` , WWIFI:  `${PROTOCOL_SSO}://www.w-wifi.kr/sso_api.php`
+}
+const URLS_SENDPOINTS={
+  IOTC:   `${PROTOCOL_SSOS}://${IPS_BASE['IOTC']}/wallet_api.php`   , SDC:    `${PROTOCOL_SSOS}://${IPS_BASE['SDC']}/wallet_api.php`
+, SDCPAY: `${PROTOCOL_SSOS}://${IPS_BASE['SDCPAY']}/wallet_api.php` , CARRYON:`${PROTOCOL_SSOS}://${IPS_BASE['CARRYON']}/wallet_api.php`
+, KWIFI:  `${PROTOCOL_SSO}://${IPS_BASE['KWIFI']}/wallet_api.php`   , WWIFI:  `${PROTOCOL_SSO}://${IPS_BASE['WWIFI']}/wallet_api.php`
+}
+const {MAP_SITENAME}=require('../configs/configs')
+// http://www.iotcpay.com/wallet_api.php?   sitecode=iotc &hashcode=3a1a2d5f3fea5b062366aad93b7461e1 &passcode=111111 &ptype=C&pamt=100
+const sendpoints=jdata=>{
+  return new Promise((resolve,reject)=>{  let {username,sitename,hashcode,pointkind }=jdata
+    db.balance.findOne({where:{}}).then(respbal=>{let respbaldata=respbal.dataValues
+      if(respbaldata['amount']>0){
+        db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{
+          axios.get(URLS_SENDPOINTS[sitename], {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode,passcode:respuser['withdrawpw']
+            ,ptype:pointkind,pamt:respbaldata['amount'] }}).then(respsend=>{
+            if(respsend && respsend['result']){
+              respbal.update({amount:0}).then(resolve).catch(reject)
+            }
+          }).catch(reject)
+        }).catch(reject)
+      }
+    }).catch(reject)
+  })
+}
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}
 const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
   return new Promise((resolve,reject)=>{
@@ -101,7 +125,7 @@ const validatekeyorterminatewithargs=(res,sitename,token)=>{sitename=MAP_SITENAM
     })  
   })
 }
-module.exports={validatekey,validatekeyorterminate,validateurlsso,validatekeyorterminate_param}
+module.exports={validatekey,validatekeyorterminate,validateurlsso,validatekeyorterminate_param,sendpoints}
 const PERIOD_POLL_SITENAMEHOLDER=65*1000
 // setInterval(()=>{  db.site},PERIOD_POLL_SITENAMEHOLDER)
   // ?sitecode=iotc&hashcode=3a1a2d5f3fea5b062366aad93b7461e1'
