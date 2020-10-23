@@ -102,7 +102,7 @@ router.post('/stakes',(req,res)=>{  let {username,active,currency,amount,startda
     db.balance.findOne({where:{username:username,sitename:sitename,currency:currency,nettype:nettype}}).then(respbal=>{
       respbal.update({stakesactive:active});respok(res,MSG_DONE_STAKES,66046);return false
     })
-  }
+  }else {
   amount=+amount ;duration=+duration;
   if(Number.isFinite(active) && username && currency&& Number.isFinite(amount) && startdate && Number.isFinite(duration) && sitename){}  else {respreqinvalid(res,'ARG-MISSING',23392);return false}
   if(active==1 || active==0){}    else {respreqinvalid(res,'ARG-INVALID',16516);return false}
@@ -119,6 +119,7 @@ router.post('/stakes',(req,res)=>{  let {username,active,currency,amount,startda
       })
     })
   })
+  }
 })
 router.put('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(req.body)
 	sitename=sitename.toUpperCase()
