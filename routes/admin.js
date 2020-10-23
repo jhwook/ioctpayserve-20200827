@@ -96,7 +96,14 @@ router.post('/sitenameholder/delete/via/update',async(req,res)=>{const {sitename
 }) // const MINSITENAMELEN=3 // 4
 const EXCHGDATA_DEF=	{nettype:'mainnet',priceisfixed:0,canwithdraw:1,units:'KRW',valid:1,C:50,S:50,K:10}
 const	EXCHGDATA_DEF02={nettype:'mainnet',priceisfixed:0,canwithdraw:1,units:'USD',valid:1,C:50,S:50,K:10}
-router.post('/stakes',(req,res)=>{  let {username,active,currency,amount,startdate,duration,sitename}=req.body;amount=+amount ;duration=+duration;active=+active
+router.post('/stakes',(req,res)=>{  let {username,active,currency,amount,startdate,duration,sitename}=req.body;  active=+active
+  if(active<1){
+    if(username && sitename && currency){} else {respreqinvalid(res,'ARG-MISSING',23391);return false}
+    db.balance.findOne({where:{username:username,sitename:sitename,currency:currency,nettype:nettype}}).then(respbal=>{
+      respbal.update({stakesactive:active});respok(res,MSG_DONE_STAKES,66046);return false
+    })
+  }
+  amount=+amount ;duration=+duration;
   if(Number.isFinite(active) && username && currency&& Number.isFinite(amount) && startdate && Number.isFinite(duration) && sitename){}  else {respreqinvalid(res,'ARG-MISSING',23392);return false}
   if(active==1 || active==0){}    else {respreqinvalid(res,'ARG-INVALID',16516);return false}
   if(amount>0){}    else {respreqinvalid(res,'ARG-INVALID',16517);return false}
