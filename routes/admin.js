@@ -106,7 +106,7 @@ router.post('/stakes',(req,res)=>{  let {username,active,currency,amount,startda
     if(respuser){} else {respreqinvalid(res,'USER-NOT-FOUND',56698);return false}
     db.balance.findOne({where:{username:username,sitename:sitename,currency:currency,nettype:nettype}}).then(respbal=>{
       if(respbal){} else {respreqinvalid(res,'ACCT-NOT-FOUND',33728);return false};      let respbaldata=respbal.dataValues
-      respbal.update({ stakesactive:active, stakesamount:amount , stakesstartdate:startdate , stakesexpiry:moment().tz(TIMEZONESTR).add(duration,'days').format(TIMESTRFORMAT) , stakesduration:duration}).then(resp=>{
+      respbal.update({ stakesactive:active, stakesamount:amount , stakesstartdate:startdate , stakesexpiry:moment().add(duration,'days').format(TIMESTRFORMAT) , stakesduration:duration}).then(resp=>{
         respok(res,MSG_DONE_STAKES,66047);return false
       })
     })
