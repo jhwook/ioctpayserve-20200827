@@ -12,8 +12,8 @@ const respwithdata=(res,data)=>{res.status(200).send({status:'OK',... data});ret
 const respok=(res,msg,code,jdata)=>{res.status(200).send({status:'OK',message:msg,code:code,... jdata});return false}
 const getpricesstr=async ()=>{return await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')}
 const getethfloatfromweistr=(str)=>{return parseInt(str)/10**18}
-const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return Number.isFinite(numfloat)? numfloat*10**exp : parseFloat(numfloat)*10**exp }
-const convweitoeth=(numint,decimals)=>  {const exp=decimals?decimals:18; return Number.isFinite(numint)? numint/10**exp : parseInt(numint)/10**exp }
+const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return Number.isFinite(numfloat)? numfloat*10**exp : (+numfloat)*10**exp }
+const convweitoeth=(numint,decimals)=>  {const exp=decimals?decimals:18; return Number.isFinite(numint)? numint/10**exp : (+numint)/10**exp }
 const convtohex=(intdec)=>{return `0x${intdec.toString(16)}`}
 const isequalinlowercases=(str0,str1)=>{return str0.toLowerCase()==str1.toLowerCase()}
 const MIN_ETH_ADDRESS_LEN=40; const MIN_RATE=0,MAX_RATE=200,DENOMINATOREXP_POINTS=0
