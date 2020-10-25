@@ -137,7 +137,7 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
       respbal.update({amountlocked:amtlockedtoupd})
       let extodata={}
       Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log(amount0,price , resprates[pointkind],amttoinc)
-        extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,netkind:netkind,sitename:sitename,denominatorexp:DENOMINATOREXP_POINTS}
+        extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,nettype:nettype,sitename:sitename,denominatorexp:DENOMINATOREXP_POINTS} // netkind:netkind
         db.balance.findOne({where:{... jdataq }}).then(resp=>{
           if(resp){const respdata=resp.dataValues          ;
             resp.update({amount:respdata['amount']+amttoinc }).then(                resp=>{ if(B_SENDPOINTS){ sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind })} })
