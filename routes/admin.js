@@ -8,13 +8,14 @@ const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netk
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
 const messages=require('../configs/messages'); const SITENAME_DEF='IOTC'; const {validateurlsso}=require('../sso/sso')
+const dbmon=require('../modelsmon')
 const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF,TIMEZONESTR}=configs;const MAX_URLADDRESS_LEN=100
 const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
 const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다',MSG_URL_INVALID='URL이 유효하지 않습니다'
 const MSG_CONVRATE_INVALID='변환율이 유효하지 않습니다',MSG_FIXEDPRICE_INVALID='고정가격이 유효하지 않습니다',MSG_TOKEN_NOTREGISTERED='등록되지 않은 토큰입니다',MSG_SITETOKEN_NOTFOUND='등록되지 않은 사이트/토큰입니다'
-const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다',MSG_DONE_STAKES='반영완료'
-const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3
+const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다',MSG_DONE_STAKES='반영완료',MSG_DONE_REGISTER='등록완료'
+const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3; const MSG_ARGMISSING='입력값을 확인하세요'
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../configs/ETH/utilstoken') // ../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
 const MAP_COINS_DECIMALS={BTC:8,ETH:18,USDT:6},DECIMALS_DEF=0
@@ -330,3 +331,11 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
   respok(res,MSG_DELETED,19774);return false
 //  .then(resp=>{    respok(res,MSG_DELETED,19774);return false  }) //  db.sitenameholder.des troy({where:{sitename:sitename}}).then(resp=>{    respok(res,MSG_DELETED,19774);return false  })
 }) //
+router.post('/image',(res,res)=>{let {name,imagebase64,subname}=req.body
+  if (name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+'(이미지)',73069);return false}
+  dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname}
+    , {upsert: true}, (err, doc)=> {
+    if(err){console.log('err',err);respreqinvalid(res,'INTERNAL-ERR',43421);return false}
+    else {respok(res,'이미지'+MSG_DONE_REGISTER,null);return false}
+  })
+})
