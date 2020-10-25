@@ -112,6 +112,7 @@ function generateRandomStr (length) {
 	return result;
 }
 const getip=(req)=>{	return req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.headers['x-real-ip']}
+const B_SENDPOINTS=0
 const doexchange=async (username,jdata,respbal,resprates)=>{
   return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata);let sitename=jdata['sitename'].toUpperCase()
     let respbaldata=respbal.dataValues;let price=null
@@ -139,10 +140,10 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
         extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,netkind:netkind,sitename:sitename,denominatorexp:DENOMINATOREXP_POINTS}
         db.balance.findOne({where:{... jdataq }}).then(resp=>{
           if(resp){const respdata=resp.dataValues          ;
-            resp.update({amount:respdata['amount']+amttoinc }).then(                resp=>{sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind })          })
+            resp.update({amount:respdata['amount']+amttoinc }).then(                resp=>{ if(B_SENDPOINTS){ sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind })} })
           }
           else {
-            db.balance.create({amount:amttoinc, nettype:nettype, ... jdataq }).then(resp=>{sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind })          })
+            db.balance.create({amount:amttoinc, nettype:nettype, ... jdataq }).then(resp=>{ if(B_SENDPOINTS){ sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind }) } })
           }           
         })
       })
