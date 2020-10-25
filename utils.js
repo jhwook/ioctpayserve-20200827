@@ -4,7 +4,7 @@ const redis=require('redis');const clientredis=redis.createClient();const clired
 const md5 = require('md5');const  sha1 = require('sha1')
 const {validatekey,validatekeyorterminate,sendpoints}=require('./sso/sso')
 const {KEYNAME_MARKETPRICES,POINTSKINDS,KEYNAME_KRWUSD, TIMESTRFORMAT}=require('./configs/configs')
-const messages=require('./configs/messages')
+const messages=require('./configs/messages');const _=require('lodash')
 const MAP_KRWUSD_APPLIES={BTC:1,ETH:1,USDT:1}
 const gettimestr=()=>{return moment().format('YYYY-MM-DD HH:mm:ss.SSS')}
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}, resperr=respreqinvalid

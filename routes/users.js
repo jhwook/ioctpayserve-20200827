@@ -24,7 +24,7 @@ router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.
       accounteth=configweb3.createaccount() // web3.createaccount()
       accountbtc=configbtc.createaccount() ;  let account=null,netkind // acct.publicAddress , acct.privateWif      
 			console.log('CREATED',username,sitename,accountbtc,accounteth) // ;return false
-			const jtokens=_.fromPairs(_.map(resptokens, e => [e.name, e ])) //			let atmpresps=[] //			const jrates=conva2j(resprates,'currency0');			Object.keys(JTOKENSTODO_DEF).forEach(tknname=>{				if(jrates[tknname]){}				else {}			})			
+			const jtokens=_.fromPairs(_.map(resptokens, e => [e.name, e ])) //			let atmpresps=[] //			const jrates=conva 2j(resprates,'currency0');			Object.keys(JTOKENSTODO_DEF).forEach(tknname=>{				if(jrates[tknname]){}				else {}			})			
       resprates.forEach(ratedata=>{ let netkind,nettype;console.log(JSON.stringify(ratedata,null,0).replace(/\"/g,''))
         const jdata=jtokens[ratedata['currency0']]; if (jdata){} else {console.log(`Data missing-${ratedata['currency0']}`);return false}
         if(jdata['group_']=='ETH')      { account=accounteth; netkind=configweb3.netkind, nettype=configweb3.nettype }

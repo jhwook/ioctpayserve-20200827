@@ -2,7 +2,7 @@
 const express = require('express');
 var router = express.Router();
 const db=require('../models')
-const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth}=utils
+const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth,conva2j}=utils
 const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
@@ -28,10 +28,14 @@ const getaddrtype4que=currency=>{  let addrkind=MAP_CURRENCY_ADDRKIND[currency]
   if(addrkind){} else {addrkind='ADDR-TOKEN'}
   return addrkind
 }
+router.get('/tokens',(req,res)=>{
+  db.tokens.findAll({raw:true}).then(aresps=>{    const jdata=conva2j(aresps,'name')
+    respok(res,null,null,{tokens:jdata});return false  }) // aresps 
+  .catch(err=>{respreqinvalid(res,'INTERNAL-ERR',74002);return false  })
+})
 router.get('/transactions',(req,res)=>{
-  db.transactions.findAll({raw:true,}).then(aresps=>{    respok(res,null,null,{txs:aresps});return false
-  }).catch(err=>{    respreqinvalid(res,'INTERNAL-ERR',62002);return false
-  })
+  db.transactions.findAll({raw:true,}).then(aresps=>{    respok(res,null,null,{txs:aresps});return false  })
+  .catch(err=>{    respreqinvalid(res,'INTERNAL-ERR',62002);return false  })
 })
 router.get('/balances/user', async (req,res,next)=> { // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let jdata // ; let username,sitename
