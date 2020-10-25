@@ -51,18 +51,18 @@ router.post('/withdraw',async  (req,res)=>{  // let username; try{username=await
     callhook({name:username,path:'withdraw'});    return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
 }) //
-const HEADER_LOG_STOP_TX='stop admin tx:'
+const HEADER_LOG_STOP_TX='stop admin tx:';const B_VERB=0
 const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=jdata // ; amount0=parseFloat(amount0)
-  db.operations.findOne({raw:true,where:{key_:'MIN_BALANCE_TO_INVOKE_TX_ON_CHANGE',subkey_:currency0}}).then(async respoper=>{console.log('respoper',respoper)
-    if(respoper && respoper['value_']){      let amtthresh=+respoper['value_'];console.log('amtthresh',amtthresh)
-      db.exchangerates.findOne({raw:true,where:{sitename:sitename,currency0:currency0,nettype:nettype}}).then(async respexrate=>{let collectoraddress,decimals;console.log('respexrate',respexrate)
+  db.operations.findOne({raw:true,where:{key_:'MIN_BALANCE_TO_INVOKE_TX_ON_CHANGE',subkey_:currency0}}).then(async respoper=>{if(B_VERB){console.log('respoper',respoper)}
+    if(respoper && respoper['value_']){      let amtthresh=+respoper['value_']; if(B_VERB){console.log('amtthresh',amtthresh)}
+      db.exchangerates.findOne({raw:true,where:{sitename:sitename,currency0:currency0,nettype:nettype}}).then(async respexrate=>{let collectoraddress,decimals;if(B_VERB){console.log('respexrate',respexrate)}
         if(respexrate && respexrate['collectoraddress']){collectoraddress=respexrate['collectoraddress']} else {console.log(`${HEADER_LOG_STOP_TX} collector undefined`);return false}
-        console.log('collectoraddress',collectoraddress) //        if(respexrate && respexrate['denominatorexp']  ){decimals=respexrate['denominatorexp']}           else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
+        if(B_VERB){console.log('collectoraddress',collectoraddress)} //        if(respexrate && respexrate['denominatorexp']  ){decimals=respexrate['denominatorexp']}           else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}
         const resptkn=await db.tokens.findOne({raw:true,where:{name:currency0,nettype:'mainnet'}})
-        if (resptkn && resptkn['denominatorexp']){decimals=resptkn['denominatorexp']} else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}; console.log('resptkn',resptkn)
-        const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,currency:currency0, nettype:nettype}}); let amtlocked; console.log('respbal',respbal)
+        if (resptkn && resptkn['denominatorexp']){decimals=resptkn['denominatorexp']} else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}; if(B_VERB){console.log('resptkn',resptkn)}
+        const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,currency:currency0, nettype:nettype}}); let amtlocked; if(B_VERB){console.log('respbal',respbal)}
         if(isequalinlowercases(respbal['address'] , collectoraddress) ) {console.log(`${HEADER_LOG_STOP_TX} same address`); return false}
-        console.log(respbal['amountlocked'],amtthresh)
+        if(B_VERB){console.log(respbal['amountlocked'],amtthresh)}
         if(respbal && Number.isFinite(respbal['amountlocked']) && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
         else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
         sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:amtlocked,currency:currency0,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
@@ -161,9 +161,7 @@ router.get('/image',(req,res)=>{console.log(req.query);  const {name}=req.query
   })
 })
 module.exports = router
-
-sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:amtlocked,currency:currency0,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
-
+// sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:amtlocked,currency:currency0,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
 const sends=(jdata,tabletouse,modecollectorgeneral)=>{  const {username,currency,sitename,amt2sendwei}=jdata; console.log('jdata@sends',jdata)
   db.balance.findOne({raw:true,where:{currency:currency, sitename:sitename,username:username,nettype:nettype,active:1}}).then(respbaldata=>{
     if(modecollectorgeneral && modecollectorgeneral=='collector'){

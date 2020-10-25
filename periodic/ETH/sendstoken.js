@@ -19,7 +19,9 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
 //    let baleth=await web3.eth.getBalance(address)//    if(baleth){} 	else {reject({status:'ERR',message:'Network not avail.'});return false}//    const gasfeeint=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'int')//    if(parseInt(baleth)>=gasfeeint ){} else {reject({status:'ERR',message:'Eth balance not enough',code:51399});return false    }
     db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename}}).then(async respacct=>{
       if(respacct){} else {reject({status:'ERR'});return false}
-      if(respacct['canwithdraw']){} else {reject({status:'ERR'});return false}
+      if(modecollectorgeneral && modecollectorgeneral=='collector'){}
+      else if(respacct['canwithdraw']){} 
+      else {console.log('Withdraw BANNED'); reject({status:'ERR'});return false}
       const address=respacct['address']; if(address){} else {reject({status:'ERR',message:'Address not found'});return false}
 
       let baleth=await web3.eth.getBalance(address)
@@ -61,7 +63,7 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
               })
               incdecbalance_reflfee({username:username,currency:CURRENCYETH,amountdelta:fee},resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN})
               incdecbalance({username:username,currency:currency,amountdelta:amt2sendwei,nettype:nettype},resptx) // ,resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN}
-              if(modecollectorgeneral=='collector'){
+              if(modecollectorgeneral && modecollectorgeneral=='collector'){
                 setTimeout(_=>{ db.balance.findOne({where:{id:respacct['id']}} ).then(resp=>{resp.update({amountlocked:resp['amountlocked']-amt2sendwei }) }) },100) 
               }
               resolve(resptx)

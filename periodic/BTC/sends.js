@@ -11,6 +11,9 @@ const sends=async (jdata,tabletouse , modecollectorgeneral)=>{const {amt2sendflo
   try{  let respfee=await db.operations.findOne({raw:true,where:{key_:'SENDFEE',subkey_:'BTC'}});console.log(respfee)
   if(respfee){} else {console.log('sendfee not found');return null};  fee=parseFloat(respfee['value_'])
   let respacct=await db.balance.findOne({raw:true,where:{username:username,currency:CURRENCYLOCAL,nettype:nettype,sitename:sitename , active:1}})
+  if(modecollectorgeneral && modecollectorgeneral=='collector'){}
+  else if(respacct['canwithdraw']){}
+  else {console.log('Withdraw BANNED');return null}
   if(respacct){address=respacct['address']} else {console.log('acct not found');return null}
   axios.get(`${URL_BTCD}/listunspent`,{params:{address:address}}).then(async resputxo=>{
     if(resputxo.data.status=='OK'){ //      console.log(resputxo.data.message)

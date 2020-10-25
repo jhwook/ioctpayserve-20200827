@@ -14,7 +14,9 @@ const sendseth=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise((r
   let {username,rxaddr,amt2sendfloat,amt2sendwei,sitename}= jdata;console.log(jdata, '@15620')
   db.balance.findOne({raw:true,where:{username:username,currency:CURRENCYLOCAL,nettype:nettype,sitename:sitename}}).then(respacct=>{
     if(respacct){} else {console.log('acct not found');reject({status:'ERR',message:'Acct not found'});return false}
-    if(respacct['canwithdraw']){} else {console.log('Withdraw BANNED'); reject({status:'ERR',message:'Withdraw BANNED'});return false}
+    if(modecollectorgeneral && modecollectorgeneral=='collector'){}
+    else if(respacct['canwithdraw']){} 
+    else {console.log('Withdraw BANNED'); reject({status:'ERR',message:'Withdraw BANNED'});return false}
     let address=respacct['address']; if(address){} else {console.log('Address not found'); reject({status:'ERR',message:'Address not found'});return false}
 //    resolve('OK') ;return false
     web3.eth.getBalance(address).then(async balance=>{		if(balance){} 	else {reject({status:'ERR',message:'Network not avail.'});return false}
