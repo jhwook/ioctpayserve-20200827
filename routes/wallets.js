@@ -73,7 +73,7 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
 }
 router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  let {username,sitename}=jdata; req.body.sitename=sitename
+  let {username,sitename}=jdata; req.body.sitename=sitename;req.body.username=username
   let {currency0, amount0}=req.body;console.log('exchange',req.body) // ,sitename
   if(currency0 && amount0 && sitename){} else {respreqinvalid(res,'ARG-MISSING',79654);return false};sitename=sitename.toUpperCase()
   amount0=parseFloat(amount0);  console.log(amount0)
