@@ -2,6 +2,7 @@
 module.exports = {
   schema: {
     name:         {type:String,required:true}
+    , subname:    {type:String,required:true}
     , imagebase64:{type:String,required:true}
     , imageformat:{ type:String,required:false}
     , createdAt:  {type:String,required: false}
