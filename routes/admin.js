@@ -331,8 +331,9 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
   respok(res,MSG_DELETED,19774);return false
 //  .then(resp=>{    respok(res,MSG_DELETED,19774);return false  }) //  db.sitenameholder.des troy({where:{sitename:sitename}}).then(resp=>{    respok(res,MSG_DELETED,19774);return false  })
 }) //
-router.post('/image',(res,res)=>{let {name,imagebase64,subname}=req.body
+router.post('/image',(req,res)=>{let {name,imagebase64,subname}=req.body;console.log(name)
   if (name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+'(이미지)',73069);return false}
+  respok(res);return false
   dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname}
     , {upsert: true}, (err, doc)=> {
     if(err){console.log('err',err);respreqinvalid(res,'INTERNAL-ERR',43421);return false}
