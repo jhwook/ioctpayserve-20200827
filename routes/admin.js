@@ -337,6 +337,12 @@ router.post('/image',(req,res)=>{let {name,imagebase64,subname}=req.body;console
   dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname    ,updatedAt:timenow  }
     , {upsert: true}, (err, doc)=> {
     if(err){console.log('err',err);respreqinvalid(res,'INTERNAL-ERR',43421);return false}
-    else {respok(res,'이미지'+MSG_DONE_REGISTER,null);return false}
+    else {respok(res,'이미지'+MSG_DONE_REGISTER,null);      storeimg2cli(name,imagebase64)
+    return false}
   })
 })
+const IMGTARGETFOLDER='/var/www/html/static/media'
+const fs=require('fs')
+const storeimg2cli=(name,imgstr)=>{  imgstr=imgstr.replace(/^data:image\/png;base64,/, '')
+  fs.writeFile(`${name}.png`,imgstr,'base64',err=>{console.log(err)});  return false  
+}
