@@ -12,7 +12,7 @@ const {sendstoken}=require('../periodic/ETH/sendstoken') // const {se nds eth,se
 const utils = require('../utils') // ;const B_STAKES=1
 const { netkind,nettype } = require('../configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
-const convstakeamount2wei=(str,denominatorexp)=>convweitoeth(+str, denominatorexp)
+const convstakeamount2wei=(str,denominatorexp)=>convethtowei(+str, denominatorexp) // convweitoeth
 /* GET users listing. */
 router.get('/marketprice',async (req,res)=>{const {currency}=req.query
   db.marketprices.findAll({raw:true,attributes: [[db.sequelize.fn('max', db.sequelize.col('id')), 'maxid']]})
