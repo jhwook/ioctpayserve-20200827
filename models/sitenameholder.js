@@ -49,6 +49,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(4),
       allowNull: true
     }
+    , urlsso:{          type: DataTypes.STRING(100),      allowNull: true,} 
+    ,urlpointincrease:{ type: DataTypes.STRING(100),      allowNull: true,}
+    ,urlpointdecrease:{ type: DataTypes.STRING(100),      allowNull: true,}
+    ,urlwithdrawpw:{    type: DataTypes.STRING(100),      allowNull: true,}
   }, {
     tableName: 'sitenameholder'
   });
