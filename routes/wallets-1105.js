@@ -10,11 +10,10 @@ const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth}=require('../periodic/ETH/sendseth')
 const {sendstoken}=require('../periodic/ETH/sendstoken') // const {se nds eth,sendstoken}=require('../periodic/ETH/s ends')
 const utils = require('../utils') // ;const B_STAKES=1
-const { netkind,nettype } = require('../configs/ETH/configweb3');const {verifypw}=require('../sso/sso')
+const { netkind,nettype } = require('../configs/ETH/configweb3')
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 const convstakeamount2wei=(str,denominatorexp)=>convethtowei(+str, denominatorexp) // convweitoeth
 /* GET users listing. */
-const MSGS={MSG_PW_INVALID:'출금암호가 맞지 않습니다'}
 router.get('/marketprice',async (req,res)=>{const {currency}=req.query
   db.marketprices.findAll({raw:true,attributes: [[db.sequelize.fn('max', db.sequelize.col('id')), 'maxid']]})
   .then(aresps=>{console.log(aresps);    const {maxid}=aresps[0]
@@ -38,11 +37,9 @@ router.get('/exchangerates',async (req,res)=>{const {currency0,sitename}=req.que
 })
 router.post('/withdraw',async  (req,res)=>{  // let username; try{username=await getusero rterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  let {username,sitename,hashcode}=jdata
+  let {username,sitename}=jdata
   const {amount,address,pw,currency}=req.body; console.log(req.body)
   if(amount && address && pw && username && currency){} else {respreqinvalid(res,messages.MSG_PLEASE_INPUT_DATA,67648);return false}
-  try {await verifypw({sitename:sitename , hashcode:hashcode , pw:pw})}
-  catch(err){console.log(err);respreqinvalid(res,MSGS.MSG_PW_INVALID,19825);return false}
   db.users.findOne({raw:true,where:{username:username,withdrawpw:pw,sitename:sitename}}).then(async resp=>{
     if(resp){} else {respreqinvalid(res,messages.MSG_ID_OR_PW_INVALID,59497);return false}  //
 //    respok(res);return false

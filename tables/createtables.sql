@@ -1,4 +1,15 @@
 
+create table sendpoints (
+	id int unsigned primary key auto_increment
+  , sitename varchar(15)
+  , username varchar(20)
+  , currency varchar(15)
+  , amount int
+  , hashcode varchar(64)
+  , result tinyint default 1
+  , createdat datetime default current_timestamp
+  , updatedat datetime ON UPDATE CURRENT_TIMESTAMP
+);
 create user 'wallet'@'localhost' identified by 'rY3f0qKSN6';
 grant all privileges on *.* to 'wallet'@'localhost';
 

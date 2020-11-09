@@ -15,9 +15,12 @@ https://api-ropsten.etherscan.io/api
 &sort=asc
 &apikey=GWF185A95F1KRA2B37ZU6B8WRVZUZ2ZUPW
 
-sequelize-automate -t js -h localhost -d ioctpay -u root -p rY3f0qKSN6 -o modelautomate
+sequelize-automate -t js -h localhost -d walletdb -u root -p rY3f0qKSN6 -o modelautomate
+
+sequelize-auto -h localhost -d walletdb -u root -x rY3f0qKSN6 -p 3306   --dialect mariadb  -t sendpoints
 
 PFmzI4WKqV
+
 sequelize-auto -h localhost -d ioctpay -u root -x PFmzI4WKqV -p 3306   --dialect mariadb  -t txtaskstodo
 
 sequelize-auto -h localhost -d ioctpay -u root -x PFmzI4WKqV -p 3306   --dialect mariadb  

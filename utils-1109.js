@@ -21,8 +21,6 @@ const validaterate=val=>{val=parseInt(val);if(Number.isInteger(val) && val>=MIN_
 const MIN_PRICE=0,MAX_PRICE=10**8
 const validateprice=val=>{val=parseInt(val);if(Number.isInteger(val) && val>MIN_PRICE && val<=MAX_PRICE){return true} else {return false} }
 const validateethaddress=str=>{return str && parseInt(str,16) && str.length>=MIN_ETH_ADDRESS_LEN}
-
-
 const validateadminkey=async req=>{const {adminkey}=req.headers; if(adminkey){} else {return null}
   const resp=await db.operations.findOne({raw:true,where:{key_:'ADMINKEY',value_:adminkey}})
   return resp
@@ -114,14 +112,14 @@ function generateRandomStr (length) {
 	return result;
 }
 const getip=(req)=>{	return req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.headers['x-real-ip']}
-const B_SENDPOINTS=1
+const B_SENDPOINTS=0
 const doexchange=async (username,jdata,respbal,resprates)=>{
   return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata);let sitename=jdata['sitename'].toUpperCase()
     let respbaldata=respbal.dataValues;let price=null
     const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] ) // const amount0wei=convethtowei(amount0)    
     if(resprates.priceisfixed && resprates.priceisfixed==1){price=resprates['fixedprice']}
     else {      price=await cliredisa.hget(KEYNAME_MARKETPRICES,currency0) }
-    if(price){price=parseFloat(price)}
+    if(price){price=+price}
     else {
       let respvarprice=await db.variableprices.findOne({currency:currency0})
       if(respvarprice){} else {reject('DB-ENTRY-NOT-FOUND');return false}
@@ -138,9 +136,9 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
       const amtbefore=respbaldata['amount']-respbaldata['amountlocked'],amountafter=amtbefore-parseInt(amount0wei)
       respbal.update({amountlocked:amtlockedtoupd})
       let extodata={}
-      Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log('GccVfwVSTD',amount0,price , resprates[pointkind],amttoinc)
+      Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log(amount0,price , resprates[pointkind],amttoinc)
         extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,nettype:nettype,sitename:sitename,denominatorexp:DENOMINATOREXP_POINTS} // netkind:netkind
-        db.balance.findOne({where:{... jdataq }}).then(resp=>{ // console.log('GccVfwVSTD',pointkind,amttoinc)
+        db.balance.findOne({where:{... jdataq }}).then(resp=>{
           if(resp){const respdata=resp.dataValues          ;
             resp.update({amount:respdata['amount']+amttoinc }).then(                resp=>{ if(B_SENDPOINTS){console.log('_SENDPOINTS'); sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind })} })
           }
@@ -189,8 +187,8 @@ const doexc_hangeXX=(username,jdata)=>{
     } catch(err){reject(err)}
   })
 }
-const hasher=str=>{  return sha1(md5(md5(sha1(str))))
-}
+const hasher=str=>{  return sha1(md5(md5(sha1(str))))}
+
 const callhook=jdata=>{  const str=JSON.stringify(jdata)
   axios.get(`https://api.telegram.org/bot1180516500:AAGIpukJ0SpR4yDoHbkbFmzduQXDj-K4NHY/sendMessage?chat_id=895459587&text=${str}`)
 }

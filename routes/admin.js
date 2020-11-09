@@ -190,10 +190,14 @@ router.get('/sitetoken',(req,res)=>{let {sitename,tokenname}=req.query;  callhoo
     })
   }
 }) //
+const {validatebtcaddress}=require('../utilstokens')
 router.put('/sitetoken',(req,res)=>{console.log(req.body)
 	let {sitename,tokenname,collectoraddress,Crate,Srate,Krate,fixedprice,canwithdraw}=req.body; let canwithdrawp
-	if(sitename && tokenname){} else {respreqinvalid(res,MSG_PLEASE_INPUT_DATA,15104);return false};	let jdata={}
-	if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}
+  if(sitename && tokenname){} else {respreqinvalid(res,MSG_PLEASE_INPUT_DATA,15104);return false};	let jdata={}
+  switch(tokenname){
+    case 'BTC': if(validatebtcaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}
+    default:    if(validateethaddress(collectoraddress)){jdata['collectoraddress']=collectoraddress}
+  }
 	if(validaterate(Crate)){jdata['C']=parseInt(Crate)}
 	if(validaterate(Srate)){jdata['S']=parseInt(Srate)}
 	if(validaterate(Krate)){jdata['K']=parseInt(Krate)}
