@@ -164,7 +164,7 @@ router.get('/sitenameholder',(req,res)=>{callhook({verb:'get',user:'admin',path:
 })
 router.get('/sitenameholder/:sitename',(req,res)=>{console.log('/sitenameholder',req.params) //  respok(res,'test',123);return false
   const {sitename}=req.params;if (sitename){} else {respreqinvalid(res,MSG_ARGMISSING,29656);return false}
-  findj({sitename:sitename,active:1}).then(resp=>{
+  db.sitenameholder.findOne({raw:true,where:{sitename:sitename,active:1}}).then(resp=>{
     respok(res,null,null,{list:resp});return false 
   }).catch(err=>{respreqinvalid(res,MSG_INTERNALERR,29657);return false})
 })
