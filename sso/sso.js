@@ -22,6 +22,22 @@ const verifypw=jdata=>{
   return new Promise ((resolve,reject)=>{let {sitename,hashcode,pw }=jdata // username,
     axios.get(URLS_SENDPOINTS[sitename],{params:{
       sitecode:sitename.toLowerCase()
+      , target:'passchk'
+      , hashcode:hashcode
+      , passcode:pw
+//      , ptype:'C'
+  //    , pamt:0
+    }}).then(resp=>{
+      if(resp && resp.data['result']){resolve(resp.data)}
+      else {reject(resp.data)}
+    }).catch(reject)
+  })
+//  https://www.iotcpay.com/wallet_api.php?  //sitecode=iotc&  target=exwallet&  hashcode=3a1a2d5f3fea5b062366aad93b7461e1&  passcode=111111&  ptype=C&  pamt=100
+}
+const XXXverifypw=jdata=>{
+  return new Promise ((resolve,reject)=>{let {sitename,hashcode,pw }=jdata // username,
+    axios.get(URLS_SENDPOINTS[sitename],{params:{
+      sitecode:sitename.toLowerCase()
       , target:'exwallet'
       , hashcode:hashcode
       , passcode:pw

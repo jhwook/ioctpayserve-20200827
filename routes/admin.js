@@ -2,7 +2,7 @@
 const express = require('express');
 var router = express.Router();
 const db=require('../models')
-const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth,conva2j}=utils
+const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth,conva2j}=utils; const {findj}=require('../utilsdb')
 const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
@@ -15,7 +15,7 @@ const MSG_DATA_DUP='이미 등록된 이름입니다'
 const MSG_SITENAME_INVALID='사이트이름이 유효하지 않습니다(3자 이상)',MSG_TOKENNAME_INVALID='토큰이름이 유효하지 않습니다(3자 이상)',MSG_ADDRESS_INVALID='토큰주소가 유효하지 않습니다',MSG_URL_INVALID='URL이 유효하지 않습니다'
 const MSG_CONVRATE_INVALID='변환율이 유효하지 않습니다',MSG_FIXEDPRICE_INVALID='고정가격이 유효하지 않습니다',MSG_TOKEN_NOTREGISTERED='등록되지 않은 토큰입니다',MSG_SITETOKEN_NOTFOUND='등록되지 않은 사이트/토큰입니다'
 const MSG_DELETED='삭제되었습니다',MSG_VALIDTOKEN_NOTFOUND='유효한 토큰이 발견되지 않습니다',MSG_REGISTER_DONE='등록되었습니다',MSG_DONE_STAKES='반영완료',MSG_DONE_REGISTER='등록완료'
-const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3; const MSG_ARGMISSING='입력값을 확인하세요'
+const MIN_SITENAME_LEN=3,MIN_TOKENNAME_LEN=3; const MSG_ARGMISSING='입력값을 확인하세요',MSG_INTERNALERR='INTERNAL-ERR'
 const MIN_CSKCONVRATE=0,MAX_CSKCONVRATE=100; const MIN_FIXEDPRICE=0,MAX_FIXEDPRICE=10**8
 const {getdecimals}=require('../configs/ETH/utilstoken') // ../periodic/ETH/tokens/utils') // ;const { id } = require('ethers/lib/utils');
 const MAP_COINS_DECIMALS={BTC:8,ETH:18,USDT:6},DECIMALS_DEF=0
@@ -60,7 +60,6 @@ router.get('/balances/user', async (req,res,next)=> { // let username; try{usern
     ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 })
-
 router.get('/balances',(req,res)=>{ const {sitename}=req.query
   if(sitename){
     db.balance.findAll({raw:true,where:{sitename:sitename,active:1}}).then(aresps=>{      respok(res,null,null,{balances:aresps});return false
@@ -162,6 +161,12 @@ router.post('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.bod
 router.get('/sitenameholder',(req,res)=>{callhook({verb:'get',user:'admin',path:'sitenameholder'})
   db.sitenameholder.findAll({raw:true,where:{active:1}}).then(resp=>{    res.status(200).send({status:'OK',sitenameholders:resp});return false
   })
+})
+router.get('/sitenameholder/:sitename',(req,res)=>{console.log('/sitenameholder',req.params) //  respok(res,'test',123);return false
+  const {sitename}=req.params;if (sitename){} else {respreqinvalid(res,MSG_ARGMISSING,29656);return false}
+  findj({sitename:sitename,active:1}).then(resp=>{
+    respok(res,null,null,{list:resp});return false 
+  }).catch(err=>{respreqinvalid(res,MSG_INTERNALERR,29657);return false})
 })
 router.post('/sitetoken/delete',async(req,res)=>{let {sitename,tokenname}=req.body;console.log(req.body)
   if(sitename && tokenname){} else {respreqinvalid(res,MSG_PLEASE_INPUT_DATA,79806);return false}

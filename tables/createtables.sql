@@ -1,4 +1,39 @@
 
+update sitenameholder set urlsso='https://www.iotcpay.com/sso_api.php',urlpointincrease='https://www.iotcpay.com/wallet_api.php'
+,urlpointdecrease='https://www.iotcpay.com/wallet_api.php'
+,urlwithdrawpw='https://www.iotcpay.com/wallet_api.php'
+ where id=1;
+
+update sitenameholder set
+ urlsso=          'https://www.sdcpay.co.kr/sso_api.php'
+,urlpointincrease='https://www.sdcpay.co.kr/wallet_api.php'
+,urlpointdecrease='https://www.sdcpay.co.kr/wallet_api.php'
+,urlwithdrawpw=   'https://www.sdcpay.co.kr/wallet_api.php'
+ where id=2;
+
+update sitenameholder set
+ urlsso=          'https://www.carryonpay.com/sso_api.php'
+,urlpointincrease='https://www.carryonpay.com/wallet_api.php'
+,urlpointdecrease='https://www.carryonpay.com/wallet_api.php'
+,urlwithdrawpw=   'https://www.carryonpay.com/wallet_api.php'
+ where id=3;
+
+update sitenameholder set
+ urlsso=          'https://www.w-wifi.kr/sso_api.php'
+,urlpointincrease='https://www.w-wifi.kr/wallet_api.php'
+,urlpointdecrease='https://www.w-wifi.kr/wallet_api.php'
+,urlwithdrawpw=   'https://www.w-wifi.kr/wallet_api.php'
+ where id=8;
+
+
+
+update sitenameholder set (urlsso,urlpointincrease,urlpointdecrease,urlwithdrawpw) values ('https://www.iotcpay.com/sso_api.php',  'https://www.iotcpay.com/wallet_api.php' , 'https://www.iotcpay.com/wallet_api.php', 'https://www.iotcpay.com/wallet_api.php') where id=1;
+
+alter table sitenameholder add column urlsso varchar(100);
+alter table sitenameholder add column urlpointincrease varchar(100);
+alter table sitenameholder add column urlpointdecrease varchar(100);
+alter table sitenameholder add column urlwithdrawpw varchar(100);
+
 create table sendpoints (
 	id int unsigned primary key auto_increment
   , sitename varchar(15)
@@ -10,6 +45,8 @@ create table sendpoints (
   , createdat datetime default current_timestamp
   , updatedat datetime ON UPDATE CURRENT_TIMESTAMP
 );
+create table 
+
 create user 'wallet'@'localhost' identified by 'rY3f0qKSN6';
 grant all privileges on *.* to 'wallet'@'localhost';
 
