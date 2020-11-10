@@ -126,6 +126,7 @@ router.post('/stakes',(req,res)=>{  let {username,active,currency,amount,startda
   }
 })
 /*** url validators */
+const HASH4TEST='0123456789abcdef0123456789abcdef',PASS4TEST='111111'
 const MAP_APIPARAMS={
   SSO:            {sitecode:null                  , hashcode:HASH4TEST     }
   , POINTDECREASE:{sitecode:null,target:'exwallet', hashcode:HASH4TEST,passcode:PASS4TEST,  ptype:'C',pamt:0}
