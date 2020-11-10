@@ -18,9 +18,9 @@ const URLS_SENDPOINTS={
 , KWIFI:  `${IPS_BASE['KWIFI']}/wallet_api.php`   , WWIFI:  `${IPS_BASE['WWIFI']}/wallet_api.php`
 }
 const {MAP_SITENAME}=require('../configs/configs')
-const verifypw=jdata=>{
+const verifypw=jdata=>{let table='sitenameholder'
   return new Promise (async(resolve,reject)=>{let {sitename,hashcode,pw }=jdata // username,
-    const respsite=await findonej({sitename:sitename});let {urlwithdrawpw}=respsite;if(urlwithdrawpw){} else {reject('API-NOT-FOUND(verifypw)');return false}
+    const respsite=await findonej(table,{sitename:sitename});let {urlwithdrawpw}=respsite;if(urlwithdrawpw){} else {reject('API-NOT-FOUND(verifypw)');return false}
     axios.get( urlwithdrawpw ,{params:{ // URLS_SEN DPOINTS[sitename]
       sitecode:sitename.toLowerCase()
       , target:'passchk'
@@ -54,9 +54,9 @@ const XXXverifypw=jdata=>{
 }
 const commitsendlog=jdata=>  db.sendpoints.create(jdata)
 // http://www.iotcpay.com/wallet_api.php?   sitecode=iotc &hashcode=3a1a2d5f3fea5b062366aad93b7461e1 &passcode=111111 &ptype=C&pamt=100
-const sendpoints=jdata=>{console.log('_SP0',jdata)
+const sendpoints=jdata=>{console.log('_SP0',jdata);let table='sitenameholder'
   return new Promise(async(resolve,reject)=>{  let {username,sitename,hashcode,pointkind }=jdata
-    const respsite=await findonej({sitename:sitename});let {urlpointincrease}=respsite;if(urlpointincrease){} else {reject('API-NOT-FOUND(sendpoints)');return false}
+    const respsite=await findonej(table,{sitename:sitename});let {urlpointincrease}=respsite;if(urlpointincrease){} else {reject('API-NOT-FOUND(sendpoints)');return false}
     db.balance.findOne({where:{username:username,sitename:sitename,currency:pointkind}}).then(respbal=>{let respbaldata=respbal.dataValues
       if(respbaldata['amount']>0){
         db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{ // console.log('_SP1',URLS_S_ENDPOINTS[sitename])
@@ -100,9 +100,9 @@ const XXXsendpoints=jdata=>{
 }
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}
 const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
-  return new Promise(async(resolve,reject)=>{
+  return new Promise(async(resolve,reject)=>{let table='sitenameholder'
     if (sitename){} else {console.log('invalid sitename',sitename);reject(null);return false}
-    const respsite=await findonej({sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {reject('API-NOT-FOUND(validatekey)');return false}
+    const respsite=await findonej(table,{sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {reject('API-NOT-FOUND(validatekey)');return false}
     if(urlsso){} else {console.log('invalid sitename',sitename);reject(null);return false} //  URLS_SSO _SERVE[sitename] axios.get(`${URLS_SSO_ SERVE[sitename]}?s ite_code=${sitename.toLowerCase()}&has h_code=${token}`).then(resp=>{console.log(resp.data)
     axios.get(urlsso , {params:{sitecode:sitename.toLowerCase(),hashcode:token}}).then(resp=>{console.log(resp.data.user_code,resp.data.site_code,resp.data.result)
       if(resp.data.result){      resolve(resp.data.user_code);return false
@@ -111,7 +111,8 @@ const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
   })
 }
 const DUMMYHASH='4e41d505d9cda48e0e503ff1d3c59fd5'
-const validateurlsso=async (sitename,urladdress)=>{  const respsite=await findonej({sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND(sso)');return null} // ('API-NOT-FOUND') // =`${urladdress}/sso_api.php`
+const validateurlsso=async (sitename,urladdress)=>{  let table='sitenameholder'
+  const respsite=await findonej(table,{sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND(sso)');return null} // ('API-NOT-FOUND') // =`${urladdress}/sso_api.php`
   try{
     const respsso=await axios.get(urlsso,{params:{sitecode:sitename.toLowerCase(),hashcode:DUMMYHASH}}) // urladdress
     if(respsso && respsso.data['result']){return 1}
@@ -121,9 +122,9 @@ const validateurlsso=async (sitename,urladdress)=>{  const respsite=await findon
 const validatekeyorterminate_param=async(req,res)=>{let {sitename,hashcode}=req.query; sitename=sitename.toUpperCase()// res,req token
 //  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
   return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {    resolve(null);return false} // respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
-	  console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
+	  console.log(sitename,hashcode);let table='sitenameholder' //    sitename=MAP_SITENAME[sitename]
     if (sitename){} else {console.log('invalid sitename',sitename); resolve(null);return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
-    const respsite=await findonej('sitenameholder',{sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND(sso)');resolve(null);return false}
+    const respsite=await findonej(table,{sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND(sso)');resolve(null);return false}
 /*    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}});    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress'];    urladdress=`${urladdress}/sso_api.php` */
     try{  axios.get( urlsso , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0)) // token
       if(resp.data.result){      resolve({username:resp.data.user_code,sitename:resp.data.site_code.toUpperCase()});return false
@@ -134,9 +135,9 @@ const validatekeyorterminate_param=async(req,res)=>{let {sitename,hashcode}=req.
 }
 const validatekeyorterminate=async(req,res)=>{let {sitename,hashcode}=req.headers; sitename=sitename.toUpperCase()// res,req token //  if(process.env.NODE_ENV=='development'){return new Promise((resolve,reject)=>{resolve('user01') })} else {}
   return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {    resolve(null);return false} // respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
-	  console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
+	  console.log(sitename,hashcode) ;let table='sitenameholder'//    sitename=MAP_SITENAME[sitename]
     if (sitename){} else {console.log('invalid sitename',sitename); resolve(null);return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
-    const respsite=await findonej('sitenameholder',{sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND'); resolve(null);return false}
+    const respsite=await findonej(table,{sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND'); resolve(null);return false}
 /*    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}});    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress'];    urladdress=`${urladdress}/sso_api.php` */    
     try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0) ) // token
       if(resp.data.result){      resolve({username:resp.data.user_code,sitename:resp.data.site_code.toUpperCase() , hashcode:hashcode });return false
