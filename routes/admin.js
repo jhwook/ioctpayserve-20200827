@@ -2,13 +2,13 @@
 const express = require('express');
 var router = express.Router();
 const db=require('../models')
-const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth,conva2j}=utils; const {findj}=require('../utilsdb')
+const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth,conva2j}=utils ; const {update}=require('../utilsdb')
 const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
 const messages=require('../configs/messages'); const SITENAME_DEF='IOTC'; const {validateurlsso}=require('../sso/sso')
-const dbmon=require('../modelsmon')
+const dbmon=require('../modelsmon');const axios=require('axios')
 const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF,TIMEZONESTR}=configs;const MAX_URLADDRESS_LEN=100
 const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
@@ -125,14 +125,35 @@ router.post('/stakes',(req,res)=>{  let {username,active,currency,amount,startda
   })
   }
 })
+/*** url validators */
+const MAP_APIPARAMS={
+  SSO:            {sitecode:null                  , hashcode:HASH4TEST     }
+  , POINTDECREASE:{sitecode:null,target:'exwallet', hashcode:HASH4TEST,passcode:PASS4TEST,  ptype:'C',pamt:0}
+  , POINTINCREASE:{sitecode:null,target:'payapp',   hashcode:HASH4TEST,                     ptype:'C',pamt:0}
+  , WITHDRAWPW:   {sitecode:null,target:'passchk',  hashcode:HASH4TEST,passcode:PASS4TEST}
+}
+const validatessoapis=jdata=>{const MAPS_URLKEYS={urlsso:''  , urlpointincrease:''  , urlpointdecrease:''  , urlwithdrawpw:''};let {sitename}=jdata
+  return new Promise((resolve,reject)=>{  let jupdates={};let aproms=[]
+    Object.keys(MAPS_URLKEYS).forEach(key=>{    const url=jdata[key];  let params=MAP_APIPARAMS[methodname];params.sitecode=sitename.toLowerCase()      
+      aproms[aproms.length]=axios.get(url,params)
+    })
+    Promise.all(aproms).then(aresps=>{
+      aresps.forEach(resp=>{        if(resp && (resp.data.result==false || resp.data.result) ){ jupdates[key]=url;jupdates[`valid${key}`]=1 }      })
+      if(Object.keys(jupdates).length>0){update('sitenameholder', {sitename:sitename} , jupdates ) } //      update(table,jfilter,jupdates)
+      resolve(jupdates)
+    }).catch(err=>{console.log(err);resolve(null);return false})
+  })
+}
+const TIMEOFFSET_DBUPDATES=2*1000
 router.put('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14574);return false};  console.log(req.body)
-	sitename=sitename.toUpperCase()
+  sitename=sitename.toUpperCase()
+  setTimeout(_=>{validatessoapis(req.body) }, TIMEOFFSET_DBUPDATES)
 	db.sitenameholder.findOne({where:{sitename:sitename}}).then(async resp=>{
 		if(resp){} else {respreqinvalid(MSG_PLEASE_INPUT_SITENAME,47818	);return false}
 		if(urladdress){} else {db.sitenameholder.update({urladdress:null},{where:{sitename:sitename}}); respok(res,null,80573	);return false }
 		if(await validateurlsso(sitename,urladdress)){db.sitenameholder.update({urladdress:urladdress},{where:{sitename:sitename}});respok(res,`URL주소가 ${MSG_REGISTER_DONE}`,70108);return false}
 		else {respreqinvalid(res,MSG_URL_INVALID,16867);return false}
-	})
+  })
 })
 router.post('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.body; if (sitename && sitename.length>=MIN_SITENAME_LEN){} else {respreqinvalid(res,MSG_PLEASE_INPUT_SITENAME,14575);return false};  console.log(req.body)
   sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'}); let burlvalid=0,jdata={}
@@ -154,7 +175,8 @@ router.post('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.bod
 				case 'ETH': db.exchangerates.create({currency0:tknname,sitename:sitename, ... EXCHGDATA_DEF});break
 				case 'USDT':db.exchangerates.create({currency0:tknname,sitename:sitename, ... EXCHGDATA_DEF02});break
 			}
-		})
+    })
+    setTimeout(_=>{validatessoapis(req.body) }, TIMEOFFSET_DBUPDATES)
 		respok(res);return false
   })
 })
@@ -162,7 +184,7 @@ router.get('/sitenameholder',(req,res)=>{callhook({verb:'get',user:'admin',path:
   db.sitenameholder.findAll({raw:true,where:{active:1}}).then(resp=>{    res.status(200).send({status:'OK',sitenameholders:resp});return false
   })
 })
-router.get('/sitenameholder/:sitename',(req,res)=>{console.log('/sitenameholder',req.params) //  respok(res,'test',123);return false
+router.get('/sitenameholder/:sitename',(req,res)=>{console.log('sitenameholder',req.params) //  respok(res,'test',123);return false
   const {sitename}=req.params;if (sitename){} else {respreqinvalid(res,MSG_ARGMISSING,29656);return false}
   db.sitenameholder.findOne({raw:true,where:{sitename:sitename,active:1}}).then(resp=>{
     respok(res,null,null,{list:resp});return false 
@@ -355,7 +377,9 @@ router.post('/image',(req,res)=>{let {name,imagebase64,subname}=req.body;console
   })
 })
 const IMGTARGETFOLDER='/var/www/html/static/media'
-const fs=require('fs')
+const fs=require('fs');
+const { resolve } = require('path');
+const { reject } = require('lodash');
 const storeimg2cli=(name,imgstr)=>{  imgstr=imgstr.replace(/^data:image\/png;base64,/, '')
   fs.writeFile(`${name}.png`,imgstr,'base64',err=>{console.log(err)});  return false  
 }

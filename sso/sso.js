@@ -1,7 +1,7 @@
 
 const axios=require('axios')
 const messages=require('../configs/messages');let PROTOCOL_SSOS='https',PROTOCOL_SSO='http'
-const db=require('../models')
+const db=require('../models');const {findonej}=require('../utilsdb')
 const IPS_BASE={
   IOTC:   `${PROTOCOL_SSOS}://www.iotcpay.com`,   SDC:    `${PROTOCOL_SSOS}://www.sdcpay.co.kr`
 , SDCPAY: `${PROTOCOL_SSOS}://www.sdcpay.co.kr`,  CARRYON:`${PROTOCOL_SSOS}://www.carryonpay.com`
@@ -19,8 +19,9 @@ const URLS_SENDPOINTS={
 }
 const {MAP_SITENAME}=require('../configs/configs')
 const verifypw=jdata=>{
-  return new Promise ((resolve,reject)=>{let {sitename,hashcode,pw }=jdata // username,
-    axios.get(URLS_SENDPOINTS[sitename],{params:{
+  return new Promise (async(resolve,reject)=>{let {sitename,hashcode,pw }=jdata // username,
+    const respsite=await findonej({sitename:sitename});let {urlwithdrawpw}=respsite;if(urlwithdrawpw){} else {reject('API-NOT-FOUND(verifypw)');return false}
+    axios.get( urlwithdrawpw ,{params:{ // URLS_SEN DPOINTS[sitename]
       sitecode:sitename.toLowerCase()
       , target:'passchk'
       , hashcode:hashcode
@@ -32,11 +33,12 @@ const verifypw=jdata=>{
       else {reject(resp.data)}
     }).catch(reject)
   })
+// https://www.iotcpay.com/wallet_api.php?sitecode=iotc&target=exwallet&hashcode=3a1a2d5f3fea5b062366aad93b7461e1&passcode=111111&ptype=C&pamt=0  
 //  https://www.iotcpay.com/wallet_api.php?  //sitecode=iotc&  target=exwallet&  hashcode=3a1a2d5f3fea5b062366aad93b7461e1&  passcode=111111&  ptype=C&  pamt=100
 }
 const XXXverifypw=jdata=>{
   return new Promise ((resolve,reject)=>{let {sitename,hashcode,pw }=jdata // username,
-    axios.get(URLS_SENDPOINTS[sitename],{params:{
+    axios.get(URLS_SE_NDPOINTS[sitename],{params:{
       sitecode:sitename.toLowerCase()
       , target:'exwallet'
       , hashcode:hashcode
@@ -53,11 +55,12 @@ const XXXverifypw=jdata=>{
 const commitsendlog=jdata=>  db.sendpoints.create(jdata)
 // http://www.iotcpay.com/wallet_api.php?   sitecode=iotc &hashcode=3a1a2d5f3fea5b062366aad93b7461e1 &passcode=111111 &ptype=C&pamt=100
 const sendpoints=jdata=>{console.log('_SP0',jdata)
-  return new Promise((resolve,reject)=>{  let {username,sitename,hashcode,pointkind }=jdata
+  return new Promise(async(resolve,reject)=>{  let {username,sitename,hashcode,pointkind }=jdata
+    const respsite=await findonej({sitename:sitename});let {urlpointincrease}=respsite;if(urlpointincrease){} else {reject('API-NOT-FOUND(sendpoints)');return false}
     db.balance.findOne({where:{username:username,sitename:sitename,currency:pointkind}}).then(respbal=>{let respbaldata=respbal.dataValues
       if(respbaldata['amount']>0){
-        db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{console.log('_SP1',URLS_SENDPOINTS[sitename])
-          axios.get(URLS_SENDPOINTS[sitename], {params:{
+        db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{ // console.log('_SP1',URLS_S_ENDPOINTS[sitename])
+          axios.get(urlpointincrease, {params:{ // URLS_SENDPO INTS[sitename]
 						sitecode:sitename.toLowerCase()
 						,target:'payapp'
 						,hashcode:hashcode // ,passcode:respuser['withdrawpw']
@@ -84,7 +87,7 @@ const XXXsendpoints=jdata=>{
     db.balance.findOne({where:{}}).then(respbal=>{let respbaldata=respbal.dataValues
       if(respbaldata['amount']>0){
         db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{
-          axios.get(URLS_SENDPOINTS[sitename], {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode,passcode:respuser['withdrawpw']
+          axios.get(URLS_SEND_POINTS[sitename], {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode,passcode:respuser['withdrawpw']
             ,ptype:pointkind,pamt:respbaldata['amount'] }}).then(respsend=>{
             if(respsend && respsend['result']){
               respbal.update({amount:0}).then(resolve).catch(reject)
@@ -97,19 +100,20 @@ const XXXsendpoints=jdata=>{
 }
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}
 const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
-  return new Promise((resolve,reject)=>{
+  return new Promise(async(resolve,reject)=>{
     if (sitename){} else {console.log('invalid sitename',sitename);reject(null);return false}
-    if(URLS_SSO_SERVE[sitename]){} else {console.log('invalid sitename',sitename);reject(null);return false} //   axios.get(`${URLS_SSO_SERVE[sitename]}?s ite_code=${sitename.toLowerCase()}&has h_code=${token}`).then(resp=>{console.log(resp.data)
-    axios.get( URLS_SSO_SERVE[sitename] , {params:{sitecode:sitename.toLowerCase(),hashcode:token}}).then(resp=>{console.log(resp.data.user_code,resp.data.site_code,resp.data.result)
+    const respsite=await findonej({sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {reject('API-NOT-FOUND(validatekey)');return false}
+    if(urlsso){} else {console.log('invalid sitename',sitename);reject(null);return false} //  URLS_SSO _SERVE[sitename] axios.get(`${URLS_SSO_ SERVE[sitename]}?s ite_code=${sitename.toLowerCase()}&has h_code=${token}`).then(resp=>{console.log(resp.data)
+    axios.get(urlsso , {params:{sitecode:sitename.toLowerCase(),hashcode:token}}).then(resp=>{console.log(resp.data.user_code,resp.data.site_code,resp.data.result)
       if(resp.data.result){      resolve(resp.data.user_code);return false
       } else {reject(null); return false}
     })
   })
 }
 const DUMMYHASH='4e41d505d9cda48e0e503ff1d3c59fd5'
-const validateurlsso=async (sitename,urladdress)=>{urladdress=`${urladdress}/sso_api.php`
+const validateurlsso=async (sitename,urladdress)=>{  const respsite=await findonej({sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND(sso)');return null} // ('API-NOT-FOUND') // =`${urladdress}/sso_api.php`
   try{
-    const respsso=await axios.get(urladdress,{params:{sitecode:sitename.toLowerCase(),hashcode:DUMMYHASH}})
+    const respsso=await axios.get(urlsso,{params:{sitecode:sitename.toLowerCase(),hashcode:DUMMYHASH}}) // urladdress
     if(respsso && respsso.data['result']){return 1}
     else {return 0}
   } catch(err){    return 0  }
@@ -119,10 +123,9 @@ const validatekeyorterminate_param=async(req,res)=>{let {sitename,hashcode}=req.
   return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {    resolve(null);return false} // respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
 	  console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
     if (sitename){} else {console.log('invalid sitename',sitename); resolve(null);return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
-    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})
-    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress']
-    urladdress=`${urladdress}/sso_api.php`
-    try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0)) // token
+    const respsite=await findonej({sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND(sso)');resolve(null);return false}
+/*    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}});    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress'];    urladdress=`${urladdress}/sso_api.php` */
+    try{  axios.get( urlsso , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0)) // token
       if(resp.data.result){      resolve({username:resp.data.user_code,sitename:resp.data.site_code.toUpperCase()});return false
       } else {        resolve(null); return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
     })
@@ -133,9 +136,8 @@ const validatekeyorterminate=async(req,res)=>{let {sitename,hashcode}=req.header
   return new Promise(async (resolve,reject)=>{    if(sitename && hashcode){} else {    resolve(null);return false} // respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);
 	  console.log(sitename,hashcode) //    sitename=MAP_SITENAME[sitename]
     if (sitename){} else {console.log('invalid sitename',sitename); resolve(null);return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
-    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}})
-    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress']
-    urladdress=`${urladdress}/sso_api.php`
+    const respsite=await findonej({sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND'); resolve(null);return false}
+/*    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}});    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress'];    urladdress=`${urladdress}/sso_api.php` */    
     try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0) ) // token
       if(resp.data.result){      resolve({username:resp.data.user_code,sitename:resp.data.site_code.toUpperCase() , hashcode:hashcode });return false
       } else {        resolve(null); return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
@@ -165,9 +167,9 @@ const validatekeyorterminate_usesfixedurl=async(req,res)=>{let {sitename,hashcod
     if (sitename){} else {console.log('invalid sitename',sitename); //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
       resolve(null);return false}
 
-    let URLSSO=URLS_SSO_SERVE[sitename];console.log(`${URLSSO}?sitecode=${sitename.toLowerCase()}&hashcode=${hashcode}`)
+    let URLSSO=URLS_SS_O_SERVE[sitename];console.log(`${URLSSO}?sitecode=${sitename.toLowerCase()}&hashcode=${hashcode}`)
     if(URLSSO){} else {console.log('invalid sitename',sitename) //;respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73203);
-      resolve(null);return false} //   axios.get(`${URLS_SSO_SERVE[sitename]}?sitecode=${sitename.toLowerCase()}&has h_code=${token}`).then(resp=>{console.log(resp.data)
+      resolve(null);return false} //   axios.get(`${URLS_S SO_SERVE[sitename]}?sitecode=${sitename.toLowerCase()}&has h_code=${token}`).then(resp=>{console.log(resp.data)
     axios.get( URLSSO , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(resp.data) // token
       if(resp.data.result){      resolve(resp.data.user_code);return false
       } else {//respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
@@ -178,8 +180,8 @@ const validatekeyorterminate_usesfixedurl=async(req,res)=>{let {sitename,hashcod
 const validatekeyorterminatewithargs=(res,sitename,token)=>{sitename=MAP_SITENAME[sitename]
   return new Promise((resolve,reject)=>{
     if (sitename){} else {console.log('invalid sitename',sitename); respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201); reject(null);return false}
-    if(URLS_SSO_SERVE[sitename]){} else {console.log('invalid sitename',sitename);respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);reject(null);return false} //   axios.get(`${URLS_SSO_SERVE[sitename]}?sitecode=${sitename.toLowerCase()}&hash_c ode=${token}`).then(resp=>{console.log(resp.data)
-    axios.get( URLS_SSO_SERVE[sitename] , {params:{sitecode:sitename.toLowerCase(),hashcode:token}}).then(resp=>{console.log(resp.data)
+    if(URLS_S_SO_SERVE[sitename]){} else {console.log('invalid sitename',sitename);respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);reject(null);return false} //   axios.get(`${URLS_S SO_SERVE[sitename]}?sitecode=${sitename.toLowerCase()}&hash_c ode=${token}`).then(resp=>{console.log(resp.data)
+    axios.get( URLS_S_SO_SERVE[sitename] , {params:{sitecode:sitename.toLowerCase(),hashcode:token}}).then(resp=>{console.log(resp.data)
       if(resp.data.result){      resolve(resp.data.user_code);return false
       } else {respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73201);reject(null); return false}
     })  
