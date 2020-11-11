@@ -25,8 +25,8 @@ cron.schedule(`*/15 * * * *`,()=>{
 		console.log(estprice,estlimit) // ;return false
 		db.ethgasestimates.create({
 			gaspricehex:estprice
-			, gaspriceweistr:parseInt(estprice)
-			, gaspricefloat:parseInt(estprice)/10**18
+			, gaspriceweistr: parseInt(estprice)
+			, gaspricefloat:  parseInt(estprice)/10**18
 			, gaslimithex:estlimit
 			, gaslimitweistr:parseInt(estlimit)
 			, gaslimitfloat:null
@@ -35,8 +35,8 @@ cron.schedule(`*/15 * * * *`,()=>{
 			, gaspriceweiinusestr: GAS_PRICE_ETH
 			, gaslimithexinuse: '0x'+GAS_LIMIT_ETH.toString(16)
 			, gaslimitweiinusestr: GAS_LIMIT_ETH
-			, ratiopriceuseoverest: GAS_PRICE_ETH/estprice
-			, ratiolimituseoverest: GAS_LIMIT_ETH/estlimit
+			, ratiopriceuseoverest: estprice && Number.isFinite(estprice)? GAS_PRICE_ETH/estprice : null
+			, ratiolimituseoverest: estlimit && Number.isFinite(estlimit)? GAS_LIMIT_ETH/estlimit : null
 			, currency:null
 		})
 		console.log(`${(GAS_PRICE_ETH/10**9).toFixed(2)} GWei: X${(GAS_PRICE_ETH/estprice).toFixed(3)},${GAS_LIMIT_ETH}: X${(GAS_LIMIT_ETH/estlimit).toFixed(3)}@${moment().format('HH:mm:ss.SSS')}`)
