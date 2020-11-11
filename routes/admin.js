@@ -134,8 +134,8 @@ const MAP_APIPARAMS={
   , WITHDRAWPW:   {sitecode:null,target:'passchk',  hashcode:HASH4TEST,passcode:PASS4TEST}
 }
 const validatessoapis=jdata=>{const MAPS_URLKEYS={urlsso:''  , urlpointincrease:''  , urlpointdecrease:''  , urlwithdrawpw:''};let {sitename}=jdata
-  return new Promise((resolve,reject)=>{  let jupdates={};let aproms=[]
-    Object.keys(MAPS_URLKEYS).forEach(key=>{    const url=jdata[key];  let params=MAP_APIPARAMS[methodname];params.sitecode=sitename.toLowerCase()      
+  return new Promise((resolve,reject)=>{  let jupdates={};let aproms=[];let sitename=jdata['sitename']
+    Object.keys(MAPS_URLKEYS).forEach(key=>{    const url=jdata[key];  const methodname=key;let params=MAP_APIPARAMS[methodname];params.sitecode=sitename.toLowerCase()      
       aproms[aproms.length]=axios.get(url,params)
     })
     Promise.all(aproms).then(aresps=>{
