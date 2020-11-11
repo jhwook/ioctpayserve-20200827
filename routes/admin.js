@@ -133,17 +133,15 @@ const MAP_APIPARAMS={
   , POINTINCREASE:{sitecode:null,target:'payapp',   hashcode:HASH4TEST,                     ptype:'C',pamt:0}
   , WITHDRAWPW:   {sitecode:null,target:'passchk',  hashcode:HASH4TEST,passcode:PASS4TEST}
 }
-const MAPS_URLKEYS={urlsso:'SSO'
-  , urlpointincrease: 'POINTINCREASE'
-  , urlpointdecrease: 'POINTDECREASE'
-  , urlwithdrawpw:    'WITHDRAWPW'};
+const MAPS_URLKEYS={    urlsso:'SSO'  , urlpointincrease: 'POINTINCREASE'  , urlpointdecrease: 'POINTDECREASE'  , urlwithdrawpw:    'WITHDRAWPW'}
+const A_URLKEYS   =[ 'urlsso' , 'urlpointincrease' , 'urlpointdecrease' , 'urlwithdrawpw']
 const validatessoapis=jdata=>{  let {sitename}=jdata
   return new Promise((resolve,reject)=>{  let jupdates={};let aproms=[];let sitename=jdata['sitename']
     Object.keys(MAPS_URLKEYS).forEach(key=>{    const url=jdata[key];  const methodname=MAPS_URLKEYS[key] ;let params=MAP_APIPARAMS[methodname];params.sitecode=sitename.toLowerCase()      
       aproms[aproms.length]=axios.get(url,params)
     })
     Promise.all(aproms).then(aresps=>{
-      aresps.forEach(resp=>{        if(resp && (resp.data.result==false || resp.data.result) ){ jupdates[key]=url;jupdates[`valid${key}`]=1 }      })
+      aresps.forEach((resp,idxresp)=>{        if(resp && (resp.data.result==false || resp.data.result) ){const key=A_URLKEYS[idxresp]; jupdates[key]=url;jupdates[`valid${key}`]=1 }      })
       if(Object.keys(jupdates).length>0){update('sitenameholder', {sitename:sitename} , jupdates ) } //      update(table,jfilter,jupdates)
       resolve(jupdates)
     }).catch(err=>{console.log(err);resolve(null);return false})
