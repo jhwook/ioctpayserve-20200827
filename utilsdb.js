@@ -11,7 +11,7 @@ const findjandinvalidate=async (table,jdata)=>{  const resp=await findonej(table
 
 const createrow=async(table,jdata)=>{await db[table].create(jdata)}
 const findall=async(table)=>{return await db[table].findAll({raw:true})}
-const update=async(table,jfilter,jupdates)=>{return await db[table].update({jfilter,jupdates})}
+const update=async(table,jfilter,jupdates)=>{return await db[table].update(jupdates,{where:jfilter })}
 const __findmostrecentn=async(table,n)=>{return await db[table].findAll({limit: n,order: [ [ 'createdat', 'DESC']] })}
 const findmostrecentn=async(table,n)=> await db[table].findAll({limit: n,order: [ [ 'createdat', 'DESC']] })
 module.exports={
