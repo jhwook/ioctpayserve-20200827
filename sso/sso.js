@@ -112,7 +112,7 @@ const validatekey=(sitename,token)=>{sitename=MAP_SITENAME[sitename]
 }
 const DUMMYHASH='4e41d505d9cda48e0e503ff1d3c59fd5'
 const validateurlsso=async (sitename,urladdress)=>{  let table='sitenameholder'
-  const respsite=await findonej(table,{sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND(sso)');return null} // ('API-NOT-FOUND') // =`${urladdress}/sso_api.php`
+  const respsite=await findonej(table,{sitename:sitename,}); let urlsso=respsite['urlsso'];if(urlsso){} else {console.log('API-NOT-FOUND(sso)');return null} // ('API-NOT-FOUND') // =`${urladdress}/sso_api.php`
   try{
     const respsso=await axios.get(urlsso,{params:{sitecode:sitename.toLowerCase(),hashcode:DUMMYHASH}}) // urladdress
     if(respsso && respsso.data['result']){return 1}
@@ -139,7 +139,7 @@ const validatekeyorterminate=async(req,res)=>{let {sitename,hashcode}=req.header
     if (sitename){} else {console.log('invalid sitename',sitename); resolve(null);return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73202); 
     const respsite=await findonej(table,{sitename:sitename,}); let {urlsso}=respsite;if(urlsso){} else {console.log('API-NOT-FOUND'); resolve(null);return false}
 /*    let respsite=await db.sitenameholder.findOne({raw:true,where:{sitename:sitename}});    if(respsite && respsite['urladdress']){} else {resolve(null);return false};    let urladdress=respsite['urladdress'];    urladdress=`${urladdress}/sso_api.php` */    
-    try{  axios.get( urladdress , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0) ) // token
+    try{  axios.get( urlsso , {params:{sitecode:sitename.toLowerCase(),hashcode:hashcode}}).then(resp=>{console.log(JSON.stringify(resp.data,null,0) ) // token
       if(resp.data.result){      resolve({username:resp.data.user_code,sitename:resp.data.site_code.toUpperCase() , hashcode:hashcode });return false
       } else {        resolve(null); return false} //respreqinvalid(res,messages.MSG_PLEASE_LOGIN,73204);
     })

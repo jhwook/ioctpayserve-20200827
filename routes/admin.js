@@ -160,8 +160,8 @@ router.post('/sitenameholder',async(req,res)=>{let {sitename,urladdress}=req.bod
   sitename=sitename.toUpperCase();callhook({verb:'post',user:'admin',path:'sitenameholder'}); let burlvalid=0,jdata={}
   db.sitenameholder.findOne({where:{sitename:sitename}}).then(async resp=>{
     if(urladdress){
-      if(await validateurlsso(sitename,urladdress)){burlvalid=1;jdata['urladdress']=urladdress}// urladdress=urladdress.substr(0,MAX_URLADDRESS_LEN)
-      else {urladdress=null }
+    //  if(await validateurlsso(sitename,urladdress)){burlvalid=1;jdata['urladdress']=urladdress}// urladdress=urladdress.substr(0,MAX_URLADDRESS_LEN)
+      // else {urladdress=null }
     }
     if(resp){
       if(resp.dataValues['active']) {respreqinvalid(res,MSG_DATA_DUP,43550);return false}
