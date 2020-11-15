@@ -48,7 +48,8 @@ router.post('/withdraw',async  (req,res)=>{  // let username; try{username=await
 //    respok(res);return false
     const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,nettype:nettype}});
     if(tokendata){} else {return false} const decimals=tokendata['denominatorexp']
-    sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
+    sends({username:username,rxaddr:address,amt2sendfloat:+amount,amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
+    //    sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});
     callhook({name:username,path:'withdraw'});    return false
