@@ -29,7 +29,7 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
       const gasfeeint=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'int')
       if(parseInt(baleth)>=gasfeeint ){} else {reject({status:'ERR',message:'Eth balance not enough',code:51399});return false    }
   
-      const contract=jcontracts[currency],amtstr='' + amt2sendwei ;console.log('7zKdtgAxFz_1',amtstr,amt2sendwei)// amt2sendwei.toString()
+      const contract=jcontracts[currency],amtstr=amt2sendwei.toString()
       contract.methods.balanceOf(address).call((err,balance)=>{console.log(address,balance,amtstr); balance=parseInt(balance)
         if (balance<MIN_TOKEN_AMOUNT_TO_WITHDRAW){return false}
         let resptxo={blockNumber:null,transactionHash:null}

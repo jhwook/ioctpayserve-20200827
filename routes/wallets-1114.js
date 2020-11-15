@@ -65,16 +65,10 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
         if (resptkn && resptkn['denominatorexp']){decimals=resptkn['denominatorexp']} else {console.log(`${HEADER_LOG_STOP_TX} decimals undefined`);return false}; if(B_VERB){console.log('resptkn',resptkn)}
         const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,currency:currency0, nettype:nettype}}); let amtlocked; if(B_VERB){console.log('respbal',respbal)}
         if(isequalinlowercases(respbal['address'] , collectoraddress) ) {console.log(`${HEADER_LOG_STOP_TX} same address`); return false}
-        if(1 || B_VERB){console.log('7zKdtgAxFz',respbal['amountlocked'],amtthresh)}
-//        if(respbal && Number.isFinite(respbal['amountlocked']) && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
-        if(respbal && Number.isFinite(respbal['amountlocked']) && +respbal['amountlocked']>=amtthresh ){amtlocked=+ respbal['amountlocked'] }
+        if(B_VERB){console.log(respbal['amountlocked'],amtthresh)}
+        if(respbal && Number.isFinite(respbal['amountlocked']) && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
         else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
-        sends({username:username
-          ,rxaddr:collectoraddress
-          ,amt2sendfloat:amtlocked
-          ,amt2sendwei:amtlocked
-          ,currency:currency0
-          ,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
+        sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:amtlocked,currency:currency0,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
       })
     } else {console.log(`${HEADER_LOG_STOP_TX} MIN_INVOKE_AMT undefined,34893`);return false
     }
@@ -125,7 +119,7 @@ router.get('/balance',async (req,res)=>{  // let username; try{username=await ge
       const aresps=await Promise.all([_priceredis,_unitsredis]) //.then(aresps=>{
       const [priceredis,unitsredis]=aresps
       price={price:priceredis,units:unitsredis,KRWUSD:forexrate} // })
-    }
+    }    
     respok(res,null,null,{amountstr:balance['amount'].toString(), price:price, stakes:{amount:balance['stakesamount'],expiry:balance['stakesexpiry'],active:balance['stakesactive']
   }})
   }) //  })
@@ -141,15 +135,15 @@ router.get('/balances', async (req,res,next)=> { // let username; try{username=a
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
     let amtfullstr ;try{ amtfullstr= (e['amount']-e['amountlocked']).toString()} catch(err){amtfullstr=null}
     res.status(200).send({status:'OK',balances:aresps.map(e=>{return [
-      e['currency']
-      , convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
-      ,e['address']
-      ,e['canwithdraw']
-      ,e['stakesamount']
-      ,e['stakesstartdate']
-      ,e['stakesexpiry']
-      ,e['stakesduration']
-      ,e['stakesactive']
+      e['currency'] // 0
+      , convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp']) // 1
+      ,e['address'] // 2
+      ,e['canwithdraw'] // 3
+      ,e['stakesamount'] // 4
+      ,e['stakesstartdate'] // 5
+      ,e['stakesexpiry'] // 6
+      ,e['stakesduration'] // 7
+      ,e['stakesactive'] // 8
       , amtfullstr
     ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
