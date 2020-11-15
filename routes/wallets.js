@@ -49,14 +49,14 @@ router.post('/withdraw',async  (req,res)=>{  // let username; try{username=await
     const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,nettype:nettype}});
     if(tokendata){} else {return false} const decimals=tokendata['denominatorexp']
     sends({username:username,rxaddr:address,amt2sendfloat:+amount,amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
-    //    sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
+    //    sends({username:username,rxaddr:address,amt2sendfloat:pa rseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});
     callhook({name:username,path:'withdraw'});    return false
   }).catch(err=>{console.log(err); respreqinvalid(res,err.toString(),54726);return false})
 }) //
 const HEADER_LOG_STOP_TX='stop admin tx:';const B_VERB=0
-const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=jdata // ; amount0=parseFloat(amount0)
+const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=jdata // ; amount0=par seFloat(amount0)
   db.operations.findOne({raw:true,where:{key_:'MIN_BALANCE_TO_INVOKE_TX_ON_CHANGE',subkey_:currency0}}).then(async respoper=>{if(B_VERB){console.log('respoper',respoper)}
     if(respoper && respoper['value_']){      let amtthresh=+respoper['value_']; if(B_VERB){console.log('amtthresh',amtthresh)}
       db.exchangerates.findOne({raw:true,where:{sitename:sitename,currency0:currency0,nettype:nettype}}).then(async respexrate=>{let collectoraddress,decimals;if(B_VERB){console.log('respexrate',respexrate)}
@@ -67,7 +67,7 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
         const respbal=await db.balance.findOne({raw:true,where:{username:username,sitename:sitename,currency:currency0, nettype:nettype}}); let amtlocked; if(B_VERB){console.log('respbal',respbal)}
         if(isequalinlowercases(respbal['address'] , collectoraddress) ) {console.log(`${HEADER_LOG_STOP_TX} same address`); return false}
         if(1 || B_VERB){console.log('7zKdtgAxFz',respbal['amountlocked'],amtthresh)}
-//        if(respbal && Number.isFinite(respbal['amountlocked']) && parseFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFloat(respbal['amountlocked']) }
+//        if(respbal && Number.isFinite(respbal['amountlocked']) && par seFloat(respbal['amountlocked'])>=amtthresh ){amtlocked=parseFl oat(respbal['amountlocked']) }
         if(respbal && Number.isFinite(respbal['amountlocked']) && +respbal['amountlocked']>=amtthresh ){amtlocked=+ respbal['amountlocked'] }
         else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
         sends({username:username
@@ -86,7 +86,7 @@ router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // l
   let {username,sitename}=jdata; req.body.sitename=sitename;req.body.username=username
   let {currency0, amount0}=req.body;console.log('exchange',req.body) // ,sitename
   if(currency0 && amount0 && sitename){} else {respreqinvalid(res,'ARG-MISSING',79654);return false};sitename=sitename.toUpperCase()
-  amount0=parseFloat(amount0);  console.log(amount0)
+  amount0=+ amount0;  console.log(amount0) // parseFloat
   callhook({name:username,path:'exchange'})
   db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename,active:1}}).then(resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
@@ -198,7 +198,7 @@ const sends=(jdata,tabletouse,modecollectorgeneral)=>{  const {username,currency
     return false    
   })
 }
-//     sends({username:username,rxaddr:address,amt2sendfloat:parseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
+//     sends({username:username,rxaddr:address,amt2sendfloat:par seFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
 /*router.post('/exc hangeXX',async (req,res)=>{  const {currency0, amount0}=req.body
   if(currency0 && amount0 ){} else {respreqinvalid(res,'ARG-MISSING',79655);return false} // && currency1 amount1 && && usernamecurrency1,,amount1,username
   db.excha ngerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{
