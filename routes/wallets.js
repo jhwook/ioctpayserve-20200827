@@ -48,8 +48,8 @@ router.post('/withdraw',async  (req,res)=>{  // let username; try{username=await
 //    respok(res);return false
     const tokendata=await db.tokens.findOne({raw:true,where:{name:currency,nettype:nettype}});
     if(tokendata){} else {return false} const decimals=tokendata['denominatorexp']
-    sends({username:username,rxaddr:address,amt2sendfloat:+amount,amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
-    //    sends({username:username,rxaddr:address,amt2sendfloat:pa rseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
+    sends({username:username,rxaddr:address,amt2sendfloat:+amount,amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename , amt2sendstr:''+amount  },'transactions')
+    //    se nds({username:username,rxaddr:address,amt2sendfloat:pa rseFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
 //    sendsethkinds({username:username,rxaddr:address,amt2sendfloat:amount,amt2sendwei:convethtowei(amount)})
     res.status(200).send({status:'OK'});
     callhook({name:username,path:'withdraw'});    return false
@@ -72,8 +72,8 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
         else {console.log(`${HEADER_LOG_STOP_TX} balance<thresh?`,jdata);return false}
         sends({username:username
           ,rxaddr:collectoraddress
-          ,amt2sendfloat:amtlocked
-          ,amt2sendwei:amtlocked
+          ,amt2sendfloat:convweitoeth(amtlocked)
+          ,amt2sendwei:amtlocked , amt2sendstr:''+jdata.amount0
           ,currency:currency0
           ,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
       })
@@ -127,7 +127,7 @@ router.get('/balance',async (req,res)=>{  // let username; try{username=await ge
       const [priceredis,unitsredis]=aresps
       price={price:priceredis,units:unitsredis,KRWUSD:forexrate} // })
     }
-    respok(res,null,null,{amountstr:balance['amount'].toString(), price:price, stakes:{amount:balance['stakesamount'],expiry:balance['stakesexpiry'],active:balance['stakesactive']
+    respok(res,null,null,{amountstr:balance['amount'].toString(),denominatorexp:balance['denominatorexp'], price:price, stakes:{amount:balance['stakesamount'],expiry:balance['stakesexpiry'],active:balance['stakesactive']
   }})
   }) //  })
 })
@@ -173,7 +173,7 @@ router.get('/image',(req,res)=>{console.log(req.query);  const {name}=req.query
   })
 })
 module.exports = router
-// sends({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:amtlocked,currency:currency0,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
+// se nds({username:username,rxaddr:collectoraddress,amt2sendfloat:amtlocked,amt2sendwei:amtlocked,currency:currency0,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
 const sends=(jdata,tabletouse,modecollectorgeneral)=>{  const {username,currency,sitename,amt2sendwei}=jdata; console.log('jdata@sends',jdata)
   db.balance.findOne({raw:true,where:{currency:currency, sitename:sitename,username:username,nettype:nettype,active:1}}).then(respbaldata=>{
     if(modecollectorgeneral && modecollectorgeneral=='collector'){
@@ -198,7 +198,7 @@ const sends=(jdata,tabletouse,modecollectorgeneral)=>{  const {username,currency
     return false    
   })
 }
-//     sends({username:username,rxaddr:address,amt2sendfloat:par seFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
+//     se nds({username:username,rxaddr:address,amt2sendfloat:par seFloat(amount),amt2sendwei:convethtowei(amount,decimals),currency:currency,sitename:sitename},'transactions')
 /*router.post('/exc hangeXX',async (req,res)=>{  const {currency0, amount0}=req.body
   if(currency0 && amount0 ){} else {respreqinvalid(res,'ARG-MISSING',79655);return false} // && currency1 amount1 && && usernamecurrency1,,amount1,username
   db.excha ngerates.findOne({raw:true,where:{currency0:currency0,currency1:currency1}}).then(resprates=>{

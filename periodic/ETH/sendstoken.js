@@ -12,7 +12,7 @@ let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
 const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(async (resolve,reject)=>{ if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
-  let {username,rxaddr,amt2sendfloat,amt2sendwei,currency,sitename}= jdata  // db.b alance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
+  let {username,rxaddr,amt2sendfloat,amt2sendwei,currency,sitename , amt2sendstr}= jdata  // db.b alance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
   getbalance({username:username,currency:'ETH',sitename:sitename},'float').then(async respbal=>{
     const gasfeefloat=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'float')
     if(respbal>=gasfeefloat){} else {      reject({status:'ERR',message:'Eth balance not enough'});return false    }
@@ -20,7 +20,7 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
     db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename}}).then(async respacct=>{
       if(respacct){} else {reject({status:'ERR'});return false}
       if(modecollectorgeneral && modecollectorgeneral=='collector'){}
-      else if(respacct['canwithdraw']){} 
+      else if(respacct['canwithdraw']){}
       else {console.log('Withdraw BANNED'); reject({status:'ERR'});return false}
       const address=respacct['address']; if(address){} else {reject({status:'ERR',message:'Address not found'});return false}
 
@@ -28,8 +28,11 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
       if(baleth){} 	else {reject({status:'ERR',message:'Network not avail.'});return false}
       const gasfeeint=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'int')
       if(parseInt(baleth)>=gasfeeint ){} else {reject({status:'ERR',message:'Eth balance not enough',code:51399});return false    }
-  
-      const contract=jcontracts[currency],amtstr='' + amt2sendwei ;console.log('7zKdtgAxFz_1',amtstr,amt2sendwei)// amt2sendwei.toString()
+      const contract=jcontracts[currency]; let amtstr // =amt2sendstr // amtstr='' + amt2sendwei ;// amt2sendwei.toString()
+      switch (respacct['denominatorexp']){
+        case 18 : amtstr=(+amt2sendstr).toFixed(8) + '0'.repeat(10);break
+        default : amtstr='' + amt2sendwei ; break
+      }; console.log('7zKdtgAxFz_1',amtstr,amt2sendwei)
       contract.methods.balanceOf(address).call((err,balance)=>{console.log(address,balance,amtstr); balance=parseInt(balance)
         if (balance<MIN_TOKEN_AMOUNT_TO_WITHDRAW){return false}
         let resptxo={blockNumber:null,transactionHash:null}
