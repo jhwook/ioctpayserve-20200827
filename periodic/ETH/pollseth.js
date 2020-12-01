@@ -58,7 +58,7 @@ const pollblocks=async jdata=>{  const {address,}=jdata
         amountcumul+=parseInt(txdata.value )
 
         const amtraw=txdata.value , fee=parseInt(txdata.gas)*parseInt(txdata.gasPrice)
-        db.balance.findOne({where:{username:username,currency:CURRENCYLOCAL,netkind:netkind}}).then(respbal=>{         let baldata 
+        db.balance.findOne({where:{username:username,currency:CURRENCYLOCAL,nettype:nettype}}).then(respbal=>{         let baldata 
 					if(respbal){baldata=respbal.dataValues}
           db.transactions.create({
             username:username
@@ -81,7 +81,7 @@ const pollblocks=async jdata=>{  const {address,}=jdata
             , fee:fee
             , feestr:convweitoeth(fee,CURRENCYDECIMALS)
             , txtime:moment.unix(txdata['timeStamp']).format(TIMESTRFORMAT)
-            , sitename:baldata['sitename']
+            , sitename:baldata['sitename']?baldata['sitename']:''
           })  
         })
         try{callhook({name:username,currency:CURRENCYLOCAL,amount:convweitoeth(amtraw)})}catch(err){console.log(err)}

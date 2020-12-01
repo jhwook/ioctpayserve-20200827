@@ -30,7 +30,7 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
       if(parseInt(baleth)>=gasfeeint ){} else {reject({status:'ERR',message:'Eth balance not enough',code:51399});return false    }
       const contract=jcontracts[currency]; let amtstr // =amt2sendstr // amtstr='' + amt2sendwei ;// amt2sendwei.toString()
       switch (respacct['denominatorexp']){
-        case 18 : amtstr=(+amt2sendstr).toFixed(8) + '0'.repeat(10);break
+        case 18 : amtstr=(+amt2sendstr).toFixed(8).replace(/\./,'') + '0'.repeat(10);break
         default : amtstr='' + amt2sendwei ; break
       }; console.log('7zKdtgAxFz_1',amtstr,amt2sendwei)
       contract.methods.balanceOf(address).call((err,balance)=>{console.log(address,balance,amtstr); balance=parseInt(balance)

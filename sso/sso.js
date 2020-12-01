@@ -55,23 +55,26 @@ const XXXverifypw=jdata=>{
 const commitsendlog=jdata=>  db.sendpoints.create(jdata)
 // http://www.iotcpay.com/wallet_api.php?   sitecode=iotc &hashcode=3a1a2d5f3fea5b062366aad93b7461e1 &passcode=111111 &ptype=C&pamt=100
 const sendpoints=jdata=>{console.log('_SP0',jdata);let table='sitenameholder'
-  return new Promise(async(resolve,reject)=>{  let {username,sitename,hashcode,pointkind }=jdata
+  return new Promise(async(resolve,reject)=>{  let {username,sitename,hashcode,pointkind ,entireorcurrent,currentamount}=jdata
     const respsite=await findonej(table,{sitename:sitename});let {urlpointincrease}=respsite;if(urlpointincrease){} else {reject('API-NOT-FOUND(sendpoints)');return false}
     db.balance.findOne({where:{username:username,sitename:sitename,currency:pointkind}}).then(respbal=>{let respbaldata=respbal.dataValues
-      if(respbaldata['amount']>0){
+      if(respbaldata['amount']>0){let entireamount=respbaldata['amount']
         db.users.findOne({raw:true,where:{username:username}}).then(respuser=>{ // console.log('_SP1',URLS_S_ENDPOINTS[sitename])
+          let amt2send=entireorcurrent=='CURRENT'?currentamount : entireamount
           axios.get(urlpointincrease, {params:{ // URLS_SENDPO INTS[sitename]
 						sitecode:sitename.toLowerCase()
 						,target:'payapp'
 						,hashcode:hashcode // ,passcode:respuser['withdrawpw']
             ,ptype:pointkind
-						,pamt:respbaldata['amount'] }}).then(respsend=>{console.log('respsend',respsend.data)
+						,pamt: amt2send }}).then(respsend=>{console.log('respsend',respsend.data)
             if(respsend && respsend.data['result']){
-              respbal.update({amount:0,amountfloat:0,amountstr:'0'}).then(resp=>{commitsendlog({
-                sitename:sitename
+//              respbal.update({amount:0,amountfloat:0,amountstr:'0'}).then(resp=>{commitsendlog({
+  let delta=entireamount-currentamount
+              respbal.update({amount:delta,amountfloat:delta,amountstr:delta}).then(resp=>{commitsendlog({
+sitename:sitename
                 , username:username
                 , currency:pointkind
-                , amount:respbaldata['amount']
+                , amount: amt2send // respbaldata['amount']
                 , hashcode:hashcode
                 , result:1
               }); resolve(respsend.data)}).catch(reject)

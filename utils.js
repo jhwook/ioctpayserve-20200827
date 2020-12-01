@@ -3,7 +3,7 @@ const moment=require('moment');const {netkind,nettype}=require('./configs/ETH/co
 const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
 const md5 = require('md5');const  sha1 = require('sha1')
 const {validatekey,validatekeyorterminate,sendpoints}=require('./sso/sso')
-const {KEYNAME_MARKETPRICES,POINTSKINDS,KEYNAME_KRWUSD, TIMESTRFORMAT}=require('./configs/configs')
+const {KEYNAME_MARKETPRICES,POINTSKINDS,KEYNAME_KRWUSD, TIMESTRFORMAT, KEYNAME_UNITS}=require('./configs/configs')
 const messages=require('./configs/messages');const _=require('lodash')
 const MAP_KRWUSD_APPLIES={BTC:1,ETH:1,USDT:1}
 const gettimestr=()=>{return moment().format('YYYY-MM-DD HH:mm:ss.SSS')}
@@ -70,24 +70,41 @@ const incdecbalance_reflfee=(jdata,txdata,calldata)=>{let {username,currency,amo
   if(txdata){amountdelta+=txdata['gasUsed']*calldata['GAS_PRICE']
     blocknumber=txdata['blockNumber']
   } // txdata['gas']*txdata['gasPrice']}  
-  db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}}).then(resp=>{    const amt01=resp.dataValues.amount-parseInt(amountdelta)
+  db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}}).then(resp=>{    const amt01=resp.dataValues.amount-amountdelta // parseInt(amountdelta)
     let jdata2upd={amount:amt01    , amountfloat:convweitoeth(amt01),blocknumbertx:blocknumber    }
     if(blocknumber>resp['blocknumbertx']){} else {delete jdata2upd['blocknumbertx']}
     resp.update(jdata2upd)
   }) //  db.balance.update({amount:db.sequelize.literal(`amount-${parseInt(amountdelta)}`)},{where:{username:username,currency:currency,nettype:nettype}})
-} // incdecbalance({username:'',curency:'',amountdelta:''})
+} // incd ecbalance({username:'',curency:'',amountdelta:''})
+// const bigintdiv=(numer,denom,prec)=>(Number(numer * BigInt(10**prec) / denom) /BigInt( 10**prec))
+const bigintdiv=(numer,denom,prec)=> Number(numer*BigInt(10**prec) / denom )/Number(BigInt( 10**prec))
+const bigintmult=(n0,n1)=>BigInt(n0)*BigInt(n1)
 const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}=jdata;console.log(jdata) // ,txdata,calldata
   let _respbal=db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}})
   let _resptkn=db.tokens.findOne( {raw:true,where:{name:currency,nettype:nettype }})
   const blocknumber=resptx['blockNumber']
   Promise.all([_respbal,_resptkn]).then(aresps=>{
     let [respbal,resptkn]=aresps; console.log('resptkn',resptkn)
-    const amt01= respbal.dataValues.amount-parseInt(amountdelta)
+    const amt01= BigInt(respbal.dataValues.amount) - BigInt(amountdelta)  // parseInt(amountdelta)
+    let jdata2upd={amount:amt01.toString()    
+      , amountfloat:bigintdiv(BigInt(amt01),resptkn['denominatorexp']) 
+      ,blocknumbertx:blocknumber    }
+    if(blocknumber>respbal['blocknumbertx']){}     else {      delete jdata2upd['blocknumbertx']    }
+    respbal.update(jdata2upd)
+  })
+} // incdec balance({username:'',curency:'',amountdelta:''})
+const incdecbalance_20201130=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}=jdata;console.log(jdata) // ,txdata,calldata
+  let _respbal=db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}})
+  let _resptkn=db.tokens.findOne( {raw:true,where:{name:currency,nettype:nettype }})
+  const blocknumber=resptx['blockNumber']
+  Promise.all([_respbal,_resptkn]).then(aresps=>{
+    let [respbal,resptkn]=aresps; console.log('resptkn',resptkn)
+    const amt01= respbal.dataValues.amount-amountdelta // parseInt(amountdelta)
     let jdata2upd={amount:amt01    , amountfloat:convweitoeth(amt01,resptkn['denominatorexp']),blocknumbertx:blocknumber    }
     if(blocknumber>respbal['blocknumbertx']){}     else {      delete jdata2upd['blocknumbertx']    }
     respbal.update(jdata2upd)
   })
-} // incdecbalance({username:'',curency:'',amountdelta:''})
+} // incdec balance({username:'',curency:'',amountdelta:''})
 const getbalanceandstakes=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,sitename}=jdata
   db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename }}).then(resp=>{
     if(resp){    let amtwei=resp['amount']-resp['amountlocked'];      amtwei= bfloatwei && bfloatwei=='float'? amtwei/10**resp['denominatorexp']: amtwei
@@ -118,6 +135,62 @@ const B_SENDPOINTS=1
 const doexchange=async (username,jdata,respbal,resprates)=>{
   return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata);let sitename=jdata['sitename'].toUpperCase()
     let respbaldata=respbal.dataValues;let price=null
+    const amount0wei=bigintmult(amount0,respbaldata['denominatorexp']) // convethtowei( ) // const amount0wei=convethtowei(amount0)    
+    if(resprates.priceisfixed && resprates.priceisfixed==1){price=resprates['fixedprice']}
+    else {      price=await cliredisa.hget(KEYNAME_MARKETPRICES,currency0) }
+    if(price){price=+price}
+    else {
+      let respvarprice=await db.variableprices.findOne({currency:currency0})
+      if(respvarprice){} else {reject('DB-ENTRY-NOT-FOUND');return false}
+    }
+    let unitscurr0=await cliredisa.hget(KEYNAME_UNITS, currency0)
+      if(unitscurr0 =='KRW'){}
+      else {
+        const exratekrwusd=await cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD)
+        price=price *(+exratekrwusd) // parseFloat
+      }
+     //    cliredisa.hget(KEYNAME_MARKETPRICES,currency0).then(price=>{  price=parseFloat(price)//      const respbaldata=respbal.dataValues
+//    if(MAP_KRWUSD_APPLIES[currency0]){ price *= parseFloat(await cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD))
+  //  }
+    console.log('amount0wei',amount0wei,'price',price)
+      const amtlockedtoupd=BigInt(respbaldata['amountlocked']) + amount0wei // parseInt(respbaldata['amountlocked'])+parseInt(amount0wei)
+      const amtbefore=BigInt(respbaldata['amount'])-BigInt(respbaldata['amountlocked']); const amountafter=amtbefore-amount0wei // parseInt(amount0wei)
+      respbal.update({amountlocked:''+amtlockedtoupd}) // .toString()
+      let extodata={}
+      Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log('GccVfwVSTD',amount0,price , resprates[pointkind],amttoinc)
+        extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,nettype:nettype,sitename:sitename,denominatorexp:DENOMINATOREXP_POINTS} // netkind:netkind
+        db.balance.findOne({where:{... jdataq }}).then(resp=>{ // console.log('GccVfwVSTD',pointkind,amttoinc)
+          if(resp){const respdata=resp.dataValues          ;
+            resp.update({amount:respdata['amount']+amttoinc }).then(                resp=>{ if(B_SENDPOINTS){console.log('_SENDPOINTS');
+            sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind,entireorcurrent:'CURRENT',currentamount:amttoinc })} })
+          }
+          else {
+            db.balance.create({amount:amttoinc, nettype:nettype, ... jdataq }).then(resp=>{ if(B_SENDPOINTS){console.log('_SENDPOINTS'); 
+            sendpoints({username:username,sitename:sitename,hashcode:jdata['hashcode'],pointkind:pointkind,entireorcurrent:'CURRENT',currentamount:amttoinc }) } })
+          }           
+        })
+      })
+      db.transactions.create({
+        username:username
+        , currency:currency0
+        , fromamount:amount0wei.toString()
+        , amountfloatstr:amount0 // convweitoeth(amount0wei , respbaldata['den'])
+        , amountbefore:respbaldata['amount']
+        , amountafter:  ''+(BigInt(respbaldata['amount']) -amount0wei)
+        , kind:'EXCHANGE'
+        , netkind:netkind
+        , nettype:nettype
+        , description:JSON.stringify(extodata)
+        , txtime:moment().format(TIMESTRFORMAT)
+        , sitename:jdata['sitename']
+      })
+//    }).catch(err=>{reject(err.toString())})
+    resolve(jdata)
+  })
+}
+const doexchange_20201130=async (username,jdata,respbal,resprates)=>{
+  return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata);let sitename=jdata['sitename'].toUpperCase()
+    let respbaldata=respbal.dataValues;let price=null
     const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'] ) // const amount0wei=convethtowei(amount0)    
     if(resprates.priceisfixed && resprates.priceisfixed==1){price=resprates['fixedprice']}
     else {      price=await cliredisa.hget(KEYNAME_MARKETPRICES,currency0) }
@@ -134,8 +207,8 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
 //    if(MAP_KRWUSD_APPLIES[currency0]){ price *= parseFloat(await cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD))
   //  }
     console.log('amount0wei',amount0wei,'price',price)
-      const amtlockedtoupd=parseInt(respbaldata['amountlocked'])+parseInt(amount0wei)
-      const amtbefore=respbaldata['amount']-respbaldata['amountlocked'],amountafter=amtbefore-parseInt(amount0wei)
+      const amtlockedtoupd=respbaldata['amountlocked'] + amount0wei // parseInt(respbaldata['amountlocked'])+parseInt(amount0wei)
+      const amtbefore=respbaldata['amount']-respbaldata['amountlocked'],amountafter=amtbefore-amount0wei // parseInt(amount0wei)
       respbal.update({amountlocked:amtlockedtoupd})
       let extodata={}
       Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log('GccVfwVSTD',amount0,price , resprates[pointkind],amttoinc)
