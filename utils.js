@@ -76,7 +76,7 @@ const incdecbalance_reflfee=(jdata,txdata,calldata)=>{let {username,currency,amo
     resp.update(jdata2upd)
   }) //  db.balance.update({amount:db.sequelize.literal(`amount-${parseInt(amountdelta)}`)},{where:{username:username,currency:currency,nettype:nettype}})
 } // incd ecbalance({username:'',curency:'',amountdelta:''})
-// const bigintdiv=(numer,denom,prec)=>(Number(numer * BigInt(10**prec) / denom) /BigInt( 10**prec))
+// const bigi ntdiv=(numer,denom,prec)=>(Number(numer * BigInt(10**prec) / denom) /BigInt( 10**prec))
 const bigintdiv=(numer,denom,prec)=> Number(numer*BigInt(10**prec) / denom )/Number(BigInt( 10**prec))
 const bigintmult=(n0,n1)=>BigInt(n0)*BigInt(n1)
 const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}=jdata;console.log(jdata) // ,txdata,calldata
@@ -271,5 +271,5 @@ const conva2j=(array,key)=>{	return _.fromPairs(_.map(array,i=>[i[key], i])) }
 module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convethtowei,convweitoeth,doexchange
   ,respwithdata,resperr,getbalance,getbalanceandstakes,gettimestr,convtohex
   ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorgoon, getuserorterminate
-  , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice,conva2j,validateadminkey
+  , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice,conva2j,validateadminkey , bigintdiv
 }

@@ -3,7 +3,7 @@ var router = express.Router();const moment=require('moment-timezone')
 const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STAKES}=require('../configs/configs')
 const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
-,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases
+,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases , bigintdiv
 }=require('../utils')
 const db=require('../models');const dbmon=require('../modelsmon')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
@@ -140,10 +140,12 @@ router.get('/balances', async (req,res,next)=> { // let username; try{username=a
   } catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
   db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
-    let amtfullstr ;try{ amtfullstr= (e['amount']-e['amountlocked']).toString()} catch(err){amtfullstr=null}
-    res.status(200).send({status:'OK',balances:aresps.map(e=>{return [
+    res.status(200).send({status:'OK',balances:aresps.map(e=>{
+      let amteff=BigInt(e['amount']) - BigInt(e['amountlocked'])
+      let amtfullstr ;try{ amtfullstr= (amteff ).toString()} catch(err){amtfullstr=null}  
+      return [
       e['currency']
-      , convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
+      ,bigintdiv(amteff , BigInt(10**e['denominatorexp']) , 4  ) //   convweitoeth(e['amount']-e['amountlocked'],)
       ,e['address']
       ,e['canwithdraw']
       ,e['stakesamount']

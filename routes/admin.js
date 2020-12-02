@@ -3,7 +3,7 @@ const express = require('express');
 var router = express.Router();
 const db=require('../models')
 const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth,conva2j}=utils ; const {update}=require('../utilsdb')
-const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice} = require('../utils')
+const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice , bigintdiv} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
@@ -47,9 +47,12 @@ router.get('/balances/user', async (req,res,next)=> { // let username; try{usern
   const {username,sitename}=req.query
   db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
-    res.status(200).send({status:'OK',balances:aresps.map(e=>{return [
+    res.status(200).send({status:'OK',balances:aresps.map(e=>{
+      let amteff=BigInt(e['amount']) - BigInt(e['amountlocked'])
+      let amtfullstr ;try{ amtfullstr= (amteff ).toString()} catch(err){amtfullstr=null}  
+      return [
       e['currency']
-      , convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
+      , bigintdiv(amteff , BigInt(10**e['denominatorexp']) , 4  ) // convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
       ,e['address']
       ,e['canwithdraw']
       ,e['stakesamount']
@@ -57,6 +60,7 @@ router.get('/balances/user', async (req,res,next)=> { // let username; try{usern
       ,e['stakesexpiry']
       ,e['stakesduration']
       ,e['stakesactive']
+      , amtfullstr
     ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 })
