@@ -103,7 +103,7 @@ router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // l
         else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
       }
       req.body.hashcode=req.headers.hashcode
-      doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp);       
+      doexchange(username,req.body,respbal,resprates).then(resp=>{respok(res,null,38800,resp )
       sendstoadminonexchange(req.body,username);        return false
       }).catch(err=>{respreqinvalid(res,err.toString(),62015);return false})
     })
