@@ -135,7 +135,7 @@ const B_SENDPOINTS=1
 const doexchange=async (username,jdata,respbal,resprates)=>{
   return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata);let sitename=jdata['sitename'].toUpperCase()
     let respbaldata=respbal.dataValues;let price=null
-    const amount0wei=bigintmult(amount0,respbaldata['denominatorexp']) // convethtowei( ) // const amount0wei=convethtowei(amount0)    
+    const amount0wei=bigintmult(amount0,10**respbaldata['denominatorexp']) // convethtowei( ) // const amount0wei=convethtowei(amount0)    
     if(resprates.priceisfixed && resprates.priceisfixed==1){price=resprates['fixedprice']}
     else {      price=await cliredisa.hget(KEYNAME_MARKETPRICES,currency0) }
     if(price){price=+price}

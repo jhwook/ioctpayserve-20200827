@@ -12,7 +12,7 @@ const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH',CURRENCYDECIMALS=18, DEL
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS;const MAP_URLSHORT={'https://api.etherscan.io/api':'etherscan'}
 let jaddresses={},jhandlers={}
 const setpoller=jdata=>{const {username,address}=jdata
-  const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
+  const deltat=getRandomInt(5*1000, DELTA_T);0 && console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',gettimestr())
   setTimeout(()=>{    if(false){pollblocks({address:address,username:username})}
     jhandlers[address.toLowerCase()]=    setInterval(()=>{ pollblocks({address:address,username:username})
     }, PERIOD_DIST_POLLS)
@@ -22,20 +22,20 @@ const runmode=process.env.NODE_ENV,devactive=runmode && runmode=='development'?1
 const init=_=>{ // .toLower,Case()
   for (let i=0;i<web3.eth.accounts.wallet.length;i++){    const address=web3.eth.accounts.wallet[i].address // ;console.log(address,'ETH')
     db.balance.findOne({raw:true,where:{address:address,nettype:nettype,currency:CURRENCYLOCAL,active:1,devactive:devactive }}).then(resp=>{      if(resp){} else {return false} ; const username=resp['username']// console.log(resp);
-      jaddresses[address.toLowerCase()]=username;const deltat=getRandomInt(5*1000, DELTA_T);console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',address.substr(0,10),resp['username']) // ,gettimestr()
+      jaddresses[address.toLowerCase()]=username;const deltat=getRandomInt(5*1000, DELTA_T);0 && console.log('\u0394',moment(deltat).format('mm:ss'),'ETH',address.substr(0,10),resp['username']) // ,gettimestr()
       setTimeout(()=>{    if(false){pollblocks({address:address,username:username})}
         setInterval(()=>{ pollblocks({address:address,username:username})
         }, PERIOD_DIST_POLLS)
       } ,deltat )
     })
   }
-} ; setTimeout(_=>{console.log('ETHs',jaddresses,Object.keys(jaddresses).length)},13*1000)
+} ; setTimeout(_=>{0 && console.log('ETHs',jaddresses,Object.keys(jaddresses).length)},13*1000)
 
 //const reinit=()=>{  db.balance.findOne({raw:true,where:{address:address,netkind:netkind,currency:CURRENCYLOCAL }}).then(resp=>{      if(resp){} else {return false} ;    jaddre sses[address]=resp['username']  })}
 const pollblocks=async jdata=>{  const {address,}=jdata
   db.blockbalance.findOne({raw:true,where:{address:address,direction:'IN',currencykind:CURRENCYLOCAL,currencytype:CURRENCYLOCAL}}).then(async respbb=>{let startblock=1;if(B_VERB){console.log('respbb',respbb)}
     if(respbb){startblock=respbb['blocknumber']+1} else {}; let username=jaddresses[address.toLowerCase()] || '' // let username=respbb && respbb['username']?respbb['username']:null
-    B_VERB && console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u2699',username,'\u2699', '\u2618','@polleth',moment().format('HH:mm:ss.SSS'))
+    0 && console.log(startblock,ENDBLOCKDUMMY4QUERY,address.substr(0,8),'\u2699',username,'\u2699', '\u2618','@polleth',moment().format('HH:mm:ss.SSS'))
     const query={startblock:startblock,endblock:ENDBLOCKDUMMY4QUERY,address:address
       ,module:'account'
       ,action:'txlist'
