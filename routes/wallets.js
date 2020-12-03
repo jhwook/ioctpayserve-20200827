@@ -88,9 +88,9 @@ router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // l
   if(currency0 && amount0 && sitename){} else {respreqinvalid(res,'ARG-MISSING',79654);return false};sitename=sitename.toUpperCase()
   amount0=+ amount0;  console.log(amount0) // parseFloat
   callhook({name:username,path:'exchange'})
-  db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename,active:1}}).then(resprates=>{
+  db.exchangerates.findOne({raw:true,where:{currency0:currency0,sitename:sitename,active:1}}).then(async resprates=>{
     if(resprates){} else {respreqinvalid(res,'DB-ENTRY-NOT-FOUND',81089);return false}
-    db.balance.findOne({where:{currency:currency0,sitename:sitename, username:username,nettype:nettype,active:1}}).then(respbal=>{
+    db.balance.findOne({where:{currency:currency0,sitename:sitename, username:username,nettype:nettype,active:1}}).then(async respbal=>{
       if(respbal){} else {respreqinvalid(res,'DB-BALANCE-NOT-FOUND',61677);return false}
       let respbaldata=respbal.dataValues
       const amount0wei=convethtowei(amount0,respbaldata['denominatorexp'])
