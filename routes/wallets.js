@@ -3,7 +3,7 @@ var router = express.Router();const moment=require('moment-timezone')
 const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STAKES}=require('../configs/configs')
 const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
-,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases , bigintdiv
+,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases , bigintdiv, isethbalanceenough4fee
 }=require('../utils')
 const db=require('../models');const dbmon=require('../modelsmon')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
@@ -102,6 +102,8 @@ router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // l
         if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){}             
         else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
       }
+      let ethenough=await isethbalanceenough4fee(jdata)
+      if(ethenough){} else {respreqinvalid(res,'ETH-BALANCE-NOT-ENOUGH',31103);return false}
       req.body.hashcode=req.headers.hashcode
       doexchange(username,req.body,respbal,resprates , jconvdamounts).then(resp=>{respok(res,null,38800,resp )
       sendstoadminonexchange(req.body,username);        return false

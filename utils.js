@@ -4,7 +4,8 @@ const redis=require('redis');const clientredis=redis.createClient();const clired
 const md5 = require('md5');const  sha1 = require('sha1')
 const {validatekey,validatekeyorterminate,sendpoints}=require('./sso/sso')
 const {KEYNAME_MARKETPRICES,POINTSKINDS,KEYNAME_KRWUSD, TIMESTRFORMAT, KEYNAME_UNITS}=require('./configs/configs')
-const messages=require('./configs/messages');const _=require('lodash')
+const messages=require('./configs/messages');const _=require('lodash');
+const { reject } = require('lodash');
 const MAP_KRWUSD_APPLIES={BTC:1,ETH:1,USDT:1}
 const gettimestr=()=>{return moment().format('YYYY-MM-DD HH:mm:ss.SSS')}
 const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message:msg,code:code});return false}, resperr=respreqinvalid
@@ -110,7 +111,24 @@ const getbalanceandstakes=(jdata,bfloatwei)=>{return new Promise((resolve,reject
       resolve({amount:amtwei, stakesamount:resp['stakesamount'],stakesexpiry:resp['stakesexpiry'],stakesactive:resp['stakesactive'],denominatorexp:resp['denominatorexp'] })
     } else {reject('NOT-FOUND')}
   }).catch(err=>{reject(err.toString())})
-})} 
+})}
+const getbalance_bigint=(jdata,bfloatwei)=>{
+  return new Promise ((resolve,reject)=>{let {username,currency,sitename}=jdata
+    db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename}}).then(resp=>{
+      if(resp){resolve(BigInt( resp['amount']) - BigInt(resp['amountlocked']));return false}      
+    }).catch(err=>{LOGGER(err); resolve(null);return false})
+  })
+} 
+const isethbalanceenough4fee=jdata=>{let {username,sitename}=jdata; let aproms=[]
+  return new Promise ((resolve,reject)=>{
+    aproms[aproms.length]=getbalance_bigint({username:username,currency:'ETH',nettype:nettype,sitename:sitename}) // db.balance.findOne({raw:true,where:{username:username,currency:'ETH',nettype:nettype,sitename:sitename}})
+    aproms[aproms.length]=db.operations.findOne({raw:true,where:{key:'GAS_PRICE_TOKEN',subkey_:nettype}})
+    aproms[aproms.length]=db.operations.findOne({raw:true,where:{key:'GAS_LIMIT_TOKEN',subkey_:nettype}})
+    Promise.all(aproms).then(aresps=>{    let [respbal,respethprice,respethlimit]=aresps
+      resolve( respbal>= BigInt(respethprice['value_'])*BigInt(respethlimit['value_']));return false
+    }).catch(err=>{LOGGER(err);resolve(null);return false})  
+  })
+}
 const getbalance=(jdata,bfloatwei)=>{return new Promise((resolve,reject)=>{const {username,currency,sitename}=jdata
   db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename }}).then(resp=>{
     if(resp){    const amtwei=resp['amount']-resp['amountlocked']
@@ -278,4 +296,5 @@ module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convet
   ,respwithdata,resperr,getbalance,getbalanceandstakes,gettimestr,convtohex
   ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorgoon, getuserorterminate
   , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice,conva2j,validateadminkey , bigintdiv
+  , isethbalanceenough4fee
 }
