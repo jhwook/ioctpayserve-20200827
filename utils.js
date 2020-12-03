@@ -134,7 +134,7 @@ const B_SENDPOINTS=1
 const bigintexpo=(amt,exp)=>{exp=+exp; if(exp<=8){return BigInt(amt*10**exp) };  THRESHSPLITEXP=8
   return BigInt(amt*10**THRESHSPLITEXP) * BigInt(10**(exp-THRESHSPLITEXP)) 
 }
-const doexchange=async (username,jdata,respbal,resprates)=>{
+const doexchange=async (username,jdata,respbal,resprates, jconvdamounts)=>{
   return new Promise (async (resolve,reject)=>{let {currency0,amount0}=jdata; amount0=parseFloat(amount0);console.log('jdata',jdata);let sitename=jdata['sitename'].toUpperCase()
     let respbaldata=respbal.dataValues;let price=null
     if (amount0<1){LOGGER('1vpXP5eLEq',username,jdata,respbal,resprates);resolve(null);return false}
@@ -149,7 +149,7 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
     let unitscurr0=await cliredisa.hget(KEYNAME_UNITS, currency0)
       if(unitscurr0 =='KRW'){}
       else {
-        const exratekrwusd=await cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD)
+        const exratekrwusd=await cliredisa.hget(KEYNAME_MARKETPRICES,KEYNAME_KRWUSD) 
         price=price *(+exratekrwusd) // parseFloat
       }
      //    cliredisa.hget(KEYNAME_MARKETPRICES,currency0).then(price=>{  price=parseFloat(price)//      const respbaldata=respbal.dataValues
@@ -160,7 +160,10 @@ const doexchange=async (username,jdata,respbal,resprates)=>{
       const amtbefore=BigInt(respbaldata['amount'])-BigInt(respbaldata['amountlocked']); const amountafter=amtbefore-amount0wei // parseInt(amount0wei)
       respbal.update({amountlocked:''+amtlockedtoupd}) // .toString()
       let extodata={}
-      Object.keys(POINTSKINDS).forEach(pointkind=>{const amttoinc=parseInt(amount0 *price * resprates[pointkind]/100);console.log('GccVfwVSTD',amount0,price , resprates[pointkind],amttoinc)
+      Object.keys(POINTSKINDS).forEach(pointkind=>{let amttoinc        
+        if(jconvdamounts && jconvdamounts[pointkind]){  amttoinc=+jconvdamounts[pointkind]}
+        else {                                          amttoinc=parseInt(amount0 *price * resprates[pointkind]/100)}        
+        ;console.log('GccVfwVSTD',amount0,price , resprates[pointkind],amttoinc)
         extodata[pointkind]=amttoinc; let jdataq={username:username,currency:pointkind,nettype:nettype,sitename:sitename,denominatorexp:DENOMINATOREXP_POINTS} // netkind:netkind
         db.balance.findOne({where:{... jdataq }}).then(resp=>{ // console.log('GccVfwVSTD',pointkind,amttoinc)
           if(resp){const respdata=resp.dataValues          ;
