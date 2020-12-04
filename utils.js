@@ -125,7 +125,7 @@ const isethbalanceenough4fee=jdata=>{let {username,sitename}=jdata; let aproms=[
     aproms[aproms.length]=db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_TOKEN',subkey_:nettype}})
     aproms[aproms.length]=db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_TOKEN',subkey_:nettype}})
     Promise.all(aproms).then(aresps=>{    let [respbal,respethprice,respethlimit]=aresps
-      resolve( respbal>= BigInt(respethprice['value_'])*BigInt(respethlimit['value_']));return false
+      resolve( respbal>= BigInt(respethprice['value_'])*BigInt(respethlimit['value_'] + BigInt((+respbal['stakesamount']).toFixed(0)) * BigInt(10**respbal['denominatorexp'])  ));return false
     }).catch(err=>{LOGGER(err);resolve(null);return false})  
   })
 }
@@ -178,7 +178,7 @@ const doexchange=async (username,jdata,respbal,resprates, jconvdamounts)=>{
       const amtbefore=BigInt(respbaldata['amount'])-BigInt(respbaldata['amountlocked']); const amountafter=amtbefore-amount0wei // parseInt(amount0wei)
       respbal.update({amountlocked:''+amtlockedtoupd}) // .toString()
       let extodata={}
-      Object.keys(POINTSKINDS).forEach(pointkind=>{let amttoinc        
+      Object.keys(POINTSKINDS).forEach(pointkind=>{let amttoinc
         if(jconvdamounts && jconvdamounts[pointkind]){  amttoinc=+jconvdamounts[pointkind]}
         else {                                          amttoinc=parseInt(amount0 *price * resprates[pointkind]/100)}        
         ;console.log('GccVfwVSTD',amount0,price , resprates[pointkind],amttoinc)
