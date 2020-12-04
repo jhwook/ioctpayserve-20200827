@@ -122,8 +122,8 @@ const getbalance_bigint=(jdata,bfloatwei)=>{
 const isethbalanceenough4fee=jdata=>{let {username,sitename}=jdata; let aproms=[]
   return new Promise ((resolve,reject)=>{
     aproms[aproms.length]=getbalance_bigint({username:username,currency:'ETH',nettype:nettype,sitename:sitename}) // db.balance.findOne({raw:true,where:{username:username,currency:'ETH',nettype:nettype,sitename:sitename}})
-    aproms[aproms.length]=db.operations.findOne({raw:true,where:{key:'GAS_PRICE_TOKEN',subkey_:nettype}})
-    aproms[aproms.length]=db.operations.findOne({raw:true,where:{key:'GAS_LIMIT_TOKEN',subkey_:nettype}})
+    aproms[aproms.length]=db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_TOKEN',subkey_:nettype}})
+    aproms[aproms.length]=db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_TOKEN',subkey_:nettype}})
     Promise.all(aproms).then(aresps=>{    let [respbal,respethprice,respethlimit]=aresps
       resolve( respbal>= BigInt(respethprice['value_'])*BigInt(respethlimit['value_']));return false
     }).catch(err=>{LOGGER(err);resolve(null);return false})  
@@ -282,7 +282,7 @@ const doexc_hangeXX=(username,jdata)=>{
       respbal0.update({amountlocked:db.sequelize.literal(`amountlocked + ${amount0}`)})
       respbal1.update({amount:db.sequelize.literal(`amount + ${amount1}`)})
       resolve(1)
-    })    
+    })     
     } catch(err){reject(err)}
   })
 }
