@@ -115,18 +115,19 @@ const getbalanceandstakes=(jdata,bfloatwei)=>{return new Promise((resolve,reject
 const getbalance_bigint=(jdata,bfloatwei)=>{
   return new Promise ((resolve,reject)=>{let {username,currency,sitename}=jdata
     db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename}}).then(resp=>{
-      if(resp){resolve(BigInt( resp['amount']) - BigInt(resp['amountlocked']));return false}      
+      if(resp){resolve(BigInt( resp['amount']) - BigInt(resp['amountlocked'] ));return false}      
     }).catch(err=>{LOGGER(err); resolve(null);return false})
   })
-} 
+}
 const isethbalanceenough4fee=jdata=>{let {username,sitename}=jdata; let aproms=[]
   return new Promise ((resolve,reject)=>{
     aproms[aproms.length]=getbalance_bigint({username:username,currency:'ETH',nettype:nettype,sitename:sitename}) // db.balance.findOne({raw:true,where:{username:username,currency:'ETH',nettype:nettype,sitename:sitename}})
     aproms[aproms.length]=db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_TOKEN',subkey_:nettype}})
     aproms[aproms.length]=db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_TOKEN',subkey_:nettype}})
-    Promise.all(aproms).then(aresps=>{    let [respbal,respethprice,respethlimit]=aresps;       
+    aproms[aproms.length]=db.balance.findOne({raw:true,where:{username:username,currency:'ETH',nettype:nettype,sitename:sitename} })
+    Promise.all(aproms).then(aresps=>{    let [respbalcust,respethprice,respethlimit,respbal]=aresps
       LOGGER('isUspWZqfb',respethprice['value_'] , respethlimit['value_'] , respbal['stakesamount'], respbal['denominatorexp'])
-      resolve( respbal>= BigInt(respethprice['value_'])*BigInt(respethlimit['value_'] + BigInt((+respbal['stakesamount']).toFixed(0)) * BigInt(10**respbal['denominatorexp'])  ));return false
+      resolve( respbalcust>= BigInt(respethprice['value_'])*BigInt(respethlimit['value_'] + BigInt((+respbal['stakesamount']).toFixed(0)) * BigInt(10**respbal['denominatorexp'])  ));return false
     }).catch(err=>{LOGGER(err);resolve(null);return false})  
   })
 }
