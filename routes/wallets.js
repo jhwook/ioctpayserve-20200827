@@ -11,7 +11,7 @@ const {sendseth}=require('../periodic/ETH/sendseth')
 const {sendstoken}=require('../periodic/ETH/sendstoken') // const {se nds eth,sendstoken}=require('../periodic/ETH/s ends')
 const utils = require('../utils') // ;const B_STAKES=1
 const { netkind,nettype } = require('../configs/ETH/configweb3');const {verifypw}=require('../sso/sso')
-const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient()
+const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient();const LOGGER=console.log
 const convstakeamount2wei=(str,denominatorexp)=>convethtowei(+str, denominatorexp) // convweitoeth
 /* GET users listing. */
 const MSGS={MSG_PW_INVALID:'출금암호가 맞지 않습니다'}
@@ -36,9 +36,9 @@ router.get('/exchangerates',async (req,res)=>{const {currency0,sitename}=req.que
   }).catch(err=>{    respreqinvalid(res,err.toString(),30379);return false
   })
 })
-router.post('/withdraw',async  (req,res)=>{  // let username; try{username=await getusero rterminate(req,res);if(username){} else {return false}} catch(err){return false}
+router.post('/withdraw',async(req,res)=>{  // let username; try{username=await getusero rterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  let {username,sitename,hashcode}=jdata
+  let {username,sitename,hashcode}=jdata ; LOGGER('V6RiXI8Que',jdata)
   const {amount,address,pw,currency}=req.body; console.log(req.body)
   if(amount && address && pw && username && currency){} else {respreqinvalid(res,messages.MSG_PLEASE_INPUT_DATA,67648);return false}
   try {await verifypw({sitename:sitename , hashcode:hashcode , pw:pw})}
