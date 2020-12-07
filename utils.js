@@ -298,5 +298,5 @@ module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convet
   ,respwithdata,resperr,getbalance,getbalanceandstakes,gettimestr,convtohex
   ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorgoon, getuserorterminate
   , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice,conva2j,validateadminkey , bigintdiv
-  , isethbalanceenough4fee
+  , isethbalanceenough4fee,LOGGER
 }

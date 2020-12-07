@@ -1,7 +1,7 @@
 
 const {web3,netkind,nettype}=require('../../configs/ETH/configweb3')
 const db=require('../../models')
-const utils=require('../../utils'); const {gettimestr,convtohex,incdecbalance,incdecbalance_reflfee, getbalance,convweitoeth}=utils
+const utils=require('../../utils'); const {gettimestr,convtohex,incdecbalance,incdecbalance_reflfee, getbalance,convweitoeth,LOGGER}=utils
 const {TIMESTRFORMAT,MAP_TABLESTOUSE_DEFINED}=require('../../configs/configs')
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
@@ -13,6 +13,7 @@ const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
 const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(async (resolve,reject)=>{ if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
   let {username,rxaddr,amt2sendfloat,amt2sendwei,currency,sitename , amt2sendstr}= jdata  // db.b alance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
+  LOGGER('TF9TjQWwIE',jdata)
   getbalance({username:username,currency:'ETH',sitename:sitename},'float').then(async respbal=>{
     const gasfeefloat=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'float')
     if(respbal>=gasfeefloat){} else {      reject({status:'ERR',message:'Eth balance not enough'});return false    }
