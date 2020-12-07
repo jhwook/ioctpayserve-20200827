@@ -89,7 +89,10 @@ const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}
     let [respbal,resptkn]=aresps; console.log('resptkn',resptkn)
     const amt01= BigInt(respbal.dataValues.amount) - BigInt(amountdelta)  // parseInt(amountdelta)
     let jdata2upd={amount:amt01.toString()    
-      , amountfloat:bigintdiv( amt01 ,BigInt(10**resptkn['denominatorexp']) ,8)       ,blocknumbertx:blocknumber    }
+      , amountfloat: bigintdiv( Number(amt01) ,10**resptkn['denominatorexp'] ,8)       ,blocknumbertx:blocknumber    }
+// XX      bigintdiv( amt01 ,BigInt(10**resptkn['denominatorexp']) ,8)       ,blocknumbertx:blocknumber    }
+// OO  , bigintdiv(Number(amteff) , 10**e['denominatorexp'] , 4  ) //   convweitoeth(e['amount']-e['amountlocked'],)
+
     if(blocknumber>respbal['blocknumbertx']){}     else {      delete jdata2upd['blocknumbertx']    }
     respbal.update(jdata2upd)
   })
