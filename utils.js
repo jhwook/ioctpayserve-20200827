@@ -78,7 +78,8 @@ const incdecbalance_reflfee=(jdata,txdata,calldata)=>{let {username,currency,amo
 } // incd ecbalance({username:'',curency:'',amountdelta:''})
 // const bigi ntdiv=(numer,denom,prec)=>(Number(numer * BigInt(10**prec) / denom) /BigInt( 10**prec))
 const bigintdiv_notforfloatinput=(numer,denom,prec)=> Number(numer*BigInt(10**prec) / denom )/Number(BigInt( 10**prec))
-const bigintdiv=(numer,denom,prec)=> Number( BigInt( (+numer* 10**prec).toFixed(0)) ) /Number(denom)  /Number( 10**prec)
+//const bigintdiv=(numer,denom,prec)=> Number( BigInt( (+numer* 10**prec).toFixed(0)) ) /Number(denom)  /Number( 10**prec)
+const bigintdiv=(numer,denom,prec)=> Number(  (+numer* 10**prec).toFixed(0) ) /Number(denom)  /Number( 10**prec)
 const bigintmult=(n0,n1)=>BigInt(n0)*BigInt(n1)
 const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}=jdata;console.log(jdata) // ,txdata,calldata
   let _respbal=db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}})
