@@ -77,7 +77,8 @@ const incdecbalance_reflfee=(jdata,txdata,calldata)=>{let {username,currency,amo
   }) //  db.balance.update({amount:db.sequelize.literal(`amount-${parseInt(amountdelta)}`)},{where:{username:username,currency:currency,nettype:nettype}})
 } // incd ecbalance({username:'',curency:'',amountdelta:''})
 // const bigi ntdiv=(numer,denom,prec)=>(Number(numer * BigInt(10**prec) / denom) /BigInt( 10**prec))
-const bigintdiv=(numer,denom,prec)=> Number(numer*BigInt(10**prec) / denom )/Number(BigInt( 10**prec))
+const bigintdiv_notforfloatinput=(numer,denom,prec)=> Number(numer*BigInt(10**prec) / denom )/Number(BigInt( 10**prec))
+const bigintdiv=(numer,denom,prec)=> Number( BigInt(+numer* 10**prec)) /Number(denom)  /Number(BigInt( 10**prec))
 const bigintmult=(n0,n1)=>BigInt(n0)*BigInt(n1)
 const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}=jdata;console.log(jdata) // ,txdata,calldata
   let _respbal=db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}})
@@ -87,8 +88,7 @@ const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}
     let [respbal,resptkn]=aresps; console.log('resptkn',resptkn)
     const amt01= BigInt(respbal.dataValues.amount) - BigInt(amountdelta)  // parseInt(amountdelta)
     let jdata2upd={amount:amt01.toString()    
-      , amountfloat:bigintdiv(BigInt(amt01),resptkn['denominatorexp']) 
-      ,blocknumbertx:blocknumber    }
+      , amountfloat:bigintdiv( amt01 ,BigInt(10**resptkn['denominatorexp']) ,8)       ,blocknumbertx:blocknumber    }
     if(blocknumber>respbal['blocknumbertx']){}     else {      delete jdata2upd['blocknumbertx']    }
     respbal.update(jdata2upd)
   })
