@@ -92,7 +92,6 @@ const incdecbalance=(jdata,resptx)=>{let {username,currency,amountdelta,nettype}
       , amountfloat: bigintdiv( Number(amt01) ,10**resptkn['denominatorexp'] ,8)       ,blocknumbertx:blocknumber    }
 // XX      bigintdiv( amt01 ,BigInt(10**resptkn['denominatorexp']) ,8)       ,blocknumbertx:blocknumber    }
 // OO  , bigintdiv(Number(amteff) , 10**e['denominatorexp'] , 4  ) //   convweitoeth(e['amount']-e['amountlocked'],)
-
     if(blocknumber>respbal['blocknumbertx']){}     else {      delete jdata2upd['blocknumbertx']    }
     respbal.update(jdata2upd)
   })
@@ -130,7 +129,7 @@ const isethbalanceenough4fee=jdata=>{let {username,sitename}=jdata; let aproms=[
     aproms[aproms.length]=db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_TOKEN',subkey_:nettype}})
     aproms[aproms.length]=db.balance.findOne({raw:true,where:{username:username,currency:'ETH',nettype:nettype,sitename:sitename} })
     Promise.all(aproms).then(aresps=>{    let [respbalcust,respethprice,respethlimit,respbal]=aresps
-      LOGGER('isUspWZqfb',respethprice['value_'] , respethlimit['value_'] , respbal['stakesamount'], respbal['denominatorexp'])
+      LOGGER('isUspWZqfb',respbalcust, respethprice['value_'] , respethlimit['value_'] , respbal['stakesamount'], respbal['denominatorexp'])      
       resolve( respbalcust>= BigInt(respethprice['value_'])*BigInt(respethlimit['value_'] + BigInt((+respbal['stakesamount']).toFixed(0)) * BigInt(10**respbal['denominatorexp'])  ));return false
     }).catch(err=>{LOGGER(err);resolve(null);return false})  
   })
