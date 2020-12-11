@@ -88,7 +88,7 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
 }
 router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let jdata; try{jdata=await getuserorterminate(req,res);if(jdata){} else {return false}} catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  let {username,sitename}=jdata; req.body.sitename=sitename;req.body.username=username
+  let {username,sitename}=jdata; req.body.sitename=sitename;req.body.username=username; LOGGER('yhTMI11SIS',jdata)
   let {currency0, amount0, jconvdamounts}=req.body;console.log('exchange',req.body) // ,sitename
   if(currency0 && amount0 && sitename){} else {respreqinvalid(res,'ARG-MISSING',79654);return false};sitename=sitename.toUpperCase()
   amount0=+ amount0;  console.log(amount0) // parseFloat
@@ -107,6 +107,7 @@ router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // l
         if(respbaldata['amount']-respbaldata['amountlocked']>=amount0wei){}             
         else {respreqinvalid(res,'BALANCE-NOT-ENOUGH',30212);return false}
       }
+      LOGGER('8gzxtkLDMg',jdata)
       let ethenough=await isethbalanceenough4fee(jdata)
       if(ethenough){} else {respreqinvalid(res,'ETH-BALANCE-NOT-ENOUGH',31103);return false}
       req.body.hashcode=req.headers.hashcode
