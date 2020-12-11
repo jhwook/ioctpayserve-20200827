@@ -130,7 +130,9 @@ const isethbalanceenough4fee=jdata=>{let {username,sitename}=jdata; let aproms=[
     aproms[aproms.length]=db.balance.findOne({raw:true,where:{username:username,currency:'ETH',nettype:nettype,sitename:sitename} })
     Promise.all(aproms).then(aresps=>{    let [respbalcust,respethprice,respethlimit,respbal]=aresps
       LOGGER('isUspWZqfb',respbalcust, respethprice['value_'] , respethlimit['value_'] , respbal['stakesamount'], respbal['denominatorexp'])      
-      resolve( BigInt( 0)>BigInt(-1)* respbalcust+ BigInt(respethprice['value_'])*BigInt(respethlimit['value_'] + BigInt((+respbal['stakesamount']).toFixed(0)) * BigInt(10**respbal['denominatorexp'])  ));return false
+      let surplusbal= BigInt(+1)* respbalcust+ BigInt(-1)* BigInt(respethprice['value_'])*BigInt(respethlimit['value_'])+ BigInt(-1)* BigInt((+respbal['stakesamount']).toFixed(0))* BigInt(10**respbal['denominatorexp'])  
+      LOGGER('LyVZYEZYBx',surplusbal);      let issurpluspositive=surplusbal>BigInt( 0);LOGGER('dRnalYpZld',issurpluspositive)
+      resolve(issurpluspositive);return false
     }).catch(err=>{LOGGER(err);resolve(null);return false})  
   })
 }
