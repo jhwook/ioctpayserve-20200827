@@ -117,7 +117,7 @@ const getbalanceandstakes=(jdata,bfloatwei)=>{return new Promise((resolve,reject
 })}
 const getbalance_bigint=(jdata,bfloatwei)=>{
   return new Promise ((resolve,reject)=>{let {username,currency,sitename}=jdata
-    db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename}}).then(resp=>{
+    db.balance.findOne({raw:true,where:{username:username,currency:currency,nettype:nettype,sitename:sitename}}).then(resp=>{LOGGER('5SuKe1h0Ag',BigInt( resp['amount']) , BigInt(resp['amountlocked'] ))
       if(resp){resolve(BigInt( resp['amount']) - BigInt(resp['amountlocked'] ));return false}      
     }).catch(err=>{LOGGER(err); resolve(null);return false})
   })
