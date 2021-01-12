@@ -8,7 +8,7 @@ const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netk
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
 const messages=require('../configs/messages'); const SITENAME_DEF='IOTC'; const {validateurlsso}=require('../sso/sso')
-const dbmon=require('../modelsmon');const axios=require('axios')
+// const dbmon=require('../modelsmon');const axios=require('axios')
 const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF,TIMEZONESTR}=configs;const MAX_URLADDRESS_LEN=100
 const MSG_PLEASE_INPUT_SITENAME='사이트이름을 입력하세요'
 const MSG_DATA_DUP='이미 등록된 이름입니다'
@@ -373,7 +373,7 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
   respok(res,MSG_DELETED,19774);return false
 //  .then(resp=>{    respok(res,MSG_DELETED,19774);return false  }) //  db.sitenameholder.des troy({where:{sitename:sitename}}).then(resp=>{    respok(res,MSG_DELETED,19774);return false  })
 }) //
-router.post('/image',(req,res)=>{let {name,imagebase64,subname}=req.body;console.log(name)
+0 && router.post('/image',(req,res)=>{let {name,imagebase64,subname}=req.body;console.log(name)
   if (name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+'(이미지)',73069);return false} //  respok(res);return false
   const timenow=moment().format(TIMESTRFORMATMILI) // createdAt:timenow    
   dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname    ,updatedAt:timenow  }

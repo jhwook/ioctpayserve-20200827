@@ -5,7 +5,7 @@ const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
 ,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases , bigintdiv, isethbalanceenough4fee
 }=require('../utils')
-const db=require('../models');const dbmon=require('../modelsmon')
+const db=require('../models'); // const dbmon=require('../modelsmon')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth}=require('../periodic/ETH/sendseth')
 const {sendstoken}=require('../periodic/ETH/sendstoken') // const {se nds eth,sendstoken}=require('../periodic/ETH/s ends')
@@ -176,7 +176,7 @@ router.get('/userpref',async (req,res)=>{ //let username; try{username=await get
     respok(res,null,null,{ ... user, KRWUSD:forexrate});return false
   })
 }) //
-router.get('/image',(req,res)=>{console.log(req.query);  const {name}=req.query
+0 && router.get('/image',(req,res)=>{console.log(req.query);  const {name}=req.query
   if(name){} else {respreqinvalid(res,'ARG-MISSING',69460);return false}
   dbmon.images.findOne({name:name} , function(err,resp){if(err){respreqinvalid(res,'INTERNAL-ERR',35994);return false}
     if(resp){respok(res,null,null,resp._doc);return false}

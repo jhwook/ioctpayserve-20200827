@@ -8,7 +8,7 @@ const {TIMESTRFORMAT,TIMESTRFORMATMILI}=require('../../configs/configs')
 const configs=require('../../configs/configs') // ;const { delete } = require('request')
  const {queuenamesj}=configs
 const ENDBLOCKDUMMY4QUERY=50000000;const B_VERB=false
-const PERIOD_DIST_POLLS=60*10*1000, CURRENCYLOCAL='ETH',CURRENCYDECIMALS=18, DELTA_T_SHORT=60*1.0*1000
+const PERIOD_DIST_POLLS=60*160*1000, CURRENCYLOCAL='ETH',CURRENCYDECIMALS=18, DELTA_T_SHORT=60*1.0*1000
 const DELTA_T=process.env.NODE_ENV && process.env.NODE_ENV=='development'? DELTA_T_SHORT:PERIOD_DIST_POLLS;const MAP_URLSHORT={'https://api.etherscan.io/api':'etherscan'}
 let jaddresses={},jhandlers={}
 const setpoller=jdata=>{const {username,address}=jdata
