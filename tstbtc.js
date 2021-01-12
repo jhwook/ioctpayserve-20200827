@@ -29,13 +29,11 @@ String.prototype.removecharat = function (i) {
   tmp.splice(i - 1 , 1); // remove 1 element from the array (adjusting for non-zero-indexed counts)
   return tmp.join(''); // reconstruct the string
 }
-const LOGGER=console.log
-const exhaustsearch_1=BVERBOSE=>{
-  const basestr='3b4e355d5624c4733d934fec1cbb3cc16c3a215b17c0818e77e1f2fe8685ec33c'
+const LOGGER=console.log // const basestr='3cc16c3a215b17c0818e77e1f2fe8685ec33c3b4e355d5624c4733d934fec1cbb' // address.match(/^1GG/) && LOGGER(address)
+const exhaustsearch_1=(basestr,BVERBOSE)=>{ 
   for (let i=0;i<basestr.length;i++){
       let tmpstr=basestr.removecharat(i)
       let address=convkey2address(tmpstr,'hex')
-//       address.match(/^1GG/) && LOGGER(address)  
 BVERBOSE && LOGGER(address , tmpstr,address.match(/^1GG/))   //
     }
 }
@@ -59,4 +57,19 @@ const tst=_=>{
   const address = bs58.encode(bytes)
   console.log(address)
 }
+/* 
+3cc16c3a215b17c0818e77e1f2fe8685ec33c03b4e355d5624c4733d934fec1cbb 
+03b4e355d5624c4733d934fec1cbb3cc16c3a215b17c0818e77e1f2fe8685ec33c
 
+3cc16c3a215b17c0818e77e1f2fe8685ec33c03b4e355d5624c4733d934fec1cbb 
+03b4e355d5624c4733d934fec1cbb3cc16c3a215b17c0818e77e1f2fe8685ec33c
+03b4e355d5624c4733d934fec1cbb 3cc16c3a215b17c0818e77e1f2fe8685ec33c <<<<
+
+3b4e355d5624c4733d934fec1cbbcc16c3a215b17c0818e77e1f2fe8685ec33c
+
+03b4e355d5624c4733d934fec1cb3cc16c3a215b17c0818e77e1f2fe8685ec33c
+
+03b4e355d5624c4733d934fec1cbb3cc16c3a215b17c0818e77e1f2fe8685ec33c
+
+03b4e355d5624c4733d934fec1cbb3cc16c3a215b17c0818e77e1f2fe8685ec33c
+*/
