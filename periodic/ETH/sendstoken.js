@@ -6,7 +6,7 @@ const {TIMESTRFORMAT,MAP_TABLESTOUSE_DEFINED}=require('../../configs/configs')
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
 let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN; const CURRENCYETH='ETH'
-const {minAbi4tx}=require('../../configs/ETH/tokens/abis');
+const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
 const { id } = require('ethers/lib/utils');
 let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
