@@ -7,10 +7,20 @@ const log4js = require('log4js'); log4js.configure({  appenders: { everything: {
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
 let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN; const CURRENCYETH='ETH'
 const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
-const { id } = require('ethers/lib/utils');
 let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
+const {queryethfeetosendeth_arr}=require('../../utils-txs')
+const sendstoken_track=async(jdata,tabletouse)=>{return new Promise(async(resolve,reject)=>{if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
+  let {username,rxaddress,currency,amount,sitename}=jdata; let amountstr=''+amount 
+  let {GAS_PRICE,GAS_LIMIT}=await aqueryethfeetosendeth_arr( 0 )
+  web3.eth.getTransactionCount(address).then(nonce=>{
+    contract.methods.transfer(rxaddress , amountstr).send({from:address, gas:GAS_LIMIT,gasPrice:GAS_PRICE,nonce:nonce}).then(async resptx=>{LOGGER('Yj2G6W')
+      if(resptx){} else {}
+    })
+  })  
+})
+}
 const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(async (resolve,reject)=>{ if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
   let {username,rxaddr,amt2sendfloat,amt2sendwei,currency,sitename , amt2sendstr}= jdata  // db.b alance.find_One({raw:true,where:{username:username,currency:'ETH'}}).then(respethbal=>{  })
   LOGGER('TF9TjQWwIE',jdata)
