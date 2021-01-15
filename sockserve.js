@@ -1,12 +1,12 @@
 // SOCKETS=require('../configs/sockets')
 const PORT_NUM=33335
 const express = require('express')
-const { sendstoken_track } = require('./periodic/ETH/sendstoken')
+const { sendseth_track } = require('./periodic/ETH/sendseth') ; const { sendstoken_track } = require('./periodic/ETH/sendstoken')
 const app=express()
 const server = app.listen( PORT_NUM ,console.log("Socket.io Hello Wolrd server started!"))
 const io = require('socket.io')(server)
 const {gettimestr,LOGGER,PARSER, STRINGER}=require('./utils'); const {getipsocket}=require('./utils-sockets')
-const {validatesend_token}=require('./utils-txs')
+const {validatesend_token}=require('./utils-txs'); const CURRENCY_ETH='ETH'
 // const HISTMAN=require('../history/manager')
 const B_ENABLE_BCAST_TOTAL=true, B_USE_BET_TABLE_CUMUL=true,B_START_FROM_NO_HIST=false,B_DBG=false
 let jusernamesitename_socket={}
@@ -18,11 +18,13 @@ io.on('connection', async(socket) => {
 	jusernamesitename_socket[`${uidfromsocket}-${sitename}`]=socket
   socket.on('withdrawreq',async msg=>{LOGGER('mavm8tDL81',msg);  let {amount,address,pw,username,currency}=PARSER(msg) // amount:this.state.inputamount      , address:inputaddress,pw:inputpw,username:username,currency:currency
     let respvalidate;
-		if(currency='ETH'){      respvalidate=await validatesend_eth   (username,currency,amount); if(respvalidate.status){} else {socket.emit('procdone',STRINGER({status:'ERR',username:username,message:respvalidate.message}) );return false}
-			sendstoken_eth
+		if(currency==CURRENCY_ETH){      respvalidate=await validatesend_eth   (username,currency,amount); if(respvalidate.status){} else {socket.emit('procdone',STRINGER({status:'ERR',username:username,message:respvalidate.message}) );return false}
+      sendseth_track({username:username , rxaddress:address , currency:CURRENCY_ETH, amount:amount,sitename:sitename }).then(resptx=>{
+        if(resptx){LOGGER('YGh3uHjWO4');return false} else {LOGGER('QAeWmNb24y');return false}
+      }) // let {username,rxaddr,amount,sitename}=jdata; LOGGER(jdata,'@15621')
     }
 		else {                   respvalidate=await validatesend_token (username,currency,amount); if(respvalidate.status){} else {socket.emit('procdone',STRINGER({status:'ERR',username:username,message:respvalidate.message}) );return false}
-			sendstoken_track({username:username,rxaddress:address,currency:currency,amount:amount,sitename} , 'transactions' , socket).then(resptx=>{
+			sendstoken_track({username:username,rxaddress:address,currency:currency,amount:amount,sitename:sitename} , 'transactions' , socket).then(resptx=>{
 				if(resptx){LOGGER('XgTqwTPwuz');return false} else {LOGGER('dkGiHw9bCo');return false}
 			}) //
     }    

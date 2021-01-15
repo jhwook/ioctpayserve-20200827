@@ -13,12 +13,39 @@ let jcontracts={}
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**18 }
 
 const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise((resolve,reject)=>{			if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'} // reject({status:'ERR',message:'TABLE INVALID'});return false}
-	let {username,rxaddr,amount,sitename}=jdata; LOGGER(jdata,'@15621')
+	let {username,rxaddress,amount,sitename}=jdata; LOGGER(jdata,'@15621')
 	let addressfrom=await getuseraddress(username,sitename,CURRENCYLOCAL)
 	let {GAS_PRICE:GAS_LIMIT_TOKEN , GAS_LIMIT:GAS_PRICE_TOKEN}=await queryethfeetosendeth_arr( 1 )
-	const txData = {from:addressfrom, to:rxaddr			, value:amt2sendwei , gasLimit:convtohex(GAS_LIMIT_ETH)			, gasPrice:convtohex(GAS_PRICE_ETH), data:'0x1'} // parseInt(tx.value.toString())- // tx.value.sub() // parseEther(amttoinc.toFixed(6)) //  parseEther( (rcvdamthexwei-).toString() )
+	const txData = {from:addressfrom, to:rxaddress			, value:amt2sendwei , gasLimit:convtohex(GAS_LIMIT_ETH)			, gasPrice:convtohex(GAS_PRICE_ETH), data:'0x1'} // parseInt(tx.value.toString())- // tx.value.sub() // parseEther(amttoinc.toFixed(6)) //  parseEther( (rcvdamthexwei-).toString() )
 	web3.eth.sendTransaction(txData).on('receipt',async resptx=>{LOGGER('',resptx)
-
+    if(resptx && resptx['blockNumber']){} else {socket.emit('procdone',STRINGER({status:'ERR',message:'TX-FAIL'})); return false}
+    const gaslimitbid=resptx['gas']?resptx['gas']:GAS_LIMIT_ETH, gaslimitoffer=resptx['gasUsed']?resptx['gasUsed']:GAS_LIMIT_ETH,gasprice=resptx['gasPrice']?resptx['gasPrice']:GAS_PRICE_ETH
+    const fee=gaslimitoffer*gasprice
+    db[tabletouse].create({
+      username:username
+      , currency:CURRENCYLOCAL
+      , fromamount:amt2sendwei
+      , toamount:amt2sendwei
+      , fromaddress:address
+      , toaddress:rxaddress
+      , direction:'OUT'
+      , blocknumber:parseInt(resptx['blockNumber'])
+      , hash:resptx['transactionHash']
+      , amountbefore:  balance
+      , amountafter:  parseInt(balance)-amt2sendwei-fee
+      , kind:tabletouse=='transactions'?'WITHDRAW':'SALESCOLLECT'
+      , netkind:netkind,nettype:nettype
+      , gaslimitbid:gaslimitbid
+      , gaslimitoffer:gaslimitoffer
+      , gasprice:gasprice
+      , fee:fee
+      , feestr:convweitoeth(fee,respacct['denominatorexp'] )
+      , txtime:resptx['timeStamp']? moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT):moment().format(TIMESTRFORMAT)
+      , amountfloatstr:_ethamt
+      , sitename:jdata['sitename']
+    })
+    incdecbalance_reflfee({... jdata,currency:CURRENCYLOCAL, amountdelta:amt2sendwei},resptx,{GAS_PRICE:GAS_PRICE_ETH,GAS_LIMIT:GAS_LIMIT_ETH})
+    resolve(1);return false
 	})
 })
 }
@@ -112,5 +139,5 @@ const init=()=>{
     })
   }) */
 }
-module.exports={sendseth}
+module.exports={sendseth , sendseth_track}
 init()
