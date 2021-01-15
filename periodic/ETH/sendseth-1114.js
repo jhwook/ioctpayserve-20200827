@@ -6,22 +6,10 @@ const {TIMESTRFORMAT,MAP_TABLESTOUSE_DEFINED}=require('../../configs/configs')
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
 let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN; const CURRENCYLOCAL='ETH'
-const {minAbi4tx}=require('../../configs/ETH/tokens/abis');
-const { LOGGER } = require('../../utils'); const {getuseraddress}=require('../../utils-txs')
+const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
 let jcontracts={}
 // const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1,DECIMALS=18 //const MAP_TABLESTOUSE_DEFINED={transactions:1,txsinternal:1}
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**18 }
-
-const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise((resolve,reject)=>{			if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'} // reject({status:'ERR',message:'TABLE INVALID'});return false}
-	let {username,rxaddr,amount,sitename}=jdata; LOGGER(jdata,'@15621')
-	let addressfrom=await getuseraddress(username,sitename,CURRENCYLOCAL)
-	let {GAS_PRICE:GAS_LIMIT_TOKEN , GAS_LIMIT:GAS_PRICE_TOKEN}=await queryethfeetosendeth_arr( 1 )
-	const txData = {from:addressfrom, to:rxaddr			, value:amt2sendwei , gasLimit:convtohex(GAS_LIMIT_ETH)			, gasPrice:convtohex(GAS_PRICE_ETH), data:'0x1'} // parseInt(tx.value.toString())- // tx.value.sub() // parseEther(amttoinc.toFixed(6)) //  parseEther( (rcvdamthexwei-).toString() )
-	web3.eth.sendTransaction(txData).on('receipt',async resptx=>{LOGGER('',resptx)
-
-	})
-})
-}
 const sendseth=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise((resolve,reject)=>{if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'} // reject({status:'ERR',message:'TABLE INVALID'});return false}
   let {username,rxaddr,amt2sendfloat,amt2sendwei,sitename}= jdata;console.log(jdata, '@15620')
   db.balance.findOne({raw:true,where:{username:username,currency:CURRENCYLOCAL,nettype:nettype,sitename:sitename}}).then(respacct=>{
@@ -45,6 +33,7 @@ const sendseth=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise((r
         , to:rxaddr			, value:amt2sendwei // parseInt(tx.value.toString())- // tx.value.sub() // parseEther(amttoinc.toFixed(6)) //  parseEther( (rcvdamthexwei-).toString() )
         , gasLimit:convtohex(GAS_LIMIT_ETH)			, gasPrice:convtohex(GAS_PRICE_ETH), data:'0x1'
       }
+
       let resptxo={blockNumber:null,transactionHash:null} ;   console.log('sendinout',balance,txData)
       try{
       web3.eth.sendTransaction(txData).on('receipt',async resptx=>{console.log(resptx); resptxo=resptx // resptx0=resptx; // logger4.debug(`sending ${amt2sendfloat.toFixed(6)} ETH from ${address}`)

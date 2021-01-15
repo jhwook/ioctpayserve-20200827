@@ -10,13 +10,43 @@ const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
 let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
-const {queryethfeetosendeth_arr}=require('../../utils-txs')
-const sendstoken_track=async(jdata,tabletouse)=>{return new Promise(async(resolve,reject)=>{if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
+const {queryethfeetosendeth_arr}=require('../../utils-txs');
+const { STRING } = require('sequelize');
+const sendstoken_track=async(jdata,tabletouse , socket)=>{return new Promise(async(resolve,reject)=>{if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
   let {username,rxaddress,currency,amount,sitename}=jdata; let amountstr=''+amount 
-  let {GAS_PRICE,GAS_LIMIT}=await aqueryethfeetosendeth_arr( 0 )
+	let {GAS_PRICE:GAS_LIMIT_TOKEN , GAS_LIMIT:GAS_PRICE_TOKEN}=await queryethfeetosendeth_arr( 0 )
+	
   web3.eth.getTransactionCount(address).then(nonce=>{
     contract.methods.transfer(rxaddress , amountstr).send({from:address, gas:GAS_LIMIT,gasPrice:GAS_PRICE,nonce:nonce}).then(async resptx=>{LOGGER('Yj2G6W')
-      if(resptx){} else {}
+			if(resptx){} else {socket.emit('procdone' , {status:'ERR', message:'NO-RESP-FROM-NET' }); resolve(0); return false}
+			const gaslimitbid=resptx['gas']?resptx['gas']:GAS_LIMIT_TOKEN, gaslimitoffer=resptx['gasUsed']?resptx['gasUsed']:GAS_LIMIT_TOKEN,gasprice=resptx['gasPrice']?resptx['gasPrice']:GAS_PRICE_TOKEN
+			const fee=gaslimitoffer*gasprice // parseInt(resptx.gasUsed)*parseInt(resptx.gasPrice?resptx.gasPrice: GAS_PRICE_TOKEN );console.log('fee',fee)
+			/**************** check tx proc status here */
+			db[tabletouse].create ({
+				username:username
+				, currency:currency
+				, fromamount:amt2sendwei
+				, toamount:amt2sendwei
+				, fromaddress:address
+				, toaddress:rxaddr
+				, direction:'OUT'
+				, blocknumber:resptx['blockNumber']
+				, hash:resptx['transactionHash']
+				, amountbefore:balance // ??
+				, amountafter:balance-amt2sendwei
+				, kind:'WITHDRAW'
+				, netkind:netkind , nettype:nettype              
+				, gaslimitbid:gaslimitbid, gaslimitoffer:gaslimitoffer
+				, gasprice:gasprice
+				, fee:fee
+				, feestr:convweitoeth(fee,respacct['denominatorexp'] )
+				, txtime:resptx['timeStamp']? moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT):moment().format(TIMESTRFORMAT)
+				, amountfloatstr:convweitoeth(amt2sendwei,jtokens[currency].denominatorexp)
+				, sitename:jdata['sitename']
+			})
+			incdecbalance_reflfee	({username:username,currency:CURRENCYETH,amountdelta:fee},resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN})
+			incdecbalance					({username:username,currency:currency		,amountdelta:amt2sendwei,nettype:nettype},resptx) // ,resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN}
+			socket.emit('procdone' , {status:'OK',message:STRINGER(resptx)});resolve(1);return false
     })
   })  
 })
@@ -33,12 +63,11 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
       if(modecollectorgeneral && modecollectorgeneral=='collector'){}
       else if(respacct['canwithdraw']){}
       else {console.log('Withdraw BANNED'); reject({status:'ERR'});return false}
-      const address=respacct['address']; if(address){} else {reject({status:'ERR',message:'Address not found'});return false}
-
+			const address=respacct['address']; if(address){} else {reject({status:'ERR',message:'Address not found'});return false}			
       let baleth=await web3.eth.getBalance(address)
       if(baleth){} 	else {reject({status:'ERR',message:'Network not avail.'});return false}
       const gasfeeint=getgasfee(GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN,'int')
-      if(parseInt(baleth)>=gasfeeint ){} else {reject({status:'ERR',message:'Eth balance not enough',code:51399});return false    }
+      if(parseInt(baleth)>=gasfeeint ){} else {reject({status:'ERR',message:'Eth balance not enough',code:51399});return false }
       const contract=jcontracts[currency]; let amtstr // =amt2sendstr // amtstr='' + amt2sendwei ;// amt2sendwei.toString()
       switch (respacct['denominatorexp']){
         case 18 : amtstr=(+amt2sendstr).toFixed(8).replace(/\./,'') + '0'.repeat(10);break
@@ -113,5 +142,5 @@ const init=()=>{
     })
   })
 }
-module.exports={sendstoken}
+module.exports={sendstoken , sendstoken_track}
 init()

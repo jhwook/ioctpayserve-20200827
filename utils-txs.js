@@ -4,6 +4,7 @@ const {isethbalanceenough4fee}=require('./utils')
 const {web3,netkind,nettype}=require('./configs/ETH/configweb3')
 const {gettokenbalance}=require('./utils-tokens')
 const {findonej}=require('./utilsdb')
+const getuseraddress=async(username,sitename,currency)=>{return await findonej('balance' , {username,sitename , sitename:sitename , currency:currency,nettype:nettype}) }
 const queryethfeetosendeth_arr=async tokenoreth=>{tokenoreth=tokenoreth? 'ETH':'TOKEN'
   let aproms=[]; return new Promise((resolve,reject)=>{ aproms[aproms.length]=findonej('operations',{key_:`GAS_PRICE_${tokenoreth}`}); aproms[aproms.length]=findonej('operations',{key_:`GAS_LIMIT_${tokenoreth}`})
   Promise.all(aproms).then(aresps=>{  if(aresps[0] && aresps[1]){resolve( {GAS_PRICE:aresps[0] , GAS_LIMIT:aresps[1] } ); return false}   
@@ -51,4 +52,4 @@ const validatesend_token=async jdata=>{let {username,sitename,currency,amount}=j
   })
 }
 
-module.exports={validatesend_eth , validatesend_token , queryethfeetosendeth_arr}
+module.exports={validatesend_eth , validatesend_token , queryethfeetosendeth_arr , getuseraddress}
