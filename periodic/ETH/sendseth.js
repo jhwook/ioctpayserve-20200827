@@ -12,7 +12,7 @@ let jcontracts={}
 // const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1,DECIMALS=18 //const MAP_TABLESTOUSE_DEFINED={transactions:1,txsinternal:1}
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**18 }
 
-const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise((resolve,reject)=>{			if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'} // reject({status:'ERR',message:'TABLE INVALID'});return false}
+const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise(async(resolve,reject)=>{			if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'} // reject({status:'ERR',message:'TABLE INVALID'});return false}
 	let {username,rxaddress,amount,sitename}=jdata; LOGGER(jdata,'@15621')
 	let addressfrom=await getuseraddress(username,sitename,CURRENCYLOCAL)
 	let {GAS_PRICE:GAS_LIMIT_TOKEN , GAS_LIMIT:GAS_PRICE_TOKEN}=await queryethfeetosendeth_arr( 1 )

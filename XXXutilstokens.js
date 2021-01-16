@@ -79,6 +79,6 @@ const tst=_=>{
   
   addr='0x1BSYxhj2Uz8Y3BE7Se7oSLRjkpsygAzXrj'
 
-  utilstokens=require('./utilstokens')
-  utilstokens.validatebtcaddress(addr)
+  utils-tokens=require('./utils-tokens')
+  utils-tokens.validatebtcaddress(addr)
 }
