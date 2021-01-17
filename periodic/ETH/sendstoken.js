@@ -7,47 +7,52 @@ const log4js = require('log4js'); log4js.configure({  appenders: { everything: {
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
 let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN; const CURRENCYETH='ETH'
 const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
+const { LOGGER, STRINGER } = require('../../utils'); const {getuseraddress , queryethfeetosendeth_arr}=require('../../utils-txs')
 let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
-const {queryethfeetosendeth_arr}=require('../../utils-txs');
-const { STRING } = require('sequelize');
+const SHORTWEIPLACES=8 ; const ETHPLACES=18
 const sendstoken_track=async(jdata,tabletouse , socket)=>{return new Promise(async(resolve,reject)=>{if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
-  let {username,rxaddress,currency,amount,sitename}=jdata; let amountstr=''+amount 
-	let {GAS_PRICE:GAS_LIMIT_TOKEN , GAS_LIMIT:GAS_PRICE_TOKEN}=await queryethfeetosendeth_arr( 0 )
-	
-  web3.eth.getTransactionCount(address).then(nonce=>{
-    contract.methods.transfer(rxaddress , amountstr).send({from:address, gas:GAS_LIMIT,gasPrice:GAS_PRICE,nonce:nonce}).then(async resptx=>{LOGGER('Yj2G6W')
-			if(resptx){} else {socket.emit('procdone' , {status:'ERR', message:'NO-RESP-FROM-NET' }); resolve(0); return false}
+  socket.emit('procstatus','MSG_SENDING_REQ')
+  let {username,rxaddress,currency,amountshortwei,sitename}=jdata; let amountweistr=convamountshortwei2weistr(amountshortwei)
+  let addressfrom=await getuseraddress(username,sitename,currency)
+  let {GAS_PRICE , GAS_LIMIT}=await queryethfeetosendeth_arr( 0 ) ; GAS_PRICE_TOKEN=GAS_PRICE , GAS_LIMIT_TOKEN=GAS_LIMIT
+  let m0=moment()
+  web3.eth.getTransactionCount(addressfrom).then(nonce=>{
+    contract.methods.transfer(rxaddress , amountweistr).send({from:addressfrom, gas:GAS_LIMIT_TOKEN,gasPrice:GAS_PRICE_TOKEN,nonce:nonce}).then(async resptx=>{LOGGER('Yj2G6W',resptx);let deltat=moment()-m0; LOGGER('deltat',deltat)
+			if(resptx && resptx['blockNumber']){socket.emit('procdone',STRINGER({status:'OK',message:'MSG_DONE'}))} else {socket.emit('procdone' ,STRINGER({status:'ERR', message:'MSG_TX_FAIL' }) ); resolve(0); return false}
 			const gaslimitbid=resptx['gas']?resptx['gas']:GAS_LIMIT_TOKEN, gaslimitoffer=resptx['gasUsed']?resptx['gasUsed']:GAS_LIMIT_TOKEN,gasprice=resptx['gasPrice']?resptx['gasPrice']:GAS_PRICE_TOKEN
-			const fee=gaslimitoffer*gasprice // parseInt(resptx.gasUsed)*parseInt(resptx.gasPrice?resptx.gasPrice: GAS_PRICE_TOKEN );console.log('fee',fee)
+      const respbal=await findonej('balance',{username:username,sitename:sitename,currency:currency,nettype:nettype}); LOGGER('tgREBo4U2g',respbal)
+      const fee=gaslimitoffer*gasprice; let amtbefore=respbal['amount'] 
 			/**************** check tx proc status here */
 			db[tabletouse].create ({
 				username:username
 				, currency:currency
-				, fromamount:amt2sendwei
-				, toamount:amt2sendwei
-				, fromaddress:address
-				, toaddress:rxaddr
+				, fromamount:amountweistr // amt2sendwei
+				, toamount:amountweistr // amt2sendwei
+				, fromaddress:addressfrom
+				, toaddress:rxaddress
 				, direction:'OUT'
 				, blocknumber:resptx['blockNumber']
 				, hash:resptx['transactionHash']
-				, amountbefore:balance // ??
-				, amountafter:balance-amt2sendwei
-				, kind:'WITHDRAW'
-				, netkind:netkind , nettype:nettype              
+				, amountbefore:amtbefore // balance // ??
+				, amountafter:amtbefore- +amountweistr // balance-amt2sendwei
+				, kind:tabletouse=='transactions'?'WITHDRAW':'SALESCOLLECT'
+				, netkind:netkind , nettype:nettype
 				, gaslimitbid:gaslimitbid, gaslimitoffer:gaslimitoffer
 				, gasprice:gasprice
 				, fee:fee
-				, feestr:convweitoeth(fee,respacct['denominatorexp'] )
+				, feestr:convweitoeth(fee, ETHDECIMALS ) // respacct respbal['denominatorexp']
 				, txtime:resptx['timeStamp']? moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT):moment().format(TIMESTRFORMAT)
-				, amountfloatstr:convweitoeth(amt2sendwei,jtokens[currency].denominatorexp)
-				, sitename:jdata['sitename']
+				, amountfloatstr:convweitoeth( amountweistr , respbal['denominatorexp'] ) // jtokens[currency].denominatorexp)
+        , sitename:jdata['sitename']
+        , proctime:deltat
 			})
-			incdecbalance_reflfee	({username:username,currency:CURRENCYETH,amountdelta:fee},resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN})
-			incdecbalance					({username:username,currency:currency		,amountdelta:amt2sendwei,nettype:nettype},resptx) // ,resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN}
-			socket.emit('procdone' , {status:'OK',message:STRINGER(resptx)});resolve(1);return false
-    })
+			incdecbalance_reflfee	({username:username,currency:CURRENCYETH,amountdelta:fee},resptx,{GAS_PRICE:gasprice ,GAS_LIMIT:gaslimitoffer})
+			incdecbalance					({username:username,currency:currency		,amountdelta:amountweistr ,nettype:nettype},resptx) // ,resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN}
+      0 && socket.emit('procdone' , {status:'OK',message:STRINGER(resptx)});resolve(1)
+      resolve(1);return false
+    }).catch(err=>{LOGGER('ymFJM4kqwA',err);return false})
   })  
 })
 }
@@ -101,7 +106,7 @@ const sendstoken=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise(
               , fee:fee
               , feestr:convweitoeth(fee,respacct['denominatorexp'] )
               , txtime:resptx['timeStamp']? moment.unix(resptx['timeStamp']).format(TIMESTRFORMAT):moment().format(TIMESTRFORMAT)
-              , amountfloatstr:convweitoeth(amt2sendwei,jtokens[currency].denominatorexp)
+              , amountfloatstr:convweitoeth(amt2sendwei, )
               , sitename:jdata['sitename']
               })
               incdecbalance_reflfee({username:username,currency:CURRENCYETH,amountdelta:fee},resptx,{GAS_PRICE:GAS_PRICE_TOKEN,GAS_LIMIT:GAS_LIMIT_TOKEN})

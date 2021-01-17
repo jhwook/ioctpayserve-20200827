@@ -29,13 +29,11 @@ const convamount2shortwei=(amount,denomexp)=>{ amount=+amount // ; let datatype=
 const validatesend_eth=async (jdata,socket)=>{let {username,sitename,currency,amount,rxaddress}=jdata
   return new Promise(async(resolve,reject)=>{
     if(validateethaddress(rxaddress) ){} else {resolve({status:0 , message:'MSG_RXADDRESS_INVALID'}); return false}
-    findonej('balance',{username:username , sitename:sitename,currency:currency,nettype:nettype}).then(async respbaleth=>{let address=respbaleth['address']
-      socket.emit('procstatus','MSG_CHECK_ACCOUNT')
-      if(address){} else {resolve({status:0,message:'MSG_ACCOUNT_INVALID'});return false}
-      socket.emit('procstatus','MSG_CHECK_RIGHTS')
-      if(respbaleth['canwithdraw']){} else {resolve({status:0,message:'MSG_WITHDRAW_BANNED'}); return false}
-      socket.emit('procstatus','MSG_CHECK_BALANCE')
+    findonej('balance',{username:username , sitename:sitename,currency:currency,nettype:nettype}).then(async respbaleth=>{let address=respbaleth['address']; socket.emit('procstatus','MSG_CHECK_ACCOUNT')
+      if(address){} else {resolve({status:0,message:'MSG_ACCOUNT_INVALID'});return false}; socket.emit('procstatus','MSG_CHECK_RIGHTS')
+      if(respbaleth['canwithdraw']){} else {resolve({status:0,message:'MSG_WITHDRAW_BANNED'}); return false}; socket.emit('procstatus','MSG_CHECK_BALANCE')
       let stakesamount=respbaleth['stakesactive']? respbaleth['stakesamount'] : 0
+
       let feeinwei=await queryethfeetosendethtkn( 1 );let feeinshortwei=convamount2shortwei( feeinwei , ETHPLACES )
       let balanceeff=convamount2shortwei(respbaleth['amount'],respbaleth['denominatorexp'] ) - convamount2shortwei( respbaleth['amountlocked'],respbaleth['denominatorexp']) - convamount2shortwei( +stakesamount , 0) - feeinshortwei ; LOGGER('SezlhuG0Cu',balanceeff)
       let amountshortwei=convamount2shortwei(amount,0)
@@ -47,21 +45,24 @@ const validatesend_eth=async (jdata,socket)=>{let {username,sitename,currency,am
   })
   })
 }
-const validatesend_token=async jdata=>{let {username,sitename,currency,amount}=jdata
+const validatesend_token=async (jdata,socket)=>{let {username,sitename,currency,amount,rxaddress}=jdata
   return new Promise(async (resolve,reject)=>{
-    findonej('balance',{username:username,sitename:sitename, currency:currency,nettype:nettype}).then(async respbaltoken=>{let address=respbaltoken['address']
-      if(address){} else {resolve({status:0,message:'ACCOUNT-INVALID'});return false}
-      if(respbaltoken['canwithdraw']){} else {resolve({status:0,message:'WITHDRAW-BANNED'}); return false}
+    if(validateethaddress(rxaddress)){} else {resolve({status:0, message:'MSG_RXADDRESS_INVALID'}); return false}
+    findonej('balance',{username:username,sitename:sitename, currency:currency,nettype:nettype}).then(async respbaltoken=>{let address=respbaltoken['address']; socket.emit('procstatus','MSG_CHECK_ACCOUNT')
+      if(address){} else {resolve({status:0,message:'MSG_ACCOUNT_INVALID'});return false}; socket.emit('procstatus','MSG_CHECK_RIGHTS')
+      if(respbaltoken['canwithdraw']){} else {resolve({status:0,message:'WITHDRAW-BANNED'}); return false}; socket.emit('procstatus','MSG_CHECK_BALANCE')
       let stakesamount=respbaltoken['stakesactive']? respbaltoken['stakesamount'] : 0
-      let balanceeff=respbaltoken['amount'] - respbaltoken['amountlocked'] - stakesamount
-      if(balanceeff>=amount ){} else {resolve({status:0,message:'BALANCE-NOT-ENOUGH'}); return false}
-      let ethbalenough=await isethbalanceenough4fee(username,sitename); if(ethbalenough){} else {resolve({status:0,message:'ETH-BALANCE-NOT-ENOUGH'})}
+
+      let balanceeff=convamount2shortwei(respbaltoken['amount'],respbaltoken['denominatorexp']) - convamount2shortwei(respbaltoken['amountlocked'],respbaltoken['denominatorexp']) - convamount2shortwei(+stakesamount,0)
+      let amountshortwei=convamount2shortwei(amount,0)
+      if(balanceeff>=amountshortwei ){} else {resolve({status:0,message:'MSG_BALANCE_NOT_ENOUGH'}); return false}
+      let ethbalenough=await isethbalanceenough4fee(username,sitename); if(ethbalenough){} else {resolve({status:0,message:'MSG_ETH_BALANCE_NOT_ENOUGH'});return false }
       let ethbalance=await web3.eth.getBalance(address);      
-      let feeineth=await queryethfeetosendethtkn( 0 )
-      if(ethbalance && +ethbalance>feeineth){} else {resolve({status:0,message:'NETWORK-NOT-AVAIL'});return false}
+      let feeinwei=await queryethfeetosendethtkn( 0 )
+      if(ethbalance && +ethbalance>=feeinwei){} else {resolve({status:0,message:'MSG_NETWORK_NOT_AVAIL'});return false}
       let tokenbal=await gettokenbalance(username,currency)
-      if(tokenbal){} else {resolve({status:0,message:'TOKEN-BALANCE-QUERY-ERR'});return false}
-      resolve({status:1});return false
+      if(tokenbal){} else {resolve({status:0,message:'MSG_TOKEN_BALANCE_QUERY_ERR'});return false}
+      resolve({status:1 , amountshortwei:amountshortwei});return false
     })  
   })
 }

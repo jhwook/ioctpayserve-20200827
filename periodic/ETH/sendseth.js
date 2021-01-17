@@ -23,9 +23,9 @@ const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise(asy
   if(0 ){ LOGGER(txData);socket.emit('procdone',STRINGER({status:'ERR',message:'MSG_TX_FAIL'}) );resolve(1);return false}
   LOGGER('KMzYH23ecH',txData); let m0=moment()
   web3.eth.sendTransaction(txData).on('receipt',async resptx=>{LOGGER('NeVebYkkCB',resptx); let deltat=moment()-m0; LOGGER('deltat',deltat)
-    if(resptx && resptx['blockNumber']){socket.emit('procdone',STRINGER({status:'OK',message:'MSG_DONE'}))} else {socket.emit('procdone',STRINGER({status:'ERR',message:'MSG_TX_FAIL'})); return false}
+    if(resptx && resptx['blockNumber']){socket.emit('procdone',STRINGER({status:'OK',message:'MSG_DONE'}))} else {socket.emit('procdone',STRINGER({status:'ERR',message:'MSG_TX_FAIL'}));resolve(0); return false}
     const gaslimitbid=resptx['gas']?resptx['gas']:GAS_LIMIT_ETH, gaslimitoffer=resptx['gasUsed']?resptx['gasUsed']:GAS_LIMIT_ETH,gasprice=resptx['gasPrice']?resptx['gasPrice']:GAS_PRICE_ETH
-    const respbal=await findonej('balance',{username:username,sitename:sitename,currency:CURRENCYLOCAL,nettype:nettype}); LOGGER('',respbal)
+    const respbal=await findonej('balance',{username:username,sitename:sitename,currency:CURRENCYLOCAL,nettype:nettype}); LOGGER('fxOAXhG3em',respbal)
     const fee=gaslimitoffer*gasprice; let amtbefore=respbal['amount'] // await getbalance({username:username , currency:CURRENCYLOCAL , sitename:sitename},'wei')
     LOGGER('FWryL',jdata['username'] ,amountweistr,addressfrom,rxaddress,resptx['blockNumber'],resptx['transactionHash'],amtbefore,fee,netkind,nettype,gaslimitbid,gaslimitoffer,gasprice)
     LOGGER('42HRJ',convweitoeth(fee,respbal['denominatorexp']),resptx['timeStamp'],getethfloatfromweistr(resptx['value']) ,jdata['sitename'] ,deltat)
@@ -43,8 +43,7 @@ const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise(asy
       , amountafter: amtbefore- +amountweistr - fee
       , kind:tabletouse=='transactions'?'WITHDRAW':'SALESCOLLECT'
       , netkind:netkind,nettype:nettype
-      , gaslimitbid:gaslimitbid
-      , gaslimitoffer:gaslimitoffer
+      , gaslimitbid:gaslimitbid      , gaslimitoffer:gaslimitoffer
       , gasprice:gasprice
       , fee:fee
       , feestr:convweitoeth(fee,respbal['denominatorexp'])
@@ -53,8 +52,8 @@ const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise(asy
       , sitename:jdata['sitename']
       , proctime:deltat
     })
-    incdecbalance_reflfee({... jdata,currency:CURRENCYLOCAL, amountdelta:amountweistr},resptx,{GAS_PRICE:GAS_PRICE_ETH,GAS_LIMIT:GAS_LIMIT_ETH}) // resptx['value']
-    socket.emit('procdone' ,STRINGER({status:'OK',message:'MSG_DONE'}) )
+    incdecbalance_reflfee({... jdata,currency:CURRENCYLOCAL, amountdelta:amountweistr},resptx,{GAS_PRICE:gasprice ,GAS_LIMIT:gaslimitoffer}) // resptx['value'] GAS_PRICE_ETH GAS_LIMIT_ETH
+    0 && socket.emit('procdone' ,STRINGER({status:'OK',message:'MSG_DONE'}))
     resolve(1);return false
 	}).catch(err=>{LOGGER('P00UGlUMyv',err);return false})
 })

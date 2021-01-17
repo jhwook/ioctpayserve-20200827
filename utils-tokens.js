@@ -9,7 +9,7 @@ const {minAbi4tx}=require('./configs/ETH/tokens/abis')
 const gettokenbalance=(username,currency)=>{return new Promise((resolve,reject)=>{  if(jcontracts[currency]){} else {LOGGER('WK7pDw','Err>> contract not found'); resolve(null); return false}
   jcontracts[currency].methods.balanceOf(address).call((err,balance)=>{console.log('6Pb4Ki',address,balance); balance=+balance
   resolve(balance)
-}).catch(err=>{LOGGER(err);resolve(null)})
+}).catch(err=>{LOGGER('tgREBo4U2g',err);resolve(null)})
 }
 )}
 const init=_=>{
