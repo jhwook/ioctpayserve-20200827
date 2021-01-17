@@ -2,7 +2,7 @@
 const PORT_NUM=33335
 const express = require('express')
 const { sendseth_track } = require('./periodic/ETH/sendseth') ; const { sendstoken_track } = require('./periodic/ETH/sendstoken')
-const app=express()
+const app=express(); const {gettimestr,LOGGER,PARSER, STRINGER}=require('./utils'); const {getipsocket}=require('./utils-sockets')
 const fs = require( 'fs' ); const https        = require('https')
 const options = {
   ca: fs.readFileSync  ('/etc/letsencrypt/live/exwallet.co.kr/chain.pem').toString(), // Chain
@@ -11,9 +11,7 @@ const options = {
 }
 const server=https.createServer(options , app)
 server.listen(PORT_NUM)
-const io = require('socket.io').listen(server) // const server = app.listen( PORT_NUM ,console.log("Socket.io Hello Wolrd server started!"))
-
-const {gettimestr,LOGGER,PARSER, STRINGER}=require('./utils'); const {getipsocket}=require('./utils-sockets')
+const io = require('socket.io').listen(server , LOGGER(`Listening ${PORT_NUM}`)) // const server = app.listen( PORT_NUM ,console.log("Socket.io Hello Wolrd server started!"))
 const {validatesend_token , validatesend_eth}=require('./utils-txs'); const CURRENCY_ETH='ETH'
 // const HISTMAN=require('../history/manager')
 const B_ENABLE_BCAST_TOTAL=true, B_USE_BET_TABLE_CUMUL=true,B_START_FROM_NO_HIST=false,B_DBG=false
