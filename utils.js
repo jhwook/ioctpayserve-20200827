@@ -12,7 +12,7 @@ const respreqinvalid=(res,msg,code)=>{res.status(200).send({status:'ERR',message
 const respwithdata=(res,data)=>{res.status(200).send({status:'OK',... data});return false}
 const respok=(res,msg,code,jdata)=>{res.status(200).send({status:'OK',message:msg,code:code,... jdata});return false}
 const getpricesstr=async ()=>{return await cliredisa.hget(KEYNAME_MARKETPRICES,'ALL')}
-const getethfloatfromweistr=(str)=>{return parseInt(str)/10**18}
+const getethfloatfromweistr=(str)=>{return (+str)/10**18} // parseInt
 const convethtowei=(numfloat,decimals)=>{const exp=decimals?decimals:18; return Number.isFinite(numfloat)? numfloat*10**exp : (+numfloat)*10**exp }
 const convweitoeth=(numint,decimals)=>  {const exp=decimals?decimals:18; return Number.isFinite(numint)? numint/10**exp : (+numint)/10**exp }
 const convtohex=(intdec)=>{return `0x${intdec.toString(16)}`}
