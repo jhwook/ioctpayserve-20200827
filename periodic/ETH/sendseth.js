@@ -30,7 +30,7 @@ const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise(asy
     LOGGER('FWryL',jdata['username'] ,amountweistr,addressfrom,rxaddress,resptx['blockNumber'],resptx['transactionHash'],amtbefore,fee,netkind,nettype,gaslimitbid,gaslimitoffer,gasprice)
     LOGGER('42HRJ',convweitoeth(fee,respbal['denominatorexp']),resptx['timeStamp'],getethfloatfromweistr(resptx['value']) ,jdata['sitename'] ,deltat)
     db[tabletouse].create({
-      username:jdata['username'] 
+      username:jdata['username']
       , currency:CURRENCYLOCAL
       , fromamount:amountweistr // amt2sendwei
       , toamount:amountweistr // amt2sendwei
