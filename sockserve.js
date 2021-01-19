@@ -13,22 +13,25 @@ const options=process.env.NODE_ENV=='production'? {
   key: fs.readFileSync ('./pems/privkey.pem').toString(), // private key
   cert: fs.readFileSync('./pems/cert.pem').toString() 
 } // Certificate 
-
+const {verifypw}=require('./sso/sso')
 const server=https.createServer(options , app)
 server.listen(PORT_NUM)
 const io = require('socket.io').listen(server , LOGGER(`Listening ${PORT_NUM}`)) // const server = app.listen( PORT_NUM ,console.log("Socket.io Hello Wolrd server started!"))
 const {validatesend_token , validatesend_eth}=require('./utils-txs'); const CURRENCY_ETH='ETH'
 // const HISTMAN=require('../history/manager')
 const B_ENABLE_BCAST_TOTAL=true, B_USE_BET_TABLE_CUMUL=true,B_START_FROM_NO_HIST=false,B_DBG=false
-let jusernamesitename_socket={}
+let jusernamesitename_socket={} ; const MSGS={MSG_PW_INVALID:'출금암호가 맞지 않습니다'}
 io.on('connection', async(socket) => {
   const address=getipsocket(socket) // socket.request.connection.remoteAddress // socket.handshake.address
 	const port=socket.request.connection.remotePort //	console.log(socket.request.connection)
   const uidfromsocket=socket.request._query.userid ; const sitename=socket.request._query.sitename // socket.request._query.userid
 	LOGGER(socket.handshake.query);   LOGGER(`Client connected! ${socket.id},${address},${port},${uidfromsocket},@${gettimestr()}` )
 	jusernamesitename_socket[`${uidfromsocket}-${sitename}`]=socket
-  socket.on('withdrawreq',async msg=>{LOGGER('mavm8tDL81',msg);  let {amount,address,pw,username,currency}=PARSER(msg) // amount:this.state.inputamount      , address:inputaddress,pw:inputpw,username:username,currency:currency
-    let respvalidate;socket.emit('procbegin',null)
+  socket.on('withdrawreq',async msg=>{LOGGER('mavm8tDL81',msg)  ; socket.emit('procbegin',null)
+    let {amount,address,pw,username,currency,hashcode}=PARSER(msg) // amount:this.state.inputamount      , address:inputaddress,pw:inputpw,username:username,currency:currency
+    try {await verifypw({sitename:sitename , hashcode:hashcode , pw:pw})}
+    catch(err){LOGGER(err); socket.emit('procdone',STRINGER({status:'ERR',message:'MSG_PW_INVALID'})); return false}
+    let respvalidate;
 		if(currency==CURRENCY_ETH){
       respvalidate=await validatesend_eth   ({username:username,sitename:sitename,currency:currency,amount:amount,rxaddress:address} , socket)
       if(respvalidate.status){LOGGER('oRsnxmQ175');}
