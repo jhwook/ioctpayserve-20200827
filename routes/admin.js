@@ -380,11 +380,12 @@ router.post('/image',(req,res)=>{ let {name,imagebase64,subname}=req.body;LOGGER
   let base64data=imagebase64.replace(/^data:image\/png;base64,/,'')
   const fn=`${PATHIMAGESTORE}/${name}.png`
   const timenow=moment().format(TIMESTRFORMATMILI)
+
   try{ fs.writeFile(fn , base64data,'base64',err=>{err && LOGGER(err);    respok(res,'이미지'+MSG_DONE_REGISTER,null)      })}
-  catch(err){    resperr(res,'INTERNAL-ERR',32049);return false  }
-  dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname    ,updatedAt:timenow  } , {upsert: true}, (err, doc)=> {
-    if(err){LOGGER('J8DK9ggoWb',err);return false}
-  })
+  catch(err){    resperr(res,'INTERNAL-ERR',32049) }
+  try{dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname    ,updatedAt:timenow  } , {upsert: true}, (err, doc)=> {    if(err){LOGGER('J8DK9ggoWb',err);return false}
+  })}
+  catch(err){LOGGER('Pxhcqdopek',err)}
 })
 router.post('/image/db',(req,res)=>{let {name,imagebase64,subname}=req.body;console.log(name)
   if (name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+'(이미지)',73069);return false} //  respok(res);return false
