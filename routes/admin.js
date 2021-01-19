@@ -3,7 +3,7 @@ const express = require('express');
 var router = express.Router();
 const db=require('../models')
 const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth,conva2j}=utils ; const {update}=require('../utilsdb')
-const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice , bigintdiv} = require('../utils')
+const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice , bigintdiv, LOGGER, resperr} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
@@ -373,9 +373,22 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
   respok(res,MSG_DELETED,19774);return false
 //  .then(resp=>{    respok(res,MSG_DELETED,19774);return false  }) //  db.sitenameholder.des troy({where:{sitename:sitename}}).then(resp=>{    respok(res,MSG_DELETED,19774);return false  })
 }) //
-0 && router.post('/image',(req,res)=>{let {name,imagebase64,subname}=req.body;console.log(name)
+const fs=require('fs')
+const PATHIMAGESTORE='/var/www/html/static/images'
+router.post('/image',(req,res)=>{ let {name,imagebase64,subname}=req.body;LOGGER(name)
+  if(name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+':image',73068);return false}
+  let base64data=imagebase64.replace(/^data:image\/png;base64,/,'')
+  const fn=`${PATHIMAGESTORE}/${name}.png`
+  const timenow=moment().format(TIMESTRFORMATMILI)
+  try{ fs.writeFile(fn , base64data,'base64',err=>{err && LOGGER(err);    respok(res,'이미지'+MSG_DONE_REGISTER,null)      })}
+  catch(err){    resperr(res,'INTERNAL-ERR',32049);return false  }
+  dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname    ,updatedAt:timenow  } , {upsert: true}, (err, doc)=> {
+    if(err){LOGGER('J8DK9ggoWb',err);return false}
+  })
+})
+router.post('/image/db',(req,res)=>{let {name,imagebase64,subname}=req.body;console.log(name)
   if (name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+'(이미지)',73069);return false} //  respok(res);return false
-  const timenow=moment().format(TIMESTRFORMATMILI) // createdAt:timenow    
+  const timenow=moment().format(TIMESTRFORMATMILI) // createdAt:timenow 
   dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname    ,updatedAt:timenow  }
     , {upsert: true}, (err, doc)=> {
     if(err){console.log('err',err);respreqinvalid(res,'INTERNAL-ERR',43421);return false}
@@ -384,9 +397,6 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
   })
 })
 const IMGTARGETFOLDER='/var/www/html/static/media'
-const fs=require('fs');
-const { resolve } = require('path');
-const { reject } = require('lodash');
 const storeimg2cli=(name,imgstr)=>{  imgstr=imgstr.replace(/^data:image\/png;base64,/, '')
   fs.writeFile(`${name}.png`,imgstr,'base64',err=>{console.log(err)});  return false  
 }
