@@ -38,7 +38,7 @@ const validatesend_eth=async (jdata,socket)=>{let {username,sitename,currency,am
       let balanceeff=convamount2shortwei(respbaleth['amount'],respbaleth['denominatorexp'] ) - convamount2shortwei( respbaleth['amountlocked'],respbaleth['denominatorexp']) - convamount2shortwei( +stakesamount , 0) - feeinshortwei ; LOGGER('SezlhuG0Cu',balanceeff)
       let amountshortwei=convamount2shortwei(amount,0)
       if(balanceeff>=amountshortwei ){} else {resolve({status:0,message:'MSG_BALANCE_NOT_ENOUGH'}); return false}
-//      if(await isethbalanceenough4fee(username,sitename)){} else {resolve({status:0,mes sage:'ETH-BALANCE-NOT-ENOUGH'})}
+//      if(await isethbala nceenough4fee(username,sitename)){} else {resolve({status:0,mes sage:'ETH-BALANCE-NOT-ENOUGH'})}
       let ethbalanceinwei=await web3.eth.getBalance(address); LOGGER('w3Z7SbDSz3',ethbalanceinwei) // wei
       if(ethbalanceinwei && +ethbalanceinwei>feeinshortwei ){} else {resolve({status:0,message:'MSG_NETWORK_NOT_AVAIL'});return false}
       resolve({status:1,amountshortwei:amountshortwei });return false
@@ -56,7 +56,7 @@ const validatesend_token=async (jdata,socket)=>{let {username,sitename,currency,
       let balanceeff=convamount2shortwei(respbaltoken['amount'],respbaltoken['denominatorexp']) - convamount2shortwei(respbaltoken['amountlocked'],respbaltoken['denominatorexp']) - convamount2shortwei(+stakesamount,0)
       let amountshortwei=convamount2shortwei(amount,0)
       if(balanceeff>=amountshortwei ){} else {resolve({status:0,message:'MSG_BALANCE_NOT_ENOUGH'}); return false}
-      let ethbalenough=await isethbalanceenough4fee(username,sitename); if(ethbalenough){} else {resolve({status:0,message:'MSG_ETH_BALANCE_NOT_ENOUGH'});return false }
+      let ethbalenough=await isethbalanceenough4fee({username:username,sitename:sitename}); if(ethbalenough){} else {resolve({status:0,message:'MSG_ETH_BALANCE_NOT_ENOUGH'});return false }
       let ethbalance=await web3.eth.getBalance(address);      
       let feeinwei=await queryethfeetosendethtkn( 0 )
       if(ethbalance && +ethbalance>=feeinwei){} else {resolve({status:0,message:'MSG_NETWORK_NOT_AVAIL'});return false}

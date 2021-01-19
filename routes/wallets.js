@@ -5,7 +5,7 @@ const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
 ,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases , bigintdiv, isethbalanceenough4fee
 }=require('../utils')
-const db=require('../models'); // const dbmon=require('../modelsmon')
+const db=require('../models'); const dbmon=require('../modelsmon')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
 const {sendseth}=require('../periodic/ETH/sendseth')
 const {sendstoken}=require('../periodic/ETH/sendstoken') // const {se nds eth,sendstoken}=require('../periodic/ETH/s ends')
@@ -83,7 +83,7 @@ const sendstoadminonexchange=async (jdata,username)=>{let {currency0,sitename}=j
           ,sitename:sitename},'txsinternal','collector') // convethtowei(amtlocked,decimals)
       })
     } else {console.log(`${HEADER_LOG_STOP_TX} MIN_INVOKE_AMT undefined,34893`);return false
-    }
+    } 
   })
 }
 router.post('/exchange',async (req,res)=>{console.log('exchange',req.body)  // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
@@ -176,11 +176,22 @@ router.get('/userpref',async (req,res)=>{ //let username; try{username=await get
     respok(res,null,null,{ ... user, KRWUSD:forexrate});return false
   })
 }) //
-0 && router.get('/image',(req,res)=>{console.log(req.query);  const {name}=req.query
+1 && router.get('/image',(req,res)=>{console.log(req.query);  const {name}=req.query
   if(name){} else {respreqinvalid(res,'ARG-MISSING',69460);return false}
-  dbmon.images.findOne({name:name} , function(err,resp){if(err){respreqinvalid(res,'INTERNAL-ERR',35994);return false}
+  dbmon.images.findOne({name:name} , function(err,resp){
+    LOGGER(resp,err)
+    if(err){respreqinvalid(res,'INTERNAL-ERR',35994);return false}
     if(resp){respok(res,null,null,resp._doc);return false}
     else {respreqinvalid(res,'NOT-FOUND',35995);return false}
+  })
+})
+1 && router.get('/image-barebone',(req,res)=>{console.log(req.query);  const {name}=req.query
+  if(name){} else {respreqinvalid(res,'ARG-MISSING',69460);return false}
+  dbmon.images.findOne({name:name} , function(err,resp){
+    LOGGER(resp,err)
+    if(err){  res.status(200).send(null);;return false}
+    if(resp){ res.status(200).send(resp._doc.imagebase64); return false}
+    else {    res.status(200).send(null);return false}
   })
 })
 module.exports = router

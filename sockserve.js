@@ -4,11 +4,16 @@ const express = require('express')
 const { sendseth_track } = require('./periodic/ETH/sendseth') ; const { sendstoken_track } = require('./periodic/ETH/sendstoken')
 const app=express(); const {gettimestr,LOGGER,PARSER, STRINGER}=require('./utils'); const {getipsocket}=require('./utils-sockets')
 const fs = require( 'fs' ); const https        = require('https')
-const options = {
+const options=process.env.NODE_ENV=='production'? {
   ca: fs.readFileSync  ('/etc/letsencrypt/live/exwallet.co.kr/chain.pem').toString(), // Chain
   key: fs.readFileSync  ('/etc/letsencrypt/live/exwallet.co.kr/privkey.pem').toString(), // private key
-  cert: fs.readFileSync ('/etc/letsencrypt/live/exwallet.co.kr/cert.pem').toString() // Certificate
-}
+  cert: fs.readFileSync ('/etc/letsencrypt/live/exwallet.co.kr/cert.pem').toString() // Certificate 
+} : {
+  ca: fs.readFileSync  ('./pems/chain.pem').toString(), // Chain
+  key: fs.readFileSync ('./pems/privkey.pem').toString(), // private key
+  cert: fs.readFileSync('./pems/cert.pem').toString() 
+} // Certificate 
+
 const server=https.createServer(options , app)
 server.listen(PORT_NUM)
 const io = require('socket.io').listen(server , LOGGER(`Listening ${PORT_NUM}`)) // const server = app.listen( PORT_NUM ,console.log("Socket.io Hello Wolrd server started!"))

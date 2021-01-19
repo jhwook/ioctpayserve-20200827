@@ -7,7 +7,7 @@ const log4js = require('log4js'); log4js.configure({  appenders: { everything: {
 const logger4 = log4js.getLogger(); logger4.level = 'debug'; const moment=require('moment')
 let GAS_LIMIT_ETH,GAS_PRICE_ETH,GAS_LIMIT_TOKEN,GAS_PRICE_TOKEN; const CURRENCYETH='ETH'
 const {minAbi4tx}=require('../../configs/ETH/tokens/abis')
-const { LOGGER, STRINGER } = require('../../utils'); const {getuseraddress , queryethfeetosendeth_arr}=require('../../utils-txs')
+const { STRINGER } = require('../../utils'); const {getuseraddress , queryethfeetosendeth_arr}=require('../../utils-txs')
 let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
@@ -18,11 +18,14 @@ const sendstoken_track=async(jdata,tabletouse , socket)=>{return new Promise(asy
   let addressfrom=await getuseraddress(username,sitename,currency)
   let {GAS_PRICE , GAS_LIMIT}=await queryethfeetosendeth_arr( 0 ) ; GAS_PRICE_TOKEN=GAS_PRICE , GAS_LIMIT_TOKEN=GAS_LIMIT
   let m0=moment()
+
+  if(1 ){LOGGER('RwTVsH39Sf'); socket.emit('procdone',STRINGER({status:'OK',message:'MSG_DONE'}) );resolve(1);return false} // STRINGER({status:'OK',message:'OK'})
+
   web3.eth.getTransactionCount(addressfrom).then(nonce=>{
     contract.methods.transfer(rxaddress , amountweistr).send({from:addressfrom, gas:GAS_LIMIT_TOKEN,gasPrice:GAS_PRICE_TOKEN,nonce:nonce}).then(async resptx=>{LOGGER('Yj2G6W',resptx);let deltat=moment()-m0; LOGGER('deltat',deltat)
 			if(resptx && resptx['blockNumber']){socket.emit('procdone',STRINGER({status:'OK',message:'MSG_DONE'}))} else {socket.emit('procdone' ,STRINGER({status:'ERR', message:'MSG_TX_FAIL' }) ); resolve(0); return false}
 			const gaslimitbid=resptx['gas']?resptx['gas']:GAS_LIMIT_TOKEN, gaslimitoffer=resptx['gasUsed']?resptx['gasUsed']:GAS_LIMIT_TOKEN,gasprice=resptx['gasPrice']?resptx['gasPrice']:GAS_PRICE_TOKEN
-      const respbal=await findonej('balance',{username:username,sitename:sitename,currency:currency,nettype:nettype}); LOGGER('tgREBo4U2g',respbal)
+      const respbal=await findonej('balance',{username:username,sitename:sitename,currency:currency,nettype:nettype}); LOGGER('qZzxelk8ML',respbal)
       const fee=gaslimitoffer*gasprice; let amtbefore=respbal['amount'] 
 			/**************** check tx proc status here */
 			db[tabletouse].create ({

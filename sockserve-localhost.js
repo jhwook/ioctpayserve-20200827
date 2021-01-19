@@ -17,6 +17,7 @@ io.on('connection', async(socket) => {
 	LOGGER(socket.handshake.query);   LOGGER(`Client connected! ${socket.id},${address},${port},${uidfromsocket},@${gettimestr()}` )
 	jusernamesitename_socket[`${uidfromsocket}-${sitename}`]=socket
   socket.on('withdrawreq',async msg=>{LOGGER('mavm8tDL81',msg);  let {amount,address,pw,username,currency}=PARSER(msg) // amount:this.state.inputamount      , address:inputaddress,pw:inputpw,username:username,currency:currency
+    LOGGER('tnXVzTQlXS',msg)
     let respvalidate;socket.emit('procbegin',null)
 		if(currency==CURRENCY_ETH){
       respvalidate=await validatesend_eth   ({username:username,sitename:sitename,currency:currency,amount:amount,rxaddress:address} , socket)
@@ -26,7 +27,8 @@ io.on('connection', async(socket) => {
         if(resptx){LOGGER('YGh3uHjWO4');return false} else {LOGGER('QAeWmNb24y');return false}
       }) // let {username,rxaddr,amount,sitename}=jdata; LOGGER(jdata,'@15621')
     }
-		else {                   respvalidate=await validatesend_token (username,currency,amount); if(respvalidate.status){} else {socket.emit('procdone',STRINGER({status:'ERR',username:username,message:respvalidate.message}) );return false}
+		else {
+      respvalidate=await validatesend_token ({username:username,sitename:sitename, currency:currency,amount:amount,rxaddress:address}, socket); if(respvalidate.status){} else {socket.emit('procdone',STRINGER({status:'ERR',username:username,message:respvalidate.message}) );return false}
 			sendstoken_track({username:username,rxaddress:address,currency:currency,amount:amount,sitename:sitename} , 'transactions' , socket).then(resptx=>{
 				if(resptx){LOGGER('XgTqwTPwuz');return false} else {LOGGER('dkGiHw9bCo');return false}
 			}) //

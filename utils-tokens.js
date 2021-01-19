@@ -4,9 +4,12 @@ const db=require('./models'); const {LOGGER}=require('./utils')
 const validatebtcaddress=_=>{return 1}
 let jcontracts={},jtokens={}
 const {web3,netkind,nettype}=require('./configs/ETH/configweb3')
-const {minAbi4tx}=require('./configs/ETH/tokens/abis')
+const {minAbi4tx}=require('./configs/ETH/tokens/abis');
+const { findonej } = require('./utilsdb');
 
-const gettokenbalance=(username,currency)=>{return new Promise((resolve,reject)=>{  if(jcontracts[currency]){} else {LOGGER('WK7pDw','Err>> contract not found'); resolve(null); return false}
+const gettokenbalance=async(username,currency)=>{return new Promise(async(resolve,reject)=>{  if(jcontracts[currency]){} else {LOGGER('WK7pDw','Err>> contract not found'); resolve(null); return false}
+  let respbal= await findonej('balance',{username:username,currency:currency,nettype:nettype})
+  if(respbal){LOGGER('h6AgqXBxTB',respbal['address'])} else {LOGGER('fsRQ5OCTtd,balance not found');resolve(null);return false};  let address=respbal['address']
   jcontracts[currency].methods.balanceOf(address).call((err,balance)=>{console.log('6Pb4Ki',address,balance); balance=+balance
   resolve(balance)
 }).catch(err=>{LOGGER('tgREBo4U2g',err);resolve(null)})
@@ -22,4 +25,5 @@ const init=_=>{
 }
 init()
 module.exports={validatebtcaddress,gettokenbalance}
-
+const UPDATE_JCONTRACTS_PERIOD=95*1000
+setInterval(_=>{  init() } , UPDATE_JCONTRACTS_PERIOD)
