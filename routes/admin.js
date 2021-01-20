@@ -52,7 +52,7 @@ router.get('/balances/user', async (req,res,next)=> { // let username; try{usern
       let amtfullstr ;try{ amtfullstr= (amteff ).toString()} catch(err){amtfullstr=null}  
       return [
       e['currency']
-      , bigintdiv(amteff , BigInt(10**e['denominatorexp']) , 4  ) // convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
+      , bigintdiv(amteff ,Number(BigInt(10**e['denominatorexp']) ) , 4  ) // convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
       ,e['address']
       ,e['canwithdraw']
       ,e['stakesamount']
