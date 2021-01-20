@@ -375,14 +375,14 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
 }) //
 const fs=require('fs')
 const PATHIMAGESTORE='/var/www/html/static/images'
-router.post('/image',(req,res)=>{ let {name,imagebase64,subname}=req.body;LOGGER(name)
+router.post('/image',(req,res)=>{ let {name,imagebase64,subname}=req.body;LOGGER('NkPx73DzKx',req.body)
   if(name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+':image',73068);return false}
   let base64data=imagebase64.replace(/^data:image\/png;base64,/,'')
   const fn=`${PATHIMAGESTORE}/${name}.png`
-  const timenow=moment().format(TIMESTRFORMATMILI)
-  try{ fs.writeFile(fn , base64data,'base64',err=>{err && LOGGER(err);    respok(res,'이미지'+MSG_DONE_REGISTER,null);    update('tokens',{name:name,nettype:nettype},{isimagelocalremote:1})
+  const timenow=moment().format(TIMESTRFORMATMILI); LOGGER('JU2U5o2Nad')
+  try{ fs.writeFile(fn , base64data,'base64',err=>{err && LOGGER('mvOtMdgjIr',err);    respok(res,'이미지'+MSG_DONE_REGISTER,null);    update('tokens',{name:name,nettype:nettype},{isimagelocalremote:1})
   })}
-  catch(err){    resperr(res,'INTERNAL-ERR',32049) }
+  catch(err){LOGGER('jlC6aoetlJ',err);    resperr(res,'INTERNAL-ERR',32049) }
   try{dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname    ,updatedAt:timenow  } , {upsert: true}, (err, doc)=> {    if(err){LOGGER('J8DK9ggoWb',err);return false}
   })}
   catch(err){LOGGER('Pxhcqdopek',err)}
