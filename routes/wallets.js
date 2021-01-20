@@ -3,7 +3,7 @@ var router = express.Router();const moment=require('moment-timezone')
 const {KEYNAME_MARKETPRICES,KEYNAME_UNITS, POINTSKINDS,A_POINTSKINDS, KEYNAME_KRWUSD,B_STAKES}=require('../configs/configs')
 const messages=require('../configs/messages')
 const {respreqinvalid,respwithdata, convethtowei, respok, doexchange, generateRandomStr,getip, delsession,getusernamefromsession, convweitoeth  ,callhook
-,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases , bigintdiv, isethbalanceenough4fee
+,validatekey,getuserorgoon, getuserorterminate,validateadminkey, isequalinlowercases , bigintdiv, isethbalanceenough4fee , conva2j
 }=require('../utils')
 const db=require('../models'); const dbmon=require('../modelsmon')
 const {sends:sendsbtc}=require('../periodic/BTC/sends')
@@ -11,7 +11,8 @@ const {sendseth}=require('../periodic/ETH/sendseth')
 const {sendstoken}=require('../periodic/ETH/sendstoken') // const {se nds eth,sendstoken}=require('../periodic/ETH/s ends')
 const utils = require('../utils') // ;const B_STAKES=1
 const { netkind,nettype } = require('../configs/ETH/configweb3');const {verifypw}=require('../sso/sso')
-const redis=require('redis');const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient();const LOGGER=console.log
+const redis=require('redis');const { findonej } = require('../utilsdb');
+const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient();const LOGGER=console.log
 const convstakeamount2wei=(str,denominatorexp)=>convethtowei(+str, denominatorexp) // convweitoeth
 /* GET users listing. */
 const MSGS={MSG_PW_INVALID:'출금암호가 맞지 않습니다'}
@@ -146,23 +147,26 @@ router.get('/balances', async (req,res,next)=> { // let username; try{username=a
 //    else if(await validateadminkey(req)){ username=req.query.username,  sitename=req.query.sitename}
     else {	respreqinvalid(res,null,15389);return false}
   } catch(err){return false} // if(username){} else {respreqinvalid(res,'필수정보를입력하세요',79258);return false}
-  db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
+  db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(async aresps=>{let a2send=[] ;console.log('balances',aresps.length)
     aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
+    let atokennames=aresps.map(elem=>{return elem['currency']}); let aproms=[]
+    atokennames.forEach(tokenname=>{      aproms[aproms.length]=findonej('tokens',{name:tokenname , nettype:nettype})    })
+    let atokens= await Promise.all(aproms);    let jtokenname_imagelr=conva2j(atokens , 'name')
     res.status(200).send({status:'OK',balances:aresps.map(e=>{
       let amteff=BigInt(e['amount']) - BigInt(e['amountlocked'])
       let amtfullstr ;try{ amtfullstr= (amteff ).toString()} catch(err){amtfullstr=null}  
       return [
-      e['currency']
-      ,bigintdiv(Number(amteff) , 10**e['denominatorexp'] , 4  ) //   convweitoeth(e['amount']-e['amountlocked'],)
-//      ,bigintdiv(amteff , BigInt(10**e['denominatorexp']) , 4  ) //   convweitoeth(e['amount']-e['amountlocked'],)
-      ,e['address']
-      ,e['canwithdraw']
-      ,e['stakesamount']
-      ,e['stakesstartdate']
-      ,e['stakesexpiry']
-      ,e['stakesduration']
-      ,e['stakesactive']
-      , amtfullstr
+      e['currency'] // 0
+      ,bigintdiv(Number(amteff) , 10**e['denominatorexp'] , 4  ) //   convweitoeth(e['amount']-e['amountlocked'],) //      ,bigintdiv(amteff , BigInt(10**e['denominatorexp']) , 4  ) //   convweitoeth(e['amount']-e['amountlocked'],)
+      ,e['address'] // 2
+      ,e['canwithdraw'] // 3
+      ,e['stakesamount'] // 4
+      ,e['stakesstartdate'] // 5
+      ,e['stakesexpiry'] // 6
+      ,e['stakesduration'] // 7
+      ,e['stakesactive'] // 8
+      , amtfullstr // 9
+      , jtokenname_imagelr[ e['currency'] ]? jtokenname_imagelr[ e['currency'] ]['isimagelocalremote']:0
     ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 });
