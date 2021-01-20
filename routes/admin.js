@@ -3,7 +3,7 @@ const express = require('express');
 var router = express.Router();
 const db=require('../models')
 const utils = require('../utils');const moment=require('moment-timezone');const {convweitoeth,conva2j}=utils ; const {update}=require('../utilsdb')
-const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice , bigintdiv, LOGGER, resperr} = require('../utils')
+const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,validateethaddress,callhook,validaterate, validateprice , bigintdiv, LOGGER, resperr , convamount2shortwei} = require('../utils')
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype,netkind}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc; const {createaccount}=require('../configs/utilscrypto')
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
@@ -37,7 +37,30 @@ router.get('/transactions',(req,res)=>{
   db.transactions.findAll({raw:true,}).then(aresps=>{    respok(res,null,null,{txs:aresps});return false  })
   .catch(err=>{    respreqinvalid(res,'INTERNAL-ERR',62002);return false  })
 })
+const SHORTWEIPLACES=8
 router.get('/balances/user', async (req,res,next)=> { // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
+  let jdata // ; let username,sitename
+  const {username,sitename}=req.query
+  db.balance.findAll({raw:true,where:{username:username,nettype:nettype,sitename:sitename,active:1}}).then(aresps=>{let a2send=[] ;console.log('balances',aresps.length)
+    aresps=aresps.filter(e=>{return ! A_POINTSKINDS.includes(e['currency'])})
+    res.status(200).send({status:'OK',balances:aresps.map(e=>{
+      let amteff=convamount2shortwei(e['amount'],e['denominatorexp']) - convamount2shortwei(e['amountlocked'],e['denominatorexp'])
+      let amtfullstr ;try{ amtfullstr= (amteff ).toString()} catch(err){amtfullstr=null}  
+      return [
+      e['currency']
+      , ''+(amteff/10**SHORTWEIPLACES) // bigintdiv(amteff ,Number(BigInt(10**e['denominatorexp']) ) , 4  ) // convweitoeth(e['amount']-e['amountlocked'],e['denominatorexp'])
+      ,e['address']
+      ,e['canwithdraw']
+      ,e['stakesamount']
+      ,e['stakesstartdate']
+      ,e['stakesexpiry']
+      ,e['stakesduration']
+      ,e['stakesactive']
+      , amtfullstr
+    ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
+	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
+})
+router.get('/balances/userXXX', async (req,res,next)=> { // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
   let jdata // ; let username,sitename
 //  try{jdata=await getuserorterminate(req,res) ; console.log(jdata) // getuserorgoon(req)// getuserorterminate(req,res)
   //  if(jdata){                            username=jdata['username'],   sitename=jdata['sitename']}
@@ -378,8 +401,8 @@ const PATHIMAGESTORE='/var/www/html/static/images'
 router.post('/image',(req,res)=>{ let {name,imagebase64,subname}=req.body;LOGGER('NkPx73DzKx',req.body)
   if(name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+':image',73068);return false}
   let base64data=imagebase64.replace(/^data:image\/png;base64,/,'')
-  const fn=`${PATHIMAGESTORE}/${name}.png`
-  const timenow=moment().format(TIMESTRFORMATMILI); LOGGER('JU2U5o2Nad')
+  const fn=`${PATHIMAGESTORE}/${name.toLowerCase()}.png`
+  const timenow=moment().format('YYYY-MM-DDTHH:mm:ss.SSS'); LOGGER('JU2U5o2Nad')
   try{ fs.writeFile(fn , base64data,'base64',err=>{err && LOGGER('mvOtMdgjIr',err);    respok(res,'이미지'+MSG_DONE_REGISTER,null);    update('tokens',{name:name,nettype:nettype},{isimagelocalremote:1})
   })}
   catch(err){LOGGER('jlC6aoetlJ',err);    resperr(res,'INTERNAL-ERR',32049) }

@@ -23,6 +23,14 @@ const MIN_PRICE=0,MAX_PRICE=10**8
 const validateprice=val=>{val=parseInt(val);if(Number.isInteger(val) && val>MIN_PRICE && val<=MAX_PRICE){return true} else {return false} }
 const validateethaddress=str=>{return str && parseInt(str,16) && str.length>=MIN_ETH_ADDRESS_LEN}
 const LOGGER=console.log
+/******** */
+const SHORTWEIPLACES=8 
+const convamount2shortwei=(amount,denomexp)=>{ amount=+amount // ; let datatype=typeof amount if(datatype=='string'){ }//  else if (datatype=='number'){}  
+  let deltaplaces=denomexp-SHORTWEIPLACES
+  if(deltaplaces>0){amount /= 10**deltaplaces; amount=Math.floor(amount)}
+  else if (deltaplaces<0){amount *= 10**Math.abs(deltaplaces); amount=Math.floor(amount) }
+  return amount
+}
 const validateadminkey=async req=>{const {adminkey}=req.headers; if(adminkey){} else {return null}
   const resp=await db.operations.findOne({raw:true,where:{key_:'ADMINKEY',value_:adminkey}})
   return resp
@@ -303,5 +311,5 @@ module.exports={respok, respreqinvalid,getpricesstr,getethfloatfromweistr,convet
   ,respwithdata,resperr,getbalance,getbalanceandstakes,gettimestr,convtohex
   ,incdecbalance,incdecbalance_reflfee,getRandomInt,getip,generateRandomStr, isequalinlowercases,getfixedtokenprices,delsession,getusernamefromsession,getuserorgoon, getuserorterminate
   , hasher,callhook,validatekey,validatekeyorterminate,validateethaddress,validaterate,validateprice,conva2j,validateadminkey , bigintdiv
-  , isethbalanceenough4fee,LOGGER , STRINGER:JSON.stringify , PARSER:JSON.parse
+  , isethbalanceenough4fee,LOGGER , STRINGER:JSON.stringify , PARSER:JSON.parse , convamount2shortwei
 }
