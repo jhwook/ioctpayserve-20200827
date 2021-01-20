@@ -141,7 +141,7 @@ router.get('/balance',async (req,res)=>{  // let username; try{username=await ge
   }) //  })
 })
 router.get('/balances', async (req,res,next)=> { // let username; try{username=await getuser orterminate(req,res);if(username){} else {return false}} catch(err){return false}
-  let jdata; let username,sitename  
+  let jdata; let username,sitename
   try{jdata=await getuserorterminate(req,res) ; console.log(jdata) // getuserorgoon(req)// getuserorterminate(req,res)
     if(jdata){                            username=jdata['username'],   sitename=jdata['sitename']}
 //    else if(await validateadminkey(req)){ username=req.query.username,  sitename=req.query.sitename}

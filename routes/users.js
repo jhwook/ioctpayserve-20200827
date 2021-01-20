@@ -2,13 +2,23 @@ var express = require('express');
 var router = express.Router();
 const db=require('../models')
 const utils = require('../utils');
-const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,callhook,conva2j} =utils
+const redis=require('redis');const { respreqinvalid, respok,generateRandomStr,getip,delsession,hasher,callhook,conva2j,LOGGER , getuserorterminate } =utils
 const configweb3= require('../configs/ETH/configweb3'); const {web3,nettype}=configweb3
 const configbtc =require('../configs/BTC/configbtc'); const {bitcore:btc}=configbtc
 const clientredis=redis.createClient();const cliredisa=require('async-redis').createClient(); const _=require('lodash')
 const messages=require('../configs/messages'); const SITENAME_DEF='IOTC',RANDOM_PW_LEN=10;const MSG_ID_DUP_LOCAL='ID in use'
 const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF}=configs
 const {enqueuedataj}=require('../reqqueue/enqueuer')
+
+router.get('/user',(req,res)=>{   let jdata; let username,sitename  
+  try{jdata=await getuserorterminate(req,res) ; LOGGER(jdata) // getuserorgoon(req)// getuserorterminate(req,res)
+    if(jdata){                            username=jdata['username'],   sitename=jdata['sitename']
+      respok(res,null,null,jdata);return false
+    } 
+    else {return false}
+  }
+  catch(err){}
+})
 router.post('/create',async(req,res)=>{let {username,sitename}=req.body;console.log(req.body)
   if(username && sitename){} else {respreqinvalid(res,'ARG-MISSING',40761);return false} //  if(MA P_SITENAME[sitename]){} else {respreqinvalid(res,'ARG-MISSING',40762); ifsitename=SITENAME_DEF}
   sitename=sitename.toUpperCase()
