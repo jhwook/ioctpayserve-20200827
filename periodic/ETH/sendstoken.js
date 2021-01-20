@@ -12,14 +12,14 @@ let jcontracts={},jtokens={}
 const MIN_TOKEN_AMOUNT_TO_WITHDRAW=1 ,ETHDECIMALS=18
 const getgasfee=(limit,price,floatwei)=>{ return floatwei && floatwei=='wei'? limit*price: limit*price/10**ETHDECIMALS }
 const SHORTWEIPLACES=8 ; const ETHPLACES=18
+const convamountshortwei2weistr=amountshortwei=>{return ''+amountshortwei+ '0'.repeat(ETHPLACES-SHORTWEIPLACES) }
 const sendstoken_track=async(jdata,tabletouse , socket)=>{return new Promise(async(resolve,reject)=>{if(MAP_TABLESTOUSE_DEFINED[tabletouse]){} else {tabletouse='transactions'}
   socket.emit('procstatus','MSG_SENDING_REQ')
   let {username,rxaddress,currency,amountshortwei,sitename}=jdata; let amountweistr=convamountshortwei2weistr(amountshortwei)
   let addressfrom=await getuseraddress(username,sitename,currency)
   let {GAS_PRICE , GAS_LIMIT}=await queryethfeetosendeth_arr( 0 ) ; GAS_PRICE_TOKEN=GAS_PRICE , GAS_LIMIT_TOKEN=GAS_LIMIT
-  let m0=moment()
-
-  if(1 ){LOGGER('RwTVsH39Sf'); socket.emit('procdone',STRINGER({status:'OK',message:'MSG_DONE'}) );resolve(1);return false} // STRINGER({status:'OK',message:'OK'})
+  let m0=moment();  LOGGER('RwTVsH39Sf');
+  if(0){ socket.emit('procdone',STRINGER({status:'OK',message:'MSG_DONE'}) );resolve(1);return false} // STRINGER({status:'OK',message:'OK'})
 
   web3.eth.getTransactionCount(addressfrom).then(nonce=>{
     contract.methods.transfer(rxaddress , amountweistr).send({from:addressfrom, gas:GAS_LIMIT_TOKEN,gasPrice:GAS_PRICE_TOKEN,nonce:nonce}).then(async resptx=>{LOGGER('Yj2G6W',resptx);let deltat=moment()-m0; LOGGER('deltat',deltat)
