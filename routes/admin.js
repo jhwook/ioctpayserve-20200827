@@ -262,7 +262,7 @@ router.put('/sitetoken',(req,res)=>{console.log(req.body)
   if(Number.isInteger(parseInt(canwithdraw))){canwithdrawp=parseInt(canwithdraw);jdata['canwithdraw']=canwithdrawp
     db.balance.update({canwithdraw:canwithdrawp},{where:{sitename:sitename,currency:tokenname,nettype:nettype}}) // tokenname
   }
-  db.exchangerates.update({... jdata},{where:{sitename:sitename,currency0:tokenname}}) // db.balance.findAll({where:{sitename:sitename,tokenname:tokenname,nettype:nettype}}).then(resp=>{     })
+  db.exchangerates.update({... jdata},{where:{sitename:sitename,currency0:tokenname}}) // db.balance.fin dAll({where:{sitename:sitename,tokenname:tokenname,nettype:nettype}}).then(resp=>{     })
 	respok(res);return false
 })
 router.post('/sitetoken',async(req,res)=>{  let {sitename,tokenname,contractaddress,Crate,Srate,Krate,collectoraddress,fixedprice,isvariableprice,canwithdraw}=req.body; let jdata={}; console.log(req.body)

@@ -16,7 +16,7 @@ const gettokenbalance=async(username,currency)=>{return new Promise(async(resolv
 }
 )}
 const init=_=>{
-  db.tokens.findAll({raw:true,netkind:netkind}).then(aresps=>{
+  db.tokens.findAll({raw:true,where:{nettype:nettype}}).then(aresps=>{
     aresps.forEach(tokendata=>{const tokenname=tokendata['name']
       let contract=new web3.eth.Contract(minAbi4tx,tokendata['address'])
       jcontracts[tokenname]=contract; jtokens[tokenname]=tokendata

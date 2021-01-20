@@ -141,7 +141,7 @@ const init=()=>{
   db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_ETH',subkey_:netkind}}).then(resp=>{   if(resp && resp['value_']){GAS_LIMIT_ETH=parseInt(resp['value_'])}  })
   db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_TOKEN',subkey_:netkind}}).then(resp=>{ if(resp && resp['value_']){GAS_PRICE_TOKEN=parseInt(resp['value_'])}  })
   db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_TOKEN',subkey_:netkind}}).then(resp=>{ if(resp && resp['value_']){GAS_LIMIT_TOKEN=parseInt(resp['value_'])}  })
-/*  db.tokens.findAll({raw:true,netk ind:netkind}).then(aresps=>{
+/*  db.tokens.fin dAll({raw:true,netk ind:netkind}).then(aresps=>{
     aresps.forEach(e=>{
       contract=new web3.eth.Contract(minAbi4tx,e['address'])
       jcontracts[e['name']]=contract
