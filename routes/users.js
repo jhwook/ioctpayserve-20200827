@@ -10,7 +10,7 @@ const messages=require('../configs/messages'); const SITENAME_DEF='IOTC',RANDOM_
 const configs=require('../configs/configs'); const {queuenamesj,JTOKENSTODO_DEF}=configs
 const {enqueuedataj}=require('../reqqueue/enqueuer')
 
-router.get('/user',(req,res)=>{   let jdata; let username,sitename  
+router.get('/user',async(req,res)=>{   let jdata; let username,sitename  
   try{jdata=await getuserorterminate(req,res) ; LOGGER(jdata) // getuserorgoon(req)// getuserorterminate(req,res)
     if(jdata){                            username=jdata['username'],   sitename=jdata['sitename']
       respok(res,null,null,jdata);return false
