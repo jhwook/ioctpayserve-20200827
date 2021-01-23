@@ -52,7 +52,9 @@ const sendseth_track=async(jdata , tabletouse , socket)=>{return new Promise(asy
       , sitename:jdata['sitename']
       , proctime:deltat
     })
-    incdecbalance_reflfee({... jdata,currency:CURRENCYLOCAL, amountdelta:amountweistr},resptx,{GAS_PRICE:gasprice ,GAS_LIMIT:gaslimitoffer}) // resptx['value'] GAS_PRICE_ETH GAS_LIMIT_ETH
+    incdecbalance_reflfee({... jdata , currency:CURRENCYLOCAL , amountdelta:amountweistr}
+      , resptx
+      ,{GAS_PRICE:gasprice ,GAS_LIMIT:gaslimitoffer}) // resptx['value'] GAS_PRICE_ETH GAS_LIMIT_ETH
     0 && socket.emit('procdone' ,STRINGER({status:'OK',message:'MSG_DONE'}))
     resolve(1);return false
 	}).catch(err=>{LOGGER('P00UGlUMyv',err);return false})
@@ -136,7 +138,7 @@ const sendseth=(jdata,tabletouse , modecollectorgeneral)=>{return new Promise((r
   })
 })
 }
-const init=()=>{
+const init=_=>{
   db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_ETH',subkey_:netkind}}).then(resp=>{   if(resp && resp['value_']){GAS_PRICE_ETH=parseInt(resp['value_'])}  })
   db.operations.findOne({raw:true,where:{key_:'GAS_LIMIT_ETH',subkey_:netkind}}).then(resp=>{   if(resp && resp['value_']){GAS_LIMIT_ETH=parseInt(resp['value_'])}  })
   db.operations.findOne({raw:true,where:{key_:'GAS_PRICE_TOKEN',subkey_:netkind}}).then(resp=>{ if(resp && resp['value_']){GAS_PRICE_TOKEN=parseInt(resp['value_'])}  })

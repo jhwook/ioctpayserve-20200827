@@ -74,8 +74,10 @@ const getusernameonlyfromsession=async req=>{  // console.log('headers',req.head
   const session=await db.sessionkeys.findOne({raw:true,where:{token:req.headers.token,active:1}}) //;console.log('session',session)
   if(session){ return session['username']} else {return null}
 }
-const incdecbalance_reflfee=(jdata,txdata,calldata)=>{let {username,currency,amountdelta}=jdata;console.log(jdata);let  blocknumber
-  if(txdata){amountdelta+=txdata['gasUsed']*calldata['GAS_PRICE']
+const incdecbalance_reflfee=(jdata,txdata,calldata)=>{
+  let {username,currency,amountdelta}=jdata;console.log(jdata);let  blocknumber
+  amountdelta=+amountdelta
+  if(txdata){amountdelta+= +txdata['gasUsed']* (+calldata['GAS_PRICE'])
     blocknumber=txdata['blockNumber']
   } // txdata['gas']*txdata['gasPrice']}  
   db.balance.findOne({where:{username:username,currency:currency,nettype:nettype}}).then(resp=>{    const amt01=resp.dataValues.amount-amountdelta // parseInt(amountdelta)
