@@ -29,6 +29,7 @@ const convamount2shortwei=(amount,denomexp)=>{ amount=+amount // ; let datatype=
 const validatesend_eth=async (jdata,socket)=>{let {username,sitename,currency,amount,rxaddress}=jdata
   return new Promise(async(resolve,reject)=>{
     if(validateethaddress(rxaddress) ){} else {resolve({status:0 , message:'MSG_RXADDRESS_INVALID'}); return false}
+    if(username && sitename && currency && amount && rxaddress){} else {resolve({status:0,message:'MSG_ARGMISSING'});return false}
     findonej('balance',{username:username , sitename:sitename,currency:currency,nettype:nettype}).then(async respbaleth=>{let address=respbaleth['address']; socket.emit('procstatus','MSG_CHECK_ACCOUNT')
       if(address){} else {resolve({status:0,message:'MSG_ACCOUNT_INVALID'});return false}; socket.emit('procstatus','MSG_CHECK_RIGHTS')
       if(respbaleth['canwithdraw']){} else {resolve({status:0,message:'MSG_WITHDRAW_BANNED'}); return false}; socket.emit('procstatus','MSG_CHECK_BALANCE')

@@ -1,6 +1,6 @@
 
 const {web3,netkind,nettype}=require('../../configs/ETH/configweb3')
-const db=require('../../models')
+const db=require('../../models'); const {findonej}=require('../../utilsdb')
 const utils=require('../../utils'); const {gettimestr,convtohex,incdecbalance,incdecbalance_reflfee, getbalance,convweitoeth,LOGGER}=utils
 const {TIMESTRFORMAT,MAP_TABLESTOUSE_DEFINED}=require('../../configs/configs')
 const log4js = require('log4js'); log4js.configure({  appenders: { everything: { type: 'file', filename: 'log-eth.log' }  },	categories: { default: { appenders: [ 'everything' ], level: 'debug' }  }} )
