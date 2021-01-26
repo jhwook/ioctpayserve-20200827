@@ -398,7 +398,7 @@ router.delete('/sitenameholder',async(req,res)=>{const {sitename}=req.body;conso
 }) //
 const fs=require('fs')
 const PATHIMAGESTORE='/var/www/html/static/images'
-router.post('/image',(req,res)=>{ let {name,imagebase64,subname}=req.body;LOGGER('NkPx73DzKx',req.body)
+router.post('/image',(req,res)=>{ let {name,imagebase64,subname}=req.body;LOGGER('NkPx73DzKx',req.body.name , req.body.imagebase64.substr(0,50))
   if(name && imagebase64){} else {respreqinvalid(res,MSG_ARGMISSING+':image',73068);return false}
   let base64data=imagebase64.replace(/^data:image\/png;base64,/,'')
   const fn=`${PATHIMAGESTORE}/${name.toLowerCase()}.png`
