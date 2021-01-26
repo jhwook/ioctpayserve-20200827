@@ -403,7 +403,11 @@ router.post('/image',(req,res)=>{ let {name,imagebase64,subname}=req.body;LOGGER
   let base64data=imagebase64.replace(/^data:image\/png;base64,/,'')
   const fn=`${PATHIMAGESTORE}/${name.toLowerCase()}.png`
   const timenow=moment().format('YYYY-MM-DDTHH:mm:ss.SSS'); LOGGER('JU2U5o2Nad')
-  try{ fs.writeFile(fn , base64data,'base64',err=>{err && LOGGER('mvOtMdgjIr',err);    respok(res,'이미지'+MSG_DONE_REGISTER,null);    update('tokens',{name:name,nettype:nettype},{isimagelocalremote:1})
+  try{ fs.writeFile(fn , base64data,'base64',err=>{err && LOGGER('mvOtMdgjIr',err);    0 && respok(res,'이미지'+MSG_DONE_REGISTER,null)
+    update('tokens',{name:name,nettype:nettype},{isimagelocalremote:1})
+    res.set('Access-Control-Allow-Origin' , '*')
+    res.set('Access-Control-Allow-Headers', 'Content-Type')
+    res.status(200).send ({status:'OK' , message:'이미지'+MSG_DONE_REGISTER})
   })}
   catch(err){LOGGER('jlC6aoetlJ',err);    resperr(res,'INTERNAL-ERR',32049) }
   try{dbmon.images.findOneAndUpdate({name:name}, {imagebase64:imagebase64,subname:subname    ,updatedAt:timenow  } , {upsert: true}, (err, doc)=> {    if(err){LOGGER('J8DK9ggoWb',err);return false}
