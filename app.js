@@ -17,11 +17,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 logger.token('IP',req=>requestIp.getClientIp(req))
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json(  {limit: '50mb'} ))
+app.use(express.urlencoded({ extended:true , limit: '50mb' })) //  false
 app.use(cookieParser())
 let bodyParser = require('body-parser')
-app.use(bodyParser.json({limit: '6mb'}))
+app.use(bodyParser.json({limit: '50mb'}))
 1 && app.use(cors())
 0 && app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.iotcpay.com') // 'http://localhost:8888';
