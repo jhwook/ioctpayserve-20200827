@@ -10,7 +10,7 @@ const adminrouter=require('./routes/admin')
 const walletsrouter=require('./routes/wallets')
 const apirouter=require('./routes/api')
 var app = express()
-app.io=require('socket.io')() // SOCKET
+// app.io=require('socket.io')() // SOCKET
 const {requestIp}=require('request-ip')
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,12 +20,12 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(cors())
-app.use(function (req, res, next) {
+1 && app.use(cors())
+0 && app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.iotcpay.com') // 'http://localhost:8888';
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
+//  res.setHeader('Access-Control-Allow-Credentials', true);
   next()
 })
 // app.use(cors({credentials: true, origin: 'http://localhost:3000' }))
@@ -57,7 +57,7 @@ const cron=require('node-cron'),moment=require('moment')
 LOGGER(`Launching ${moment().format('HH:mm:ss, YYYY-MM-DD')}`)
 cron.schedule('*/1 * * * *',()=>{  LOGGER(moment().format('HH:mm:ss.SSS, YYYY-MM-DD')) 
 })
-app.io.on('connection',socket=>{
+/* app.io.on('connection',socket=>{
   const address=utils.getipsocket(socket) // socket.request.connection.remoteAddress // socket.handshake.address
 	const port=socket.request.connection.remotePort //	console.log(socket.request.connection)
   const uidfromsocket=socket.request._query.userid // socket.request._query.userid
@@ -69,3 +69,4 @@ app.io.on('connection',socket=>{
     deletesocketid(socket.id)
 	})
 })
+*/
