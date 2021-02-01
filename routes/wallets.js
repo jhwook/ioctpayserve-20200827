@@ -166,7 +166,8 @@ router.get('/balances', async (req,res,next)=> { // let username; try{username=a
       ,e['stakesduration'] // 7
       ,e['stakesactive'] // 8
       , amtfullstr // 9
-      , jtokenname_imagelr[ e['currency'] ]? jtokenname_imagelr[ e['currency'] ]['isimagelocalremote']:0
+      , jtokenname_imagelr[ e['currency'] ]? jtokenname_imagelr[ e['currency'] ]['isimagelocalremote']:0 // 10
+      , e['canexchange']
     ]})}) //		res.status(200).send({status:'OK',balances:aresps.map(e=>{return [e['currency'],e['amountfloat'],e['address'] ]})})
 	}) //  res.status(200).send({status:'OK'    , balances:[      ['BTC',100000000,'1FfmbHfnpaZjKFvyi1okTjJJusN455paPH']    , ['ETH',100000,'0x42A82b18758F3637B1e0037f0E524E61F7DD1b79']  ]  })
 });

@@ -113,6 +113,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(4),
       allowNull: true
     }
+    , canexchange:{
+      type: DataTypes.INTEGER(4),
+      allowNull: true
+    }
   }, {
     tableName: 'balance'
   });
